@@ -1,0 +1,67 @@
+[tool.poetry]
+name = "{{cookiecutter.project_name}}"
+description = "{{cookiecutter.project_description}}"
+version = "0.1.0"
+license = "MIT"
+authors = {{cookiecutter.project_authors}}
+
+[tool.poetry.dependencies]
+alembic = "^1.8.0"
+asyncpg = "^0.26.0"
+fastapi = "^0.79.0"
+fastapi-utils = "^0.2.1"
+greenlet = "^1.1.2"
+gunicorn = "^20.1.0"
+prometheus-fastapi-instrumentator = "5.8.1"
+psycopg2-binary = "^2.9.3"
+pydantic = "^1.9.1"
+python = "^3.10"
+python-dotenv = "^0.20.0"
+python-jose = "^3.3.0"
+python-multipart = "^0.0.5"
+requests = "^2.28.0"
+SQLAlchemy = "^1.4.39"
+tenacity = "^8.0.1"
+uvicorn = "^0.18.2"
+
+[tool.poetry.dev-dependencies]
+locust = "^2.9.0"
+pre-commit = "^2.19.0"
+pytest = "^7.1.2"
+pytest-asyncio = "^0.19.0"
+pytest-config-pro = { path = "{{cookiecutter.package_name}}/utils/packages/pytest_config_pro-0.1.0-py3-none-any.whl" }
+pytest-cov = "^3.0.0"
+pytest-mock = "^3.8.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 100
+target-version = ["py310"]
+include = "\\.pyi?$"
+exclude = """
+/(
+     \\.eggs
+   | \\.git
+   | \\.hg
+   | \\.mypy_cache
+   | \\.tox
+   | \\.venv
+   | _build
+   | buck-out
+   | build
+   | dist
+ )/
+"""
+
+[tool.isort]
+known_first_party = ["{{cookiecutter.package_name}}", "migrations", "scripts", "tests"]
+sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+force_grid_wrap = 0
+line_length = 100
+multi_line_output = 3
+ensure_newline_before_comments = "True"
+include_trailing_comma = "True"
+use_parentheses = "True"

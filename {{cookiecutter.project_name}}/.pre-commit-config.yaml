@@ -1,0 +1,23 @@
+repos:
+
+  # Black pre-commit
+  - repo: https://github.com/psf/black
+    rev: 22.3.0
+    hooks:
+      - id: black
+        language_version: python3.10
+        args: [--config, pyproject.toml]
+
+  # Flake8 pre-commit
+  - repo: https://github.com/PyCQA/flake8
+    rev: 4.0.1
+    hooks:
+      - id: flake8
+        args: [--config, .flake8.cfg]
+
+  # ISort pre-commit
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.10.1
+    hooks:
+      - id: isort
+        args: [--settings-path, pyproject.toml]

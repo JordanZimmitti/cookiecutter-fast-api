@@ -1,0 +1,14 @@
+{
+  "friendly_name": "Example API",
+  "project_name": "example-api",
+  "package_name": "example_api",
+  "class_name": "ExampleApi",
+
+  "project_description": "FastAPI server that handles...",
+  "project_authors": "[\"John Doe <johndoe@gmail.com>\"]",
+
+  "namespace": "https://example-api-server.mydomain.app",
+
+  "api_database_display_name": "Example Database",
+  "api_database_description": "Database that stores..."
+}

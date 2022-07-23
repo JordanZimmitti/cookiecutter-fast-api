@@ -1,0 +1,27 @@
+# IDEs
+.idea
+.vscode
+
+# Environments
+*.env
+*.pyc
+.venv
+venv
+
+# Test Output
+__pycache__/
+*.db
+*junit.xml
+.coverage
+.pytest_cache
+application.log
+coverage.xml
+
+# Logging
+logs/
+
+# Local notes, data, etc
+local/
+
+# MacOS
+.DS_Store

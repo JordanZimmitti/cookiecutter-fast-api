@@ -1,0 +1,46 @@
+version: "3.9"
+
+# Docker compose for running a local {{cookiecutter.package_name}} instance
+services:
+
+  {{cookiecutter.package_name}}:
+    image: "{{cookiecutter.package_name}}:0.1.0"
+    build: "."
+    container_name: "{{cookiecutter.package_name}}"
+    env_file:
+      - "local/override-dev.env"
+    ports:
+      - "2000:2000"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: "300M"
+        reservations:
+          cpus: "0.5"
+          memory: "300M"
+    links:
+      - "postgresql:postgresql"
+    depends_on:
+      - "postgresql"
+
+  postgresql:
+    image: "docker.io/bitnami/postgresql:latest"
+    container_name: "api_db"
+    environment:
+      - "POSTGRESQL_USERNAME=local_user"
+      - "POSTGRESQL_PASSWORD=very-secure-password"
+      - "POSTGRESQL_DATABASE=api_db"
+      - "ALLOW_EMPTY_PASSWORD=yes"
+    ports:
+      - "5432:5432"
+    volumes:
+      - "./local/db_data:/bitnami/postgresql/data/"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.500"
+          memory: "512M"
+        reservations:
+          cpus: "0.250"
+          memory: "256M"

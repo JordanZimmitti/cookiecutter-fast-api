@@ -1,0 +1,44 @@
+FROM python:3.10.5-slim
+
+# Installs/Updates linux packages
+RUN apt-get update
+RUN apt-get upgrade -y
+RUN apt-get install curl gcc -y
+
+# Creates the group and user the project should run in
+RUN groupadd --gid 1000 appuser
+RUN useradd  --uid 1000 --gid appuser --create-home appuser
+
+# Sets the project working directory
+WORKDIR /home/appuser
+
+# Installs poetry
+RUN curl -ssl https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
+ENV PATH="${PATH}:/root/.poetry/bin"
+
+# Copies over files necessary for using poetry
+COPY poetry.lock .
+COPY pyproject.toml .
+
+# Copies over any locally installed packages
+RUN mkdir {{cookiecutter.package_name}}
+COPY {{cookiecutter.package_name}}/utils/packages {{cookiecutter.package_name}}/utils/packages
+
+# Installs production dependencies
+RUN pip3 install --upgrade pip setuptools wheel
+RUN poetry config virtualenvs.create false
+RUN poetry install --no-root --no-dev
+
+# Copies the project into the docker container
+COPY {{cookiecutter.package_name}} {{cookiecutter.package_name}}
+COPY scripts/entrypoint.sh entrypoint.sh
+
+# Exposes the port that the API server runs on
+EXPOSE 2000
+
+# Sets the user to the appuser
+RUN chown -R appuser:appuser .
+USER appuser
+
+# Starts the API server
+CMD ["sh", "entrypoint.sh"]
