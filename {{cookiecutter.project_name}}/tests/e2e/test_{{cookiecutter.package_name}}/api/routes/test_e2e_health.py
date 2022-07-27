@@ -13,7 +13,7 @@ def test_get_health_check_endpoint(client: TestClient):
     """
 
     # Hits the endpoint and gets the response
-    endpoint = f"{settings.API_PREFIX}/health/check"
+    endpoint = f"{settings.API_PREFIX}/v1/health/check"
     response = client.get(endpoint)
 
     # Checks whether the response was retrieved correctly
@@ -38,7 +38,7 @@ def test_get_health_settings_endpoint(client: TestClient):
     """
 
     # Hits the endpoint and gets the response
-    endpoint = f"{settings.API_PREFIX}/health/settings"
+    endpoint = f"{settings.API_PREFIX}/v1/health/settings"
     response = client.get(endpoint)
 
     # Checks whether the response was retrieved correctly

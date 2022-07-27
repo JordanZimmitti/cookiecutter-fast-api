@@ -239,9 +239,13 @@ async def test_get_rows_one_no_row():
     # Mocks the model class
     model_mock = MagicMock(spec_set=Model)
 
+    # Mocks the one function
+    def one_mock():
+        raise InternalServerError()
+
     # Mocks the scalars function
     scalars_mock = MagicMock()
-    scalars_mock.one = error_mock
+    scalars_mock.one = one_mock
 
     # Mocks the chunked-iterator-result class
     result_mock = MagicMock(spec_set=ChunkedIteratorResult)

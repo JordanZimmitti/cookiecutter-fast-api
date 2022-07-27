@@ -12,5 +12,5 @@ def test_settings_dict_safe():
     protected_settings = settings.dict_safe()
 
     # Checks whether the secret key was hidden
-    secret_key = protected_settings.get("SECRET_KEY")
+    secret_key = protected_settings.get("API_DB_PASSWORD")
     assert str(secret_key) == "**********"
