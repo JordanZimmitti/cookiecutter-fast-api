@@ -27,10 +27,10 @@ def test_main_{{cookiecutter.package_name}}_load():
     should return the {{cookiecutter.friendly_name}} app instance without any errors
     """
 
-    # Gets the {{cookiecutter.friendly_name}} FastAPI app instance
+    # Gets the {{cookiecutter.friendly_name}} fast-api app instance
     app = {{cookiecutter.class_name}}(options).load()
 
-    # Checks whether the FastAPI app instance was returned
+    # Checks whether the fast-api app instance was returned
     assert isinstance(app, FastAPI)
 
 

@@ -9,7 +9,7 @@ def get_open_api_instance(app: FastAPI):
     Function that gets the open api instance
     for the swagger documentation
 
-    :param app: The FastAPI app instance
+    :param app: The fast-api app instance
 
     :return: The open api schema
     """

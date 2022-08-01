@@ -14,7 +14,7 @@
 ## __Testing__
 
 ### __Running unit and e2e tests__
-* Unit and e2e tests: `sh scripts/run_tests_local.sh`
+* API and Unit tests: `sh scripts/run_tests_local.sh`
 
 ### __Running integration tests__
 * Integration tests: `sh scripts/run_integration_tests.sh`

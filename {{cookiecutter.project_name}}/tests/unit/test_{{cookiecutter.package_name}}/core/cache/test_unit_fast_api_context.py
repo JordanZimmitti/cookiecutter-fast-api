@@ -4,10 +4,10 @@ from {{cookiecutter.package_name}}.core.cache import FastApiContext, get_fast_ap
 def test_get_fast_api_context():
     """
     Tests the get_fast_api_context function for completion. The get_fast_api_context
-    function should return the FastApiContext instance without any errors
+    function should return the fast-api-context instance without any errors
     """
 
-    # Checks whether a FastApiContext instance is returned
+    # Checks whether a fast-api-context instance is returned
     fast_api_context = get_fast_api_context()
     assert isinstance(fast_api_context, FastApiContext)
 

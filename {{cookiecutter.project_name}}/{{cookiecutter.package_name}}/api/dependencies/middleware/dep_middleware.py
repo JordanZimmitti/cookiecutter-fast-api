@@ -11,7 +11,7 @@ def get_response_size(response: Response) -> int:
     Dependency function that gets the
     size of the response in bytes
 
-    :param response: The response to the client
+    :param response: The response to send back to the client
 
     :return: The response size
     """
@@ -40,7 +40,7 @@ def get_request_metadata(request: Request) -> Tuple[str, str, str]:
     Dependency function that gets the request
     metadata that is used for logging
 
-    :param request: The request sent by the client
+    :param request: The incoming http request sent from a client
 
     :return: The request metadata (method, url, user_agent)
     """
@@ -60,7 +60,7 @@ def set_correlation_id(request: Request, fast_api_context: FastApiContext):
     is set it can now be written to all logs from the start of the request to
     when the response is sent back to the client
 
-    :param request: The request sent by the client
+    :param request: The incoming http request sent from a client
     :param fast_api_context: The FastAPI thread-safe context-manager
     """
 

@@ -1,5 +1,5 @@
-from {{cookiecutter.package_name}}.api.resources.rsrc_health import Health, Settings
 from tests.integration.client import ApiClient
+from tests.integration.test_{{cookiecutter.package_name}}.api.resources.rsrc_health import Health, Settings
 
 
 def test_get_health_check_endpoint(client: ApiClient):
@@ -11,7 +11,7 @@ def test_get_health_check_endpoint(client: ApiClient):
     """
 
     # Hits the endpoint and gets the response
-    endpoint = "/health/check"
+    endpoint = "/v1/health/check"
     response = client.get(endpoint)
 
     # Checks whether the response was retrieved correctly
@@ -35,7 +35,7 @@ def test_get_health_settings_endpoint(client: ApiClient):
     """
 
     # Hits the endpoint and gets the response
-    endpoint = "/health/settings"
+    endpoint = "/v1/health/settings"
     response = client.get(endpoint)
 
     # Checks whether the response was retrieved correctly

@@ -15,7 +15,7 @@ fi
 # Runs the e2e and unit tests
 export ENV_FILE=tests/pytest.env
 pre-commit run --all-files
-python -m pytest tests/unit tests/e2e \
+python -m pytest tests/api tests/unit \
   --cov "$COVERAGE" \
   --cov-report "term-missing:skip-covered"
 

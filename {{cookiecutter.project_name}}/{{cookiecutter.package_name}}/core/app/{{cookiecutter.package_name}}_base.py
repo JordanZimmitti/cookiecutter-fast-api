@@ -35,7 +35,7 @@ class {{cookiecutter.class_name}}Base(BaseApplication, ABC):
         :param options: The gunicorn/uvicorn server configuration options
         """
 
-        # Setup FastAPI app instance
+        # Setup fast-api app instance
         setup_app(self._app)
 
         # Sets the class variables and instantiates the BaseApplication

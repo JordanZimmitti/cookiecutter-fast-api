@@ -31,7 +31,7 @@ class {{cookiecutter.class_name}}({{cookiecutter.class_name}}Base, ABC):
     @app.on_event("startup")
     async def startup():
         """
-        Function that runs when the Fast API
+        Function that runs when the fast-api
         app is starting up
         """
 
@@ -41,18 +41,18 @@ class {{cookiecutter.class_name}}({{cookiecutter.class_name}}Base, ABC):
         # Exposes the metrics endpoint
         expose_metrics_endpoint({{cookiecutter.class_name}}.app)
 
-        # Configures the FastAPI state instances
+        # Configures the fast-api state instances
         setup_app_state({{cookiecutter.class_name}}.app)
 
     @staticmethod
     @app.on_event("shutdown")
     async def shutdown():
         """
-        Function that runs when the Fast API
+        Function that runs when the fast-api
         app is shutting down
         """
 
-        # Deconstructs the FastAPI state instances
+        # Deconstructs the fast-api state instances
         await deconstruct_app_state({{cookiecutter.class_name}}.app)
 
         # Gets the process id
@@ -73,7 +73,7 @@ class {{cookiecutter.class_name}}({{cookiecutter.class_name}}Base, ABC):
         Function that handles the incoming request
         and send the response back to the client
 
-        :param request: The request sent by the client
+        :param request: The incoming http request sent from a client
         :param call_next: The endpoint to call next to get the appropriate response
 
         :return: The response to the client

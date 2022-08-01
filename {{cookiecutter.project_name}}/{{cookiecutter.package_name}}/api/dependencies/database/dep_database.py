@@ -8,7 +8,7 @@ def get_db_manager(request: Request) -> DatabaseManager:
     Dependency function that gets the
     database manager instance
 
-    :param request: The incoming FastAPI http request
+    :param request: The incoming http request sent from a client
 
     :return: The database manager instance
     """

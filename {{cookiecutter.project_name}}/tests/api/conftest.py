@@ -1,7 +1,7 @@
 from asyncio import AbstractEventLoop, get_event_loop_policy
 from os import listdir, remove
 from os.path import dirname, exists, join, pardir
-from typing import Any, Generator
+from typing import Any, Dict, Generator
 
 from dotenv import load_dotenv
 from pytest_asyncio import fixture
@@ -37,6 +37,10 @@ def cleanup() -> Generator[None, Any, None]:
 
 @fixture(scope="function")
 def client() -> TestClient:
+    """
+    Pytest fixture that creates an {{cookiecutter.class_name}}
+    test client for testing api requests
+    """
 
     # Import {{cookiecutter.friendly_name}} dependencies after pytest environment settings are loaded
     from {{cookiecutter.package_name}}.core.cache import get_fast_api_context
@@ -63,6 +67,20 @@ def client() -> TestClient:
 
     # Returns the client instance
     yield client
+
+
+@fixture(scope="function")
+def dependency_overrides() -> Dict:
+    """
+    Pytest fixture that gets the fast-api dependency overrides dict
+    for overriding certain route dependencies while testing
+    """
+
+    # Import Example API dependencies after pytest environment settings are loaded
+    from {{cookiecutter.package_name}}.main import {{cookiecutter.class_name}}
+
+    # Returns the fast-api dependency overrides dict
+    return {{cookiecutter.class_name}}.app.dependency_overrides
 
 
 @fixture(scope="session", autouse=True)
