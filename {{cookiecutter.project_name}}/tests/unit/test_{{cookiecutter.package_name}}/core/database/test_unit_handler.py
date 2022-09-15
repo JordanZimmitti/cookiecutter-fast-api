@@ -75,7 +75,7 @@ def test_get_row_operations(mocker):
     database_connection_mock = MagicMock(spec_set=DatabaseConnection)
     database_connection_mock.session_maker = MagicMock(spec_set=sessionmaker)
 
-    # Mocks the database-row-operations class
+    # Mocks and overrides the database-row-operations class
     database_row_operations_mock = MagicMock(spec_set=DatabaseRowOperations)
     mocker.patch.object(manager, "DatabaseRowOperations", return_value=database_row_operations_mock)
 

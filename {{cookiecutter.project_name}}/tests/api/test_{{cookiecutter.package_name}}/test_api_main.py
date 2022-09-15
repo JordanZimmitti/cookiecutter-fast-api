@@ -43,7 +43,7 @@ def test_main_{{cookiecutter.package_name}}_middleware_error(mocker, client: Tes
     :param client: A test client for hitting {{cookiecutter.friendly_name}} http requests
     """
 
-    # Mocks the handle_request function
+    # Overrides the handle_request function
     mocker.patch.object(main, "handle_request", error_mock)
 
     # Hits the default {{cookiecutter.friendly_name}} endpoint
@@ -115,6 +115,7 @@ async def test_main_{{cookiecutter.package_name}}_startup_and_shutdown():
     and shutdown function should run to completion without any errors
     """
 
-    # Gets the h API FastAPI app instance
-    await {{cookiecutter.class_name}}(options).startup()
-    await {{cookiecutter.class_name}}(options).shutdown()
+    # Gets the {{cookiecutter.friendly_name}} fast-api app instance
+    api = {{cookiecutter.class_name}}(options)
+    await api.startup()
+    await api.shutdown()

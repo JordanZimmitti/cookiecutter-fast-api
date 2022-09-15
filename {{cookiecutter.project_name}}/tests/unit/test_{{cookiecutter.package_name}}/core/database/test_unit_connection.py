@@ -23,11 +23,11 @@ def test_connect(mocker):
     db_connection_mock._db_uri = SecretStr("")
     db_connection_mock._display_name = ""
 
-    # Mocks the create_async_engine function
+    # Mocks and overrides the create_async_engine function
     engine_mock = MagicMock(spec_set=AsyncEngine)
     mocker.patch.object(connection, "create_async_engine", return_value=engine_mock)
 
-    # Mocks the sessionmaker function
+    # Mocks and overrides the sessionmaker function
     session_maker_mock = MagicMock(spec_set=sessionmaker)
     mocker.patch.object(connection, "sessionmaker", return_value=session_maker_mock)
 
@@ -51,8 +51,8 @@ async def test_disconnect(mocker):
     db_connection_mock._display_name = ""
     db_connection_mock._engine = MagicMock(spec_set=AsyncEngine)
 
-    # Mocks the close_all_sessions function
-    mocker.patch.object(connection, "close_all_sessions", MagicMock)
+    # Overrides the close_all_sessions function
+    mocker.patch.object(connection, "close_all_sessions", MagicMock())
 
     # Invokes the database-connection disconnect function
     await DatabaseConnection.disconnect(self=db_connection_mock)
@@ -99,11 +99,11 @@ def test_get_session_maker(mocker):
     :param mocker: Fixture to mock specific functions for testing
     """
 
-    # Mocks the create_async_engine function
+    # Mocks and overrides the create_async_engine function
     engine_mock = MagicMock(spec_set=AsyncEngine)
     mocker.patch.object(connection, "create_async_engine", return_value=engine_mock)
 
-    # Mocks the sessionmaker function
+    # Mocks and overrides the sessionmaker function
     session_maker_mock = MagicMock(spec_set=sessionmaker)
     mocker.patch.object(connection, "sessionmaker", return_value=session_maker_mock)
 

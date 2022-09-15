@@ -142,7 +142,7 @@ def test_get_correlation_id(mocker):
     fast_api_context_mock = MagicMock(spec_set=FastApiContext)
     fast_api_context_mock.correlation_id_var = "a976b291-fa0e-4b65-8a9b-dcf4d94e3dd2"
 
-    # Mocks the get_fast_api_context function
+    # Overrides the get_fast_api_context function
     mocker.patch.object(formatters, "get_fast_api_context", return_value=fast_api_context_mock)
 
     # Checks whether the correlation-id was retrieved correctly

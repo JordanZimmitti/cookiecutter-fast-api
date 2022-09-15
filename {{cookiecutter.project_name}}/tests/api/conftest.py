@@ -35,7 +35,7 @@ def cleanup() -> Generator[None, Any, None]:
             remove(join(log_directory, file))
 
 
-@fixture(scope="function")
+@fixture(scope="session")
 def client() -> TestClient:
     """
     Pytest fixture that creates an {{cookiecutter.class_name}}

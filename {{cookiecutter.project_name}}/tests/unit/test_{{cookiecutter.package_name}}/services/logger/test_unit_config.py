@@ -17,7 +17,7 @@ def test_start_logger(mocker):
     :param mocker: Fixture to mock specific functions for testing
     """
 
-    # Mocks the _get_logger_config function
+    # Mocks and overrides the _get_logger_config function
     log_config_mock = {"version": 1, "loggers": {"": {}}}
     mocker.patch.object(config, "_get_logger_config", return_value=log_config_mock)
 

@@ -1,4 +1,5 @@
 from unittest.mock import MagicMock
+from uuid import UUID
 
 from {{cookiecutter.package_name}}.core.database.models.table_base import StampMixin
 
@@ -17,7 +18,7 @@ def test_audit_table_created_by():
     user_id = "a976b291-fa0e-4b65-8a9b-dcf4d94e3dd2"
 
     # Invokes the audit_table function
-    StampMixin.audit_table(self=stamp_mixin_mock, user_id=user_id)
+    StampMixin.audit_table(self=stamp_mixin_mock, user_id=UUID(user_id))
 
     # Checks whether the user-id was set correctly
     assert stamp_mixin_mock.updated_by == user_id
@@ -37,7 +38,7 @@ def test_audit_table_no_created_by():
     user_id = "a976b291-fa0e-4b65-8a9b-dcf4d94e3dd2"
 
     # Invokes the audit_table function
-    StampMixin.audit_table(self=stamp_mixin_mock, user_id=user_id)
+    StampMixin.audit_table(self=stamp_mixin_mock, user_id=UUID(user_id))
 
     # Checks whether the user-id was set correctly
     assert stamp_mixin_mock.created_by == user_id

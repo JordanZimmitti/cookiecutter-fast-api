@@ -36,7 +36,7 @@ def test_get_open_api_instance_not_exists(mocker):
     app_mock.openapi_schema = None
     app_mock.routes = None
 
-    # Mocks the get_openapi function
+    # Overrides the get_openapi function
     mocker.patch.object(open_api, "get_openapi", get_openapi_mock)
 
     # Get the open-api instance when a new one is created

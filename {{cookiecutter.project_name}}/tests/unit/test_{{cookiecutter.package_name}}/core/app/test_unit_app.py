@@ -30,7 +30,7 @@ async def test_deconstruct_app_state():
     # Mocks the fast-api-context class
     app_mock.state.fast_api_context = MagicMock(spec_set=FastApiContext)
 
-    # Mocks the DatabaseManager class
+    # Mocks the database-manager class
     db_manager_mock = MagicMock(spec_set=DatabaseManager)
     db_manager_mock.connection.disconnect = AsyncMock()
     app_mock.state.db_manager = db_manager_mock
@@ -51,11 +51,11 @@ def test_expose_metrics_endpoint(mocker):
     :param mocker: Fixture to mock specific functions for testing
     """
 
-    # Mocks the fast-api and instrumentator classes
+    # Mocks the fast-api class
     app_mock = MagicMock(spec_set=FastAPI)
-    instrumentator_mock = MagicMock(spec_set=Instrumentator)
 
-    # Mocks the instrumentator class
+    # Mocks and overrides the instrumentator class
+    instrumentator_mock = MagicMock(spec_set=Instrumentator)
     mocker.patch.object(app, "Instrumentator", return_value=instrumentator_mock)
 
     # Invokes the expose_metrics_endpoint function
@@ -88,15 +88,15 @@ async def test_handle_request(mocker):
         response_mock.status_code = 200
         return response_mock
 
-    # Mocks the get_request_metadata function
+    # Overrides the get_request_metadata function
     mocker.patch.object(
         app,
         "get_request_metadata",
         return_value=("GET", "https://test-url", {"user-agent": "test-agent"}),
     )
 
-    # Mocks the set_correlation_id function
-    mocker.patch.object(app, "set_correlation_id", MagicMock)
+    # Overrides the set_correlation_id function
+    mocker.patch.object(app, "set_correlation_id", MagicMock())
 
     # Checks whether the response was retrieved correctly
     response = await handle_request(app_mock, request_mock, call_next_mock)
@@ -129,15 +129,16 @@ def test_setup_app_state(mocker):
     app_mock = MagicMock(spec=FastAPI)
     app_mock.state = MagicMock()
 
-    # Mocks the db-manager and fast-api-context classes
+    # Mocks and overrides the db-manager class
     db_manager_mock = MagicMock(spec_set=DatabaseManager)
-    fast_api_context_mock = MagicMock(spec_set=FastApiContext)
-
-    # Mocks the database-manager class and get_fast_api_context function
     mocker.patch.object(app, "DatabaseManager", return_value=db_manager_mock)
+
+    # Mocks and overrides the get_fast_api_context function
+    fast_api_context_mock = MagicMock(spec_set=FastApiContext)
     mocker.patch.object(app, "get_fast_api_context", return_value=fast_api_context_mock)
 
     # Checks whether the setup_app_state function runs without any errors
     setup_app_state(app_mock)
     assert app_mock.state.db_manager == db_manager_mock
+    assert app_mock.state.db_manager.connection.connect.called
     assert app_mock.state.fast_api_context == fast_api_context_mock

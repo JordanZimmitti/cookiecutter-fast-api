@@ -14,11 +14,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.5"
-          memory: "300M"
+          cpus: "1.0"
+          memory: "500M"
         reservations:
-          cpus: "0.5"
-          memory: "300M"
+          cpus: "1.0"
+          memory: "500M"
     links:
       - "postgresql:postgresql"
     depends_on:
@@ -39,8 +39,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.500"
-          memory: "512M"
+          cpus: "2.0"
+          memory: "1000M"
         reservations:
-          cpus: "0.250"
-          memory: "256M"
+          cpus: "2.0"
+          memory: "1000M"

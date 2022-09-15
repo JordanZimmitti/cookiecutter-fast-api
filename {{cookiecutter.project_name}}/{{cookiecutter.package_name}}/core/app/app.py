@@ -15,11 +15,13 @@ from {{cookiecutter.package_name}}.core.cache import FastApiContext, get_fast_ap
 from {{cookiecutter.package_name}}.core.database import DatabaseManager
 from {{cookiecutter.package_name}}.core.open_api import get_open_api_instance
 from {{cookiecutter.package_name}}.core.settings import settings
+from {{cookiecutter.package_name}}.services.logger import HealthCheckFilter
 
 from .router import api_router
 
 # Gets {{cookiecutter.friendly_name}} server logger instance
 logger = getLogger("{{cookiecutter.package_name}}.core.app.app")
+logger.addFilter(HealthCheckFilter())
 
 
 async def deconstruct_app_state(app: FastAPI):

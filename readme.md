@@ -21,7 +21,7 @@ Create a fully-working production-ready Fast-API server in minutes!
 
 * **Testing**
     * 100% code-coverage on all template code
-    * E2E, Integration, and Unit tests configured
+    * API, Integration, and Unit tests configured
     * Script for running all API/Unit tests
     * Script for running all Integration tests
   
