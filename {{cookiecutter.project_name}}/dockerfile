@@ -1,4 +1,4 @@
-FROM python:3.10.5-slim
+FROM python:3.10.7-slim
 
 # Installs/Updates linux packages
 RUN apt-get update
@@ -13,8 +13,8 @@ RUN useradd  --uid 1000 --gid appuser --create-home appuser
 WORKDIR /home/appuser
 
 # Installs poetry
-RUN curl -ssl https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
-ENV PATH="${PATH}:/root/.poetry/bin"
+RUN curl -sSL https://install.python-poetry.org | python -
+ENV PATH="${PATH}:/root/.local/bin"
 
 # Copies over files necessary for using poetry
 COPY poetry.lock .
