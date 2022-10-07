@@ -1,4 +1,5 @@
 from abc import ABC
+from logging import getLogger
 from os import getpid, listdir, remove
 from os.path import exists, join
 from typing import Any, Callable, Dict
@@ -17,6 +18,9 @@ from {{cookiecutter.package_name}}.core.app import (
 from {{cookiecutter.package_name}}.core.settings import settings
 from {{cookiecutter.package_name}}.services.logger import start_logger
 from {{cookiecutter.package_name}}.utils.modules.path_extensions import get_parent_path_by_file
+
+# Gets {{cookiecutter.friendly_name}} server logger instance
+logger = getLogger("{{cookiecutter.package_name}}.main")
 
 
 class {{cookiecutter.class_name}}({{cookiecutter.class_name}}Base, ABC):
@@ -81,7 +85,10 @@ class {{cookiecutter.class_name}}({{cookiecutter.class_name}}Base, ABC):
         try:
             return await handle_request({{cookiecutter.class_name}}.app, request, call_next)
         except Exception as exc:
-            content = {"message": f"Middleware Error: {str(exc)}"}
+            logger.error(str(exc), exc_info=exc)
+            content = {
+                "message": "Internal Server Error: An unexpected error occurred, please try again"
+            }
             return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=content)
 
     @staticmethod

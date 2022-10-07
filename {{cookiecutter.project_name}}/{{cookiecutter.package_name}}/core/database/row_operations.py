@@ -8,8 +8,8 @@ from sqlalchemy.sql import Select
 
 from {{cookiecutter.package_name}}.exceptions import InternalServerError
 
-# Gets Database-Setup API server logger instance
-logger = getLogger("database_setup_api.core.database.row_operations")
+# Gets {{cookiecutter.friendly_name}} server logger instance
+logger = getLogger("{{cookiecutter.package_name}}.core.database.row_operations")
 
 # ORM model type-hinting
 Model = TypeVar("Model")

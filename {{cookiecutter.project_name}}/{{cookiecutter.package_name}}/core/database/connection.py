@@ -7,8 +7,8 @@ from sqlalchemy.orm import close_all_sessions, sessionmaker
 from {{cookiecutter.package_name}}.core.settings import settings
 from {{cookiecutter.package_name}}.exceptions import InternalServerError
 
-# Gets Database-Setup API server logger instance
-logger = getLogger("database_setup_api.core.database.connection")
+# Gets {{cookiecutter.friendly_name}} server logger instance
+logger = getLogger("{{cookiecutter.package_name}}.core.database.connection")
 
 
 class DatabaseConnection:

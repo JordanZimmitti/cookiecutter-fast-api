@@ -54,7 +54,8 @@ def test_main_{{cookiecutter.package_name}}_middleware_error(mocker, client: Tes
 
     # Checks whether the correct message response was returned
     data = response.json()
-    assert data.get("message") == "Middleware Error: mock error"
+    error_message = "Internal Server Error: An unexpected error occurred, please try again"
+    assert data.get("message") == error_message
 
 
 def test_main_{{cookiecutter.package_name}}_open_api(client: TestClient):
