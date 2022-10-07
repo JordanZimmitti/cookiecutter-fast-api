@@ -87,10 +87,10 @@ class Settings(BaseSettings):
     IS_ECHO_SQLALCHEMY_LOGS: bool = False
 
     # How many database connections to temporarily create when the connection pool is full
-    SQLALCHEMY_MAX_OVERFLOW = 5
+    SQLALCHEMY_MAX_OVERFLOW: int = 5
 
     # How many active database connections are available in the connection pool
-    SQLALCHEMY_POOL_SIZE = 5
+    SQLALCHEMY_POOL_SIZE: int = 5
 
     # {{cookiecutter.friendly_name}} server database metadata
     API_DB_DISPLAY_NAME: str = "{{cookiecutter.api_database_display_name}}"
