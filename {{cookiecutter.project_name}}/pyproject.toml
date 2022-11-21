@@ -7,28 +7,28 @@ authors = {{cookiecutter.project_authors}}
 
 [tool.poetry.dependencies]
 alembic = "^1.8.0"
-asyncpg = "^0.26.0"
-fastapi = "^0.85.0"
+asyncpg = "^0.27.0"
+fastapi = "^0.87.0"
 fastapi-utils = "^0.2.1"
-greenlet = "^1.1.2"
+greenlet = "^2.0.1"
 gunicorn = "^20.1.0"
 prometheus-fastapi-instrumentator = "5.9.1"
 psycopg2-binary = "^2.9.4"
 pydantic = {extras = ["email"], version = "^1.9.1"}
-python = "^3.10"
+python = "^3.11"
 python-dotenv = "^0.21.0"
 python-jose = "^3.3.0"
 python-multipart = "^0.0.5"
 requests = "^2.28.0"
 SQLAlchemy = "^1.4.39"
 tenacity = "^8.0.1"
-uvicorn = "^0.18.2"
+uvicorn = "^0.20.0"
 
 [tool.poetry.dev-dependencies]
 locust = "^2.9.0"
 pre-commit = "^2.19.0"
 pytest = "^7.1.2"
-pytest-asyncio = "^0.19.0"
+pytest-asyncio = "^0.20.2"
 pytest-config-pro = { path = "{{cookiecutter.package_name}}/utils/packages/pytest_config_pro-0.1.0-py3-none-any.whl" }
 pytest-cov = "^4.0.0"
 pytest-mock = "^3.8.2"

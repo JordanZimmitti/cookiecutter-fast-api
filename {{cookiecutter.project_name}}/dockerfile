@@ -1,4 +1,4 @@
-FROM python:3.10.7-slim
+FROM python:3.11.0-slim
 
 # Installs/Updates linux packages
 RUN apt-get update
@@ -25,8 +25,9 @@ RUN mkdir {{cookiecutter.package_name}}
 COPY {{cookiecutter.package_name}}/utils/packages {{cookiecutter.package_name}}/utils/packages
 
 # Installs production dependencies
-RUN pip3 install --upgrade pip setuptools wheel
 RUN poetry config virtualenvs.create false
+RUN poetry config virtualenvs.options.no-pip true
+RUN poetry config virtualenvs.options.no-setuptools true
 RUN poetry install --no-root --no-dev
 
 # Copies the project into the docker container
