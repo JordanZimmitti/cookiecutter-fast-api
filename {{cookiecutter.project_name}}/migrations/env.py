@@ -17,6 +17,8 @@ if config.config_file_name is not None:
 # Sets the target metadata from the base-model
 target_metadata = TableBase.metadata
 
+# The database schema the tables should be created in
+app_schema = "public"
 
 def run_migrations_offline():
     """
@@ -72,10 +74,16 @@ def do_run_migrations(connection):
     """
 
     # Configures the context before running the migrations
-    context.configure(connection=connection, target_metadata=target_metadata)
+    context.configure(
+        connection=connection,
+        target_metadata=target_metadata,
+        include_schemas=True,
+        version_table_schema=app_schema
+    )
 
     # Runs the migrations
     with context.begin_transaction():
+        context.execute(f"SET search_path TO {app_schema}")
         context.run_migrations()
 
 

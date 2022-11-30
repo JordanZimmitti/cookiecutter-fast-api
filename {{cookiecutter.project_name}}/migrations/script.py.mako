@@ -5,7 +5,7 @@ Create Date: ${create_date}
 """
 
 from alembic import op
-import sqlalchemy import Column
+from sqlalchemy import Column
 ${imports if imports else ""}
 
 # revision identifiers, used by Alembic.
