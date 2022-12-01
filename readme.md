@@ -18,7 +18,7 @@ Create a fully-working production-ready Fast-API server in minutes!
     * Gunicorn server engine optimized for deployment in Kubernetes
     * HTTP status-code error handling
     * Key/Value pair line-logging optimized for Grafana/Loki
-    * built-in health check and prometheus metrics endpoints
+    * Built-in health check and prometheus metrics endpoints
 
 * **Testing**
     * 100% code-coverage on all template code
