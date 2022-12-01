@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock
 from uuid import UUID
 
-from {{cookiecutter.package_name}}.core.database.models.table_base import StampMixin
+from {{cookiecutter.package_name}}.core.database.tables.table_base import StampMixin
 
 
 def test_audit_table_created_by():

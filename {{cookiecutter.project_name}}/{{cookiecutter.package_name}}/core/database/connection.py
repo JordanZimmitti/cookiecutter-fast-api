@@ -54,7 +54,7 @@ class DatabaseConnection:
             pool_size=settings.SQLALCHEMY_POOL_SIZE,
             max_overflow=settings.SQLALCHEMY_MAX_OVERFLOW,
             echo=settings.IS_ECHO_SQLALCHEMY_LOGS,
-            connect_args={"application_name": f"{settings.PROJECT_NAME}"}
+            connect_args={"server_settings": {"application_name": f"{settings.PROJECT_NAME}"}},
         )
 
         # Creates the session-maker for creating database sessions

@@ -41,8 +41,8 @@ class DatabaseRowOperations:
         try:
             result: ChunkedIteratorResult = await session.execute(query)
             return result
-        except Exception:
-            logger.error("SQL-Alchemy session execution failed", exc_info=True)
+        except Exception as exc:
+            logger.error("SQL-Alchemy session execution failed", exc_info=exc)
             raise InternalServerError()
 
     async def add_row(self, table: Model):

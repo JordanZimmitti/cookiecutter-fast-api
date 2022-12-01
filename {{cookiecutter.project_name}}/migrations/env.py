@@ -52,7 +52,7 @@ async def run_migrations_online():
     # Gets the online database connection-uri
     db_uri = config.get_main_option("sqlalchemy.url")
     if not db_uri:
-        db_uri = settings.API_DB_CONN_STR.get_secret_value()
+        db_uri = settings.API_DB_CONN_URI.get_secret_value()
 
     # Creates the connection engine to the database
     engine = create_async_engine(db_uri)
