@@ -58,39 +58,6 @@ def test_main_{{cookiecutter.package_name}}_middleware_error(mocker, client: Tes
     assert data.get("message") == error_message
 
 
-def test_main_{{cookiecutter.package_name}}_open_api(client: TestClient):
-    """
-    Tests the default {{cookiecutter.friendly_name}} endpoint. The default {{cookiecutter.friendly_name}}
-    endpoint should redirect to the swagger-ui docs without any errors
-
-    :param client: A test client for hitting {{cookiecutter.friendly_name}} http requests
-    """
-
-    # Hits the default {{cookiecutter.friendly_name}} endpoint
-    response = client.get(f"{settings.API_PREFIX}/openapi.json")
-
-    # Checks whether the response was retrieved correctly
-    assert response.status_code == 200
-
-    # Gets the open-api data
-    open_api: Dict[str, Any] = response.json()
-
-    # Checks whether the correct open-api data exists
-    assert open_api.get("openapi") == "3.0.2"
-
-    # Hits the default {{cookiecutter.friendly_name}} endpoint
-    response = client.get(f"{settings.API_PREFIX}/openapi.json")
-
-    # Checks whether the response was retrieved correctly
-    assert response.status_code == 200
-
-    # Gets the open-api data
-    open_api: Dict[str, Any] = response.json()
-
-    # Checks whether the correct open-api data exists
-    assert open_api.get("openapi") == "3.0.2"
-
-
 def test_main_{{cookiecutter.package_name}}_redirect(client: TestClient):
     """
     Tests the default {{cookiecutter.friendly_name}} endpoint. The default {{cookiecutter.friendly_name}}
