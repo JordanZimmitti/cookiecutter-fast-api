@@ -22,7 +22,7 @@ class DatabaseRowOperations:
         :param session_maker: An async-session-maker instance
         """
 
-        # Initializes inputted variables
+        # Initializes given variables
         self._session_maker = session_maker
 
     @staticmethod
