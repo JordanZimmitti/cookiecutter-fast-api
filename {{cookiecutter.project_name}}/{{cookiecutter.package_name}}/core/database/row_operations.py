@@ -16,8 +16,8 @@ ORMTable = TypeVar("ORMTable")
 class DatabaseRowOperations:
     def __init__(self, session_maker: async_sessionmaker[AsyncSession]):
         """
-        Class that handles various aspects of
-        database tables
+        Class that handles executing various queries
+        on a database table
 
         :param session_maker: An async-session-maker instance
         """
