@@ -15,7 +15,7 @@ class DatabaseManager:
         :param db_uri: The database connection url
         """
 
-        # Initializes inputted variables
+        # Initializes given variables
         self._display_name = display_name
         self._description = description
         self._db_uri = db_uri
@@ -26,7 +26,7 @@ class DatabaseManager:
     @property
     def connection(self) -> DatabaseConnection:
         """
-        Property that geta the database-connection instance for
+        Property that gets the database-connection instance for
         handling various aspects of the database connection
 
         :return: The database-connection instance

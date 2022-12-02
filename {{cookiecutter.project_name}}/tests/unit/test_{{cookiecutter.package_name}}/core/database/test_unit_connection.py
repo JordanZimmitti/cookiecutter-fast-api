@@ -2,8 +2,7 @@ from unittest.mock import MagicMock
 
 from pydantic import SecretStr
 from pytest import mark, raises
-from sqlalchemy.ext.asyncio import AsyncEngine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from {{cookiecutter.package_name}}.core.database import connection
 from {{cookiecutter.package_name}}.core.database.connection import DatabaseConnection
@@ -27,9 +26,9 @@ def test_connect(mocker):
     engine_mock = MagicMock(spec_set=AsyncEngine)
     mocker.patch.object(connection, "create_async_engine", return_value=engine_mock)
 
-    # Mocks and overrides the sessionmaker function
-    session_maker_mock = MagicMock(spec_set=sessionmaker)
-    mocker.patch.object(connection, "sessionmaker", return_value=session_maker_mock)
+    # Mocks and overrides the async_sessionmaker function
+    session_maker_mock = MagicMock(spec_set=async_sessionmaker[AsyncSession])
+    mocker.patch.object(connection, "async_sessionmaker", return_value=session_maker_mock)
 
     # Checks whether the connection function runs without any errors
     DatabaseConnection.connect(self=db_connection_mock)
@@ -61,36 +60,6 @@ async def test_disconnect(mocker):
     assert db_connection_mock._engine.dispose.call_count == 1
 
 
-def test_get_schema_other():
-    """
-    Tests the get_schema function when anything but postgres is in the uri path. The get_schema
-    function should return 'None'
-    """
-
-    # Mocks the db-connection class
-    db_connection_mock = MagicMock(spec=DatabaseConnection)
-    db_connection_mock._db_uri = SecretStr("sqlite...")
-
-    # Checks that the schema was retrieved correctly
-    schema = DatabaseConnection._get_schema(self=db_connection_mock)
-    assert schema is None
-
-
-def test_get_schema_postgres():
-    """
-    Tests the get_schema function when postgres exists in the uri path. The get_schema function
-    should return the string value 'public'
-    """
-
-    # Mocks the db-connection class
-    db_connection_mock = MagicMock(spec=DatabaseConnection)
-    db_connection_mock._db_uri = SecretStr("postgres...")
-
-    # Checks that the schema was retrieved correctly
-    schema = DatabaseConnection._get_schema(self=db_connection_mock)
-    assert schema == "public"
-
-
 def test_get_session_maker(mocker):
     """
     Tests the session_maker property for completion. The session_maker property should return a
@@ -103,9 +72,9 @@ def test_get_session_maker(mocker):
     engine_mock = MagicMock(spec_set=AsyncEngine)
     mocker.patch.object(connection, "create_async_engine", return_value=engine_mock)
 
-    # Mocks and overrides the sessionmaker function
-    session_maker_mock = MagicMock(spec_set=sessionmaker)
-    mocker.patch.object(connection, "sessionmaker", return_value=session_maker_mock)
+    # Mocks and overrides the async_sessionmaker function
+    session_maker_mock = MagicMock(spec_set=async_sessionmaker[AsyncSession])
+    mocker.patch.object(connection, "async_sessionmaker", return_value=session_maker_mock)
 
     # Creates a db-connection instance
     db_connection = DatabaseConnection(

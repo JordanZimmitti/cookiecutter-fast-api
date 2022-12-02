@@ -38,7 +38,7 @@ def test_fallback_type_quote_string():
     The fallback_type function should return a quoted string
     """
 
-    # Checks whether the inputted unquoted string gets quoted
+    # Checks whether the given unquoted string gets quoted
     log_object = BaseFormatter.fallback_type("test-message")
     assert log_object == '"test-message"'
 

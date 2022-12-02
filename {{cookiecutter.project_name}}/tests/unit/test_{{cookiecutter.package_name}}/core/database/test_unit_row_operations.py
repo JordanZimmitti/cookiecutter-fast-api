@@ -1,12 +1,10 @@
 from unittest.mock import AsyncMock, MagicMock
 
 from pytest import mark, raises
-from sqlalchemy.engine import ChunkedIteratorResult
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.sql import Select
+from sqlalchemy import Result, ScalarResult, Select
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from {{cookiecutter.package_name}}.core.database.row_operations import DatabaseRowOperations, Model
+from {{cookiecutter.package_name}}.core.database.row_operations import DatabaseRowOperations, ORMTable
 from {{cookiecutter.package_name}}.exceptions import InternalServerError
 from tests.mocks import error_mock
 
@@ -21,11 +19,11 @@ async def test_add_row():
     # Mocks the async-session class
     async_session_mock = AsyncMock(spec_set=AsyncSession)
 
-    # Mocks the sessionmaker aenter function
+    # Mocks the async_sessionmaker aenter function
     async def aenter_mock(_):
         return async_session_mock
 
-    # Mocks the sessionmaker class
+    # Mocks the async_sessionmaker class
     session_maker_mock = MagicMock()
     session_maker_mock.__aenter__ = aenter_mock
 
@@ -52,11 +50,11 @@ async def test_add_rows():
     # Mocks the async-session class
     async_session_mock = AsyncMock(spec_set=AsyncSession)
 
-    # Mocks the sessionmaker aenter function
+    # Mocks the async_sessionmaker aenter function
     async def aenter_mock(_):
         return async_session_mock
 
-    # Mocks the sessionmaker class
+    # Mocks the async_sessionmaker class
     session_maker_mock = MagicMock()
     session_maker_mock.__aenter__ = aenter_mock
 
@@ -116,21 +114,21 @@ async def test_execute_query_error():
 async def test_get_rows_all():
     """
     Tests the get_rows_all function for completion. The get_rows_all function
-    should return a list of models without any errors
+    should return a list of orm tables without any errors
     """
 
-    # Mocks the model class
-    model_mock = MagicMock(spec_set=Model)
+    # Mocks the orm-table class
+    orm_table_mock = MagicMock(spec_set=ORMTable)
 
     # Mocks the data retrieved from the all function
-    all_data_mock = [model_mock]
+    all_data_mock = [orm_table_mock]
 
     # Mocks the scalars function
     scalars_mock = MagicMock()
     scalars_mock.all = lambda: all_data_mock
 
-    # Mocks the chunked-iterator-result class
-    result_mock = MagicMock(spec_set=ChunkedIteratorResult)
+    # Mocks the result class
+    result_mock = MagicMock(spec_set=Result)
     result_mock.scalars = lambda: scalars_mock
 
     # Mocks the execute_query function
@@ -144,7 +142,7 @@ async def test_get_rows_all():
 
     # Invokes the get_rows_all functon
     rows = await DatabaseRowOperations.get_rows_all(
-        self=database_row_operations_mock, model=model_mock, query=MagicMock(spec_set=Select)
+        self=database_row_operations_mock, orm_table=orm_table_mock, query=MagicMock(spec_set=Select)
     )
 
     # Checks whether the rows were retrieved correctly
@@ -155,21 +153,21 @@ async def test_get_rows_all():
 async def test_get_rows_first():
     """
     Tests the get_rows_first function for completion. The get_rows_first function
-    should return a model without any errors
+    should return an orm table without any errors
     """
 
-    # Mocks the model class
-    model_mock = MagicMock(spec_set=Model)
+    # Mocks the orm-table class
+    orm_table_mock = MagicMock(spec_set=ORMTable)
 
     # Mocks the data retrieved from the first function
-    first_data_mock = model_mock
+    first_data_mock = orm_table_mock
 
     # Mocks the scalars function
     scalars_mock = MagicMock()
     scalars_mock.first = lambda: first_data_mock
 
-    # Mocks the chunked-iterator-result class
-    result_mock = MagicMock(spec_set=ChunkedIteratorResult)
+    # Mocks the result class
+    result_mock = MagicMock(spec_set=Result)
     result_mock.scalars = lambda: scalars_mock
 
     # Mocks the execute_query function
@@ -183,7 +181,7 @@ async def test_get_rows_first():
 
     # Invokes the get_rows_first functon
     row = await DatabaseRowOperations.get_rows_first(
-        self=database_row_operations_mock, model=model_mock, query=MagicMock(spec_set=Select)
+        self=database_row_operations_mock, orm_table=orm_table_mock, query=MagicMock(spec_set=Select)
     )
 
     # Checks whether the row was retrieved correctly
@@ -194,21 +192,21 @@ async def test_get_rows_first():
 async def test_get_rows_one():
     """
     Tests the get_rows_one function for completion. The get_rows_one function
-    should return a model without any errors
+    should return an orm table without any errors
     """
 
-    # Mocks the model class
-    model_mock = MagicMock(spec_set=Model)
+    # Mocks the orm-table class
+    orm_table_mock = MagicMock(spec_set=ORMTable)
 
     # Mocks the data retrieved from the one function
-    one_data_mock = model_mock
+    one_data_mock = orm_table_mock
 
     # Mocks the scalars function
     scalars_mock = MagicMock()
     scalars_mock.one = lambda: one_data_mock
 
-    # Mocks the chunked-iterator-result class
-    result_mock = MagicMock(spec_set=ChunkedIteratorResult)
+    # Mocks the result class
+    result_mock = MagicMock(spec_set=Result)
     result_mock.scalars = lambda: scalars_mock
 
     # Mocks the execute_query function
@@ -222,7 +220,7 @@ async def test_get_rows_one():
 
     # Invokes the get_rows_first functon
     row = await DatabaseRowOperations.get_rows_one(
-        self=database_row_operations_mock, model=model_mock, query=MagicMock(spec_set=Select)
+        self=database_row_operations_mock, orm_table=orm_table_mock, query=MagicMock(spec_set=Select)
     )
 
     # Checks whether the row was retrieved correctly
@@ -236,8 +234,8 @@ async def test_get_rows_one_no_row():
     function should raise an InternalServerError
     """
 
-    # Mocks the model class
-    model_mock = MagicMock(spec_set=Model)
+    # Mocks the orm-table class
+    orm_table_mock = MagicMock(spec_set=ORMTable)
 
     # Mocks the one function
     def one_mock():
@@ -247,8 +245,8 @@ async def test_get_rows_one_no_row():
     scalars_mock = MagicMock()
     scalars_mock.one = one_mock
 
-    # Mocks the chunked-iterator-result class
-    result_mock = MagicMock(spec_set=ChunkedIteratorResult)
+    # Mocks the result class
+    result_mock = MagicMock(spec_set=Result)
     result_mock.scalars = lambda: scalars_mock
 
     # Mocks the execute_query function
@@ -263,7 +261,9 @@ async def test_get_rows_one_no_row():
     # Checks whether the correct error was raised
     with raises(InternalServerError):
         await DatabaseRowOperations.get_rows_one(
-            self=database_row_operations_mock, model=model_mock, query=MagicMock(spec_set=Select)
+            self=database_row_operations_mock,
+            orm_table=orm_table_mock,
+            query=MagicMock(spec_set=Select)
         )
 
 
@@ -271,21 +271,21 @@ async def test_get_rows_one_no_row():
 async def test_get_rows_unique():
     """
     Tests the get_rows_unique function for completion. The get_rows_unique function
-    should return a chunked-iterator-result without any errors
+    should return a scalar-result without any errors
     """
 
-    # Mocks the chunked-iterator-result class
-    unique_chunked_iterator_result_mock = MagicMock(spec_set=ChunkedIteratorResult)
+    # Mocks the scalar-result class
+    unique_scalar_result_mock = MagicMock(spec_set=ScalarResult)
 
     # Mocks the data retrieved from the unique function
-    unique_data_mock = unique_chunked_iterator_result_mock
+    unique_data_mock = unique_scalar_result_mock
 
     # Mocks the scalars function
     scalars_mock = MagicMock()
     scalars_mock.unique = lambda _: unique_data_mock
 
-    # Mocks the chunked-iterator-result class
-    result_mock = MagicMock(spec_set=ChunkedIteratorResult)
+    # Mocks the result class
+    result_mock = MagicMock(spec_set=Result)
     result_mock.scalars = lambda: scalars_mock
 
     # Mocks the execute_query function
@@ -303,7 +303,7 @@ async def test_get_rows_unique():
     )
 
     # Checks whether the row was retrieved correctly
-    assert result == unique_chunked_iterator_result_mock
+    assert result == unique_scalar_result_mock
 
 
 def test_init():
@@ -312,8 +312,8 @@ def test_init():
     function should instantiate a DatabaseRowOperations instance without any errors
     """
 
-    # Mocks the sessionmaker class
-    session_maker_mock = MagicMock(spec_set=sessionmaker)
+    # Mocks and overrides the async_sessionmaker function
+    session_maker_mock = MagicMock(spec_set=async_sessionmaker[AsyncSession])
 
     # Define and instantiates the DatabaseRowOperations class
     db_connection = DatabaseRowOperations(session_maker=session_maker_mock)

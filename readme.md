@@ -4,6 +4,7 @@ Create a fully-working production-ready Fast-API server in minutes!
 ## Features
 
 * **Project Configuration**
+    * Python 11 support 
     * Black, Flake8, and Isort pre-commits configured
     * Poetry package manager for enhanced package management
     * Script for easy local environment setup
@@ -27,5 +28,6 @@ Create a fully-working production-ready Fast-API server in minutes!
     * Script for running all Integration tests
   
 * **Database** 
+    * SQLAlchemy 2.0 support 
     * Postgres support via built-in database helper classes
     * Built-in Async Alembic migration for Postgres
