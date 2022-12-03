@@ -1,7 +1,7 @@
 from unittest.mock import AsyncMock, MagicMock
 
 from pytest import mark, raises
-from sqlalchemy import Result, ScalarResult, Select
+from sqlalchemy import Result, Row, ScalarResult, Select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from {{cookiecutter.package_name}}.core.database.row_operations import DatabaseRowOperations, ORMTable
