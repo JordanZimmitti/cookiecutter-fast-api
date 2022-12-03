@@ -77,13 +77,16 @@ class DatabaseRowOperations:
             await session.flush()
             await session.commit()
 
-    async def get_rows_all(self, orm_table: ORMTable, query: Select) -> List[ORMTable]:
+    async def get_rows_all(
+        self, orm_table: ORMTable, query: Select, is_scalar: bool = True
+    ) -> List[ORMTable]:
         """
         Function that executes the query and
         gets all the rows retrieved
 
         :param orm_table: The database ORM table used in the query
         :param query: The query statement to execute
+        :param is_scalar: Whether the object should be filtered through a scalar
 
         :return: A list of all rows retrieved from the database
         """
@@ -93,16 +96,22 @@ class DatabaseRowOperations:
 
             # Executes the query and returns all the rows
             result = await self._execute_query(session, query)
-            row: List[orm_table] = list(result.scalars().all())
+            if is_scalar:
+                row: List[orm_table] = list(result.scalars().all())
+            else:
+                row: List[orm_table] = list(result.all())
             return row
 
-    async def get_rows_first(self, orm_table: ORMTable, query: Select) -> ORMTable | None:
+    async def get_rows_first(
+        self, orm_table: ORMTable, query: Select, is_scalar: bool = True
+    ) -> ORMTable | None:
         """
         Function that executes the query and gets the first
         row retrieved or none when no rows are retrieved
 
         :param orm_table: The database ORM table used in the query
         :param query: The query statement to execute
+        :param is_scalar: Whether the object should be filtered through a scalar
 
         :return: The first row retrieved from the database or None when no rows are retrieved
         """
@@ -112,16 +121,22 @@ class DatabaseRowOperations:
 
             # Executes the query and returns the first row from the query when it exists
             result = await self._execute_query(session, query)
-            row: orm_table | None = result.scalars().first()
+            if is_scalar:
+                row: orm_table | None = result.scalars().first()
+            else:
+                row: orm_table | None = result.first()
             return row
 
-    async def get_rows_one(self, orm_table: ORMTable, query: Select) -> ORMTable:
+    async def get_rows_one(
+        self, orm_table: ORMTable, query: Select, is_scalar: bool = True
+    ) -> ORMTable:
         """
         Function that executes the query and gets the first row
         retrieved or raises an error when no rows are retrieved
 
         :param orm_table: The database ORM table used in the query
         :param query: The query statement to execute
+        :param is_scalar: Whether the object should be filtered through a scalar
 
         :return: The first row retrieved from the database or an error when no/multiple are retrieved
         """
@@ -132,7 +147,10 @@ class DatabaseRowOperations:
             # Executes the query and returns the first row from the query or raises an error
             try:
                 result = await self._execute_query(session, query)
-                row: orm_table = result.scalars().one()
+                if is_scalar:
+                    row: orm_table = result.scalars().one()
+                else:
+                    row: orm_table = result.one()
                 return row
             except Exception:
                 extra_info = {"query": str(query)}
@@ -140,13 +158,16 @@ class DatabaseRowOperations:
                 logger.error(log_message, extra=extra_info)
                 raise InternalServerError()
 
-    async def get_rows_unique(self, query: Select, strategy: Any = None) -> ScalarResult:
+    async def get_rows_unique(
+        self, query: Select, strategy: Any = None, is_scalar: bool = True
+    ) -> ScalarResult:
         """
         Function that executes the unique query and gets the
         scalar-result for data retrieval
 
         :param query: The query statement to execute
         :param strategy: The unique strategy used
+        :param is_scalar: Whether the object should be filtered through a scalar
 
         :return: The scalar-result of unique rows retrieved from the database
         """
@@ -156,5 +177,8 @@ class DatabaseRowOperations:
 
             # Executes the query and returns all the unique rows
             result = await self._execute_query(session, query)
-            row = result.scalars().unique(strategy)
+            if is_scalar:
+                row = result.scalars().unique(strategy)
+            else:
+                row = result.unique(strategy)
             return row
