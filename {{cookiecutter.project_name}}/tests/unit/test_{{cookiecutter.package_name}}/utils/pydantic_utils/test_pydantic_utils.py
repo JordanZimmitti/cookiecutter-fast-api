@@ -11,9 +11,10 @@ def test_form_body():
 
     # Creates a test pydantic model class
     class TestModel(BaseModel):
-        arg_one: str = Field("test-arg-one")
-        arg_two: int = Field("test-arg-two")
+        arg_one: str = Field(...)
+        arg_two: int = Field(0)
 
     # Checks whether the class signature contains the fast-api form instances
     model_with_form_body = form_body(cls=TestModel)
-    assert "Form" in str(model_with_form_body().__signature__)
+    assert "Form(Ellipsis)" in str(model_with_form_body(arg_one="test-arg-one").__signature__)
+    assert "Form(0)" in str(model_with_form_body(arg_one="test-arg-one").__signature__)

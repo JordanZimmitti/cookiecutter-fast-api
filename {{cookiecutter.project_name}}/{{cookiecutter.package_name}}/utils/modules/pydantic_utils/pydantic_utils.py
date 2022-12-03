@@ -12,8 +12,19 @@ def form_body(cls):
     :return: The pydantic model that is fast-api form compatible
     """
 
+    # Creates a list of pydantic model form parameters
+    form_parameters = []
+    for parameter in cls.__signature__.parameters.values():
+
+        # Sets the fast-api form as the new default
+        if str(parameter.default) == "<class 'inspect._empty'>":
+            form_parameter = parameter.replace(default=Form(...))
+        else:
+            form_parameter = parameter.replace(default=Form(parameter.default))
+
+        # Appends the updated parameter to the list
+        form_parameters.append(form_parameter)
+
     # Adds fast-api form compatibility to a pydantic model class
-    cls.__signature__ = cls.__signature__.replace(
-        parameters=[arg.replace(default=Form(...)) for arg in cls.__signature__.parameters.values()]
-    )
+    cls.__signature__ = cls.__signature__.replace(parameters=form_parameters)
     return cls
