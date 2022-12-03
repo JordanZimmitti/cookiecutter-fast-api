@@ -31,3 +31,6 @@ Create a fully-working production-ready Fast-API server in minutes!
     * SQLAlchemy 2.0 support 
     * Postgres support via built-in database helper classes
     * Built-in Async Alembic migration for Postgres
+
+* **Utilities**
+    * A pydantic utility decorator function that creates a fast-api form from a pydantic model 
