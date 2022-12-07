@@ -38,7 +38,7 @@ class Settings(BaseSettings):
     PROJECT_VERSION: str = "0.1.0"
 
     # The namespace that the API can be accessed from
-    NAMESPACE: str = "{{cookiecutter.namespace}}"
+    NAMESPACE: str = "http://localhost"
 
     # The API prefix
     API_PREFIX: str = "/api"
