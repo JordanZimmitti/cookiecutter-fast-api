@@ -12,6 +12,7 @@ from {{cookiecutter.package_name}}.exceptions import (
     InternalServerError,
     NotFoundError,
     UnauthenticatedError,
+    ValidationError
 )
 
 from .app import setup_app
@@ -102,4 +103,12 @@ class {{cookiecutter.class_name}}Base(BaseApplication, ABC):
 
         # Sends the unauthenticated-error response
         content = {"message": f"Unauthenticated Error: {exc.detail}"}
+        return JSONResponse(status_code=exc.status_code, content=content)
+
+    @staticmethod
+    @_app.exception_handler(ValidationError)
+    async def validation_error_handler(_, exc: ValidationError) -> JSONResponse:
+
+        # Sends the validation-error response
+        content = {"message": f"Validation Error: {exc.detail}"}
         return JSONResponse(status_code=exc.status_code, content=content)

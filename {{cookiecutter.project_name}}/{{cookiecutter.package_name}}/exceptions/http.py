@@ -54,3 +54,14 @@ class UnauthenticatedError(HTTPException):
         :param message: The message sent back to the client detailing the problem
         """
         super().__init__(status_code=status.HTTP_401_UNAUTHORIZED, detail=message)
+
+
+class ValidationError(HTTPException):
+    def __init__(self, message: str):
+        """
+        Error class that is raised when a client has sent a request
+        that does not pass any given validation criteria
+
+        :param message: The message sent back to the client detailing the problem
+        """
+        super().__init__(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=message)

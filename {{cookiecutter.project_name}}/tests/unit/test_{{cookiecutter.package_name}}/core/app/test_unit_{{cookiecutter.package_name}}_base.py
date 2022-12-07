@@ -9,6 +9,7 @@ from {{cookiecutter.package_name}}.exceptions import (
     InternalServerError,
     NotFoundError,
     UnauthenticatedError,
+    ValidationError
 )
 
 
@@ -110,3 +111,26 @@ async def test_unauthenticated_error_handler():
         b'{"message":"Unauthenticated Error: Test unauthenticated-error message"}'
     )
     assert json_response.status_code == 401
+
+
+@mark.asyncio
+async def test_validation_error_handler():
+    """
+    Tests the validation_error_handler function for completion. The
+    validation_error_handler function should return a JSONResponse
+    without any errors
+    """
+
+    # Mocks the validation-error class
+    validation_error_mock = MagicMock(spec=ValidationError)
+    validation_error_mock.detail = "Test validation-error message"
+    validation_error_mock.status_code = 422
+
+    # Checks whether a valid JSONResponse instance is created correctly
+    json_response = await FastAuthApiBase.validation_error_handler(
+        None, validation_error_mock
+    )
+    assert json_response.body == (
+        b'{"message":"Validation Error: Test validation-error message"}'
+    )
+    assert json_response.status_code == 422

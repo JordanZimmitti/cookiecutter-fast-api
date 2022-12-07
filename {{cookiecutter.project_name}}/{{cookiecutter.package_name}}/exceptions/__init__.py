@@ -4,4 +4,5 @@ from .http import (
     InternalServerError,
     NotFoundError,
     UnauthenticatedError,
+    ValidationError
 )
