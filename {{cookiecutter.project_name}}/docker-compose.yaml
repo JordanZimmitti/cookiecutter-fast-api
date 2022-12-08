@@ -8,7 +8,7 @@ services:
     build: "."
     container_name: "{{cookiecutter.package_name}}"
     env_file:
-      - "local/override-dev.env"
+      - "local/override-docker.env"
     ports:
       - "2000:2000"
     deploy:
@@ -26,7 +26,7 @@ services:
 
   postgresql:
     image: "docker.io/bitnami/postgresql:latest"
-    container_name: "api_db"
+    container_name: "{{cookiecutter.package_name}}_database"
     platform: "linux/amd64"
     environment:
       - "POSTGRESQL_USERNAME=local_user"
