@@ -41,8 +41,9 @@ class DatabaseRowOperations:
             result = await session.execute(query)
             return result
         except Exception as exc:
-            logger.error("SQL-Alchemy session execution failed")
-            logger.debug("SQL-Alchemy session execution failed", exc_info=exc)
+            message = "SQL-Alchemy session execution failed"
+            logger.error(message)
+            logger.debug(message, exc_info=exc)
             raise InternalServerError()
 
     @staticmethod
@@ -57,8 +58,9 @@ class DatabaseRowOperations:
             await session.flush()
             await session.commit()
         except Exception as exc:
-            logger.error("SQL-Alchemy session commit failed")
-            logger.debug("SQL-Alchemy session commit failed", exc_info=exc)
+            message = "SQL-Alchemy session commit failed"
+            logger.error(message)
+            logger.debug(message, exc_info=exc)
             raise InternalServerError()
 
     async def add_row(self, table: ORMTable):
