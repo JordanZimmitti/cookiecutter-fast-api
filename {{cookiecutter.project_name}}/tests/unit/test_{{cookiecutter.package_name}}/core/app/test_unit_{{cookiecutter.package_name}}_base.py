@@ -127,7 +127,7 @@ async def test_validation_error_handler():
     validation_error_mock.status_code = 422
 
     # Checks whether a valid JSONResponse instance is created correctly
-    json_response = await FastAuthApiBase.validation_error_handler(
+    json_response = await {{cookiecutter.class_name}}Base.validation_error_handler(
         None, validation_error_mock
     )
     assert json_response.body == (

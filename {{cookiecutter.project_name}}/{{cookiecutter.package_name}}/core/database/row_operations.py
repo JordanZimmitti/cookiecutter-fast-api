@@ -9,8 +9,9 @@ from {{cookiecutter.package_name}}.exceptions import InternalServerError
 # Gets {{cookiecutter.friendly_name}} server logger instance
 logger = getLogger("{{cookiecutter.package_name}}.core.database.row_operations")
 
-# ORM table type-hinting
+# Row-Operations type-hinting
 ORMTable = TypeVar("ORMTable")
+ReturnType = TypeVar("ReturnType")
 
 
 class DatabaseRowOperations:
@@ -40,7 +41,24 @@ class DatabaseRowOperations:
             result = await session.execute(query)
             return result
         except Exception as exc:
-            logger.error("SQL-Alchemy session execution failed", exc_info=exc)
+            logger.error("SQL-Alchemy session execution failed")
+            logger.debug("SQL-Alchemy session execution failed", exc_info=exc)
+            raise InternalServerError()
+
+    @staticmethod
+    async def _commit_session(session: AsyncSession):
+        """
+        Function that flushes and commits the given session. When the session
+        cannot be flushed and committed an InternalServerError is raised
+
+        :param session: The asynchronous session instance to commit
+        """
+        try:
+            await session.flush()
+            await session.commit()
+        except Exception as exc:
+            logger.error("SQL-Alchemy session commit failed")
+            logger.debug("SQL-Alchemy session commit failed", exc_info=exc)
             raise InternalServerError()
 
     async def add_row(self, table: ORMTable):
@@ -56,8 +74,7 @@ class DatabaseRowOperations:
 
             # Persists the new data to the table
             session.add(table)
-            await session.flush()
-            await session.commit()
+            await self._commit_session(session)
 
     async def add_rows(self, tables: List[ORMTable]):
         """
@@ -70,21 +87,18 @@ class DatabaseRowOperations:
         # Creates an async-session that adds the new data into each table in the list
         async with self._session_maker() as session:
 
-            # Adds each table containing the new data to be persisted
-            session.add_all(tables)
-
             # Persists the new data to each of the tables
-            await session.flush()
-            await session.commit()
+            session.add_all(tables)
+            await self._commit_session(session)
 
     async def get_rows_all(
-        self, orm_table: ORMTable, query: Select, is_scalar: bool = True
-    ) -> List[ORMTable]:
+            self, return_type: ReturnType, query: Select, is_scalar: bool = True
+    ) -> List[ReturnType]:
         """
         Function that executes the query and
         gets all the rows retrieved
 
-        :param orm_table: The database ORM table used in the query
+        :param return_type: The return-type the query
         :param query: The query statement to execute
         :param is_scalar: Whether the object should be filtered through a scalar
 
@@ -97,19 +111,19 @@ class DatabaseRowOperations:
             # Executes the query and returns all the rows
             result = await self._execute_query(session, query)
             if is_scalar:
-                row: List[orm_table] = list(result.scalars().all())
+                row: List[return_type] = list(result.scalars().all())
             else:
-                row: List[orm_table] = list(result.all())
+                row: List[return_type] = list(result.all())
             return row
 
     async def get_rows_first(
-        self, orm_table: ORMTable, query: Select, is_scalar: bool = True
-    ) -> ORMTable | None:
+            self, return_type: ReturnType, query: Select, is_scalar: bool = True
+    ) -> ReturnType | None:
         """
         Function that executes the query and gets the first
         row retrieved or none when no rows are retrieved
 
-        :param orm_table: The database ORM table used in the query
+        :param return_type: The return-type the query
         :param query: The query statement to execute
         :param is_scalar: Whether the object should be filtered through a scalar
 
@@ -122,19 +136,19 @@ class DatabaseRowOperations:
             # Executes the query and returns the first row from the query when it exists
             result = await self._execute_query(session, query)
             if is_scalar:
-                row: orm_table | None = result.scalars().first()
+                row: return_type | None = result.scalars().first()
             else:
-                row: orm_table | None = result.first()
+                row: return_type | None = result.first()
             return row
 
     async def get_rows_one(
-        self, orm_table: ORMTable, query: Select, is_scalar: bool = True
-    ) -> ORMTable:
+            self, return_type: ReturnType, query: Select, is_scalar: bool = True
+    ) -> ReturnType:
         """
         Function that executes the query and gets the first row
         retrieved or raises an error when no rows are retrieved
 
-        :param orm_table: The database ORM table used in the query
+        :param return_type: The return-type the query
         :param query: The query statement to execute
         :param is_scalar: Whether the object should be filtered through a scalar
 
@@ -148,9 +162,9 @@ class DatabaseRowOperations:
             try:
                 result = await self._execute_query(session, query)
                 if is_scalar:
-                    row: orm_table = result.scalars().one()
+                    row: return_type = result.scalars().one()
                 else:
-                    row: orm_table = result.one()
+                    row: return_type = result.one()
                 return row
             except Exception:
                 extra_info = {"query": str(query)}
@@ -159,7 +173,7 @@ class DatabaseRowOperations:
                 raise InternalServerError()
 
     async def get_rows_unique(
-        self, query: Select, strategy: Any = None, is_scalar: bool = True
+            self, query: Select, strategy: Any = None, is_scalar: bool = True
     ) -> ScalarResult:
         """
         Function that executes the unique query and gets the

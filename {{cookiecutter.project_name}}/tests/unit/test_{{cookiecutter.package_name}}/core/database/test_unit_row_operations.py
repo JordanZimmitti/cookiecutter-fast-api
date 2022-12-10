@@ -4,7 +4,7 @@ from pytest import mark, raises
 from sqlalchemy import Result, Row, ScalarResult, Select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from {{cookiecutter.package_name}}.core.database.row_operations import DatabaseRowOperations, ORMTable
+from {{cookiecutter.package_name}}.core.database.row_operations import DatabaseRowOperations, ReturnType
 from {{cookiecutter.package_name}}.exceptions import InternalServerError
 from tests.mocks import error_mock
 
@@ -19,6 +19,9 @@ async def test_add_row():
     # Mocks the async-session class
     async_session_mock = AsyncMock(spec_set=AsyncSession)
 
+    # Mocks the _commit_session class
+    commit_session_mock = AsyncMock()
+
     # Mocks the async_sessionmaker aenter function
     async def aenter_mock(_):
         return async_session_mock
@@ -30,14 +33,14 @@ async def test_add_row():
     # Mocks the database-row-operations class
     database_row_operations_mock = MagicMock(spec=DatabaseRowOperations)
     database_row_operations_mock._session_maker = lambda: session_maker_mock
+    database_row_operations_mock._commit_session = commit_session_mock
 
     # Invokes the add_row functon
     await DatabaseRowOperations.add_row(self=database_row_operations_mock, table=None)
 
     # Checks whether the required methods were called correctly
-    assert async_session_mock.add.call_count == 1
-    assert async_session_mock.flush.call_count == 1
-    assert async_session_mock.commit.call_count == 1
+    assert async_session_mock.add.called
+    assert commit_session_mock.called
 
 
 @mark.asyncio
@@ -50,6 +53,9 @@ async def test_add_rows():
     # Mocks the async-session class
     async_session_mock = AsyncMock(spec_set=AsyncSession)
 
+    # Mocks the _commit_session class
+    commit_session_mock = AsyncMock()
+
     # Mocks the async_sessionmaker aenter function
     async def aenter_mock(_):
         return async_session_mock
@@ -61,14 +67,48 @@ async def test_add_rows():
     # Mocks the database-row-operations class
     database_row_operations_mock = MagicMock(spec=DatabaseRowOperations)
     database_row_operations_mock._session_maker = lambda: session_maker_mock
+    database_row_operations_mock._commit_session = commit_session_mock
 
     # Invokes the add_rows functon
     await DatabaseRowOperations.add_rows(self=database_row_operations_mock, tables=[None])
 
     # Checks whether the required methods were called correctly
-    assert async_session_mock.add_all.call_count == 1
-    assert async_session_mock.flush.call_count == 1
-    assert async_session_mock.commit.call_count == 1
+    assert async_session_mock.add_all.called
+    assert commit_session_mock.called
+
+
+@mark.asyncio
+async def test_commit_session():
+    """
+    Tests the _commit_session function for completion. The _commit_session function
+    should call the required methods without any errors
+    """
+
+    # Mocks the async-session class
+    async_session_mock = AsyncMock(spec_set=AsyncSession)
+
+    # Invokes the _commit_session functon
+    await DatabaseRowOperations._commit_session(async_session_mock)
+
+    # Checks whether the required methods were called correctly
+    assert async_session_mock.flush.called
+    assert async_session_mock.commit.called
+
+
+@mark.asyncio
+async def test_commit_session_error():
+    """
+    Tests the _commit_session function when an error occurs. The
+    _commit_session function should raise an InternalServerError
+    """
+
+    # Mocks the async-session class
+    async_session_mock = MagicMock(spec_set=AsyncSession)
+    async_session_mock.flush = error_mock
+
+    # Checks whether the correct error was raised
+    with raises(InternalServerError):
+        await DatabaseRowOperations._commit_session(async_session_mock)
 
 
 @mark.asyncio
@@ -117,11 +157,11 @@ async def test_get_rows_all():
     should return a list of orm tables without any errors
     """
 
-    # Mocks the orm-table class
-    orm_table_mock = MagicMock(spec_set=ORMTable)
+    # Mocks the return-type class
+    return_type_mock = MagicMock(spec_set=ReturnType)
 
     # Mocks the data retrieved from the all function
-    all_data_mock = [orm_table_mock]
+    all_data_mock = [return_type_mock]
 
     # Mocks the scalars function
     scalars_mock = MagicMock()
@@ -142,7 +182,9 @@ async def test_get_rows_all():
 
     # Invokes the get_rows_all functon
     rows = await DatabaseRowOperations.get_rows_all(
-        self=database_row_operations_mock, orm_table=orm_table_mock, query=MagicMock(spec_set=Select)
+        self=database_row_operations_mock,
+        return_type=return_type_mock,
+        query=MagicMock(spec_set=Select),
     )
 
     # Checks whether the rows were retrieved correctly
@@ -178,7 +220,7 @@ async def test_get_rows_all_no_scalar():
     # Invokes the get_rows_all functon
     rows = await DatabaseRowOperations.get_rows_all(
         self=database_row_operations_mock,
-        orm_table=row_mock,
+        return_type=row_mock,
         query=MagicMock(spec_set=Select),
         is_scalar=False,
     )
@@ -194,11 +236,11 @@ async def test_get_rows_first():
     should return an orm table without any errors
     """
 
-    # Mocks the orm-table class
-    orm_table_mock = MagicMock(spec_set=ORMTable)
+    # Mocks the return-type class
+    return_type_mock = MagicMock(spec_set=ReturnType)
 
     # Mocks the data retrieved from the first function
-    first_data_mock = orm_table_mock
+    first_data_mock = return_type_mock
 
     # Mocks the scalars function
     scalars_mock = MagicMock()
@@ -219,7 +261,9 @@ async def test_get_rows_first():
 
     # Invokes the get_rows_first functon
     row = await DatabaseRowOperations.get_rows_first(
-        self=database_row_operations_mock, orm_table=orm_table_mock, query=MagicMock(spec_set=Select)
+        self=database_row_operations_mock,
+        return_type=return_type_mock,
+        query=MagicMock(spec_set=Select),
     )
 
     # Checks whether the row was retrieved correctly
@@ -255,7 +299,7 @@ async def test_get_rows_first_no_scalar():
     # Invokes the get_rows_first functon
     row = await DatabaseRowOperations.get_rows_first(
         self=database_row_operations_mock,
-        orm_table=row_mock,
+        return_type=row_mock,
         query=MagicMock(spec_set=Select),
         is_scalar=False,
     )
@@ -271,11 +315,11 @@ async def test_get_rows_one():
     should return an orm table without any errors
     """
 
-    # Mocks the orm-table class
-    orm_table_mock = MagicMock(spec_set=ORMTable)
+    # Mocks the return-type class
+    return_type_mock = MagicMock(spec_set=ReturnType)
 
     # Mocks the data retrieved from the one function
-    one_data_mock = orm_table_mock
+    one_data_mock = return_type_mock
 
     # Mocks the scalars function
     scalars_mock = MagicMock()
@@ -296,7 +340,9 @@ async def test_get_rows_one():
 
     # Invokes the get_rows_first functon
     row = await DatabaseRowOperations.get_rows_one(
-        self=database_row_operations_mock, orm_table=orm_table_mock, query=MagicMock(spec_set=Select)
+        self=database_row_operations_mock,
+        return_type=return_type_mock,
+        query=MagicMock(spec_set=Select),
     )
 
     # Checks whether the row was retrieved correctly
@@ -332,7 +378,7 @@ async def test_get_rows_one_no_scalar():
     # Invokes the get_rows_first functon
     row = await DatabaseRowOperations.get_rows_one(
         self=database_row_operations_mock,
-        orm_table=row_mock,
+        return_type=row_mock,
         query=MagicMock(spec_set=Select),
         is_scalar=False,
     )
@@ -348,8 +394,8 @@ async def test_get_rows_one_no_row():
     function should raise an InternalServerError
     """
 
-    # Mocks the orm-table class
-    orm_table_mock = MagicMock(spec_set=ORMTable)
+    # Mocks the return-type class
+    return_type_mock = MagicMock(spec_set=ReturnType)
 
     # Mocks the one function
     def one_mock():
@@ -376,8 +422,8 @@ async def test_get_rows_one_no_row():
     with raises(InternalServerError):
         await DatabaseRowOperations.get_rows_one(
             self=database_row_operations_mock,
-            orm_table=orm_table_mock,
-            query=MagicMock(spec_set=Select)
+            return_type=return_type_mock,
+            query=MagicMock(spec_set=Select),
         )
 
 
