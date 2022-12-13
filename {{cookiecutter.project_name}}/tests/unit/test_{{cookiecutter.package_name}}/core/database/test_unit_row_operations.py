@@ -1,10 +1,11 @@
 from unittest.mock import AsyncMock, MagicMock
 
 from pytest import mark, raises
-from sqlalchemy import Result, Row, ScalarResult, Select
+from sqlalchemy import Select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from {{cookiecutter.package_name}}.core.database.row_operations import DatabaseRowOperations, ReturnType
+from {{cookiecutter.package_name}}.core.database import row_operations
+from {{cookiecutter.package_name}}.core.database.row_operations import DatabaseRowOperations, RowResult, RowResults
 from {{cookiecutter.package_name}}.exceptions import InternalServerError
 from tests.mocks import error_mock
 
@@ -19,7 +20,7 @@ async def test_add_row():
     # Mocks the async-session class
     async_session_mock = AsyncMock(spec_set=AsyncSession)
 
-    # Mocks the _commit_session class
+    # Mocks the _commit_session function
     commit_session_mock = AsyncMock()
 
     # Mocks the async_sessionmaker aenter function
@@ -53,7 +54,7 @@ async def test_add_rows():
     # Mocks the async-session class
     async_session_mock = AsyncMock(spec_set=AsyncSession)
 
-    # Mocks the _commit_session class
+    # Mocks the _commit_session function
     commit_session_mock = AsyncMock()
 
     # Mocks the async_sessionmaker aenter function
@@ -80,8 +81,8 @@ async def test_add_rows():
 @mark.asyncio
 async def test_commit_session():
     """
-    Tests the _commit_session function for completion. The _commit_session function
-    should call the required methods without any errors
+    Tests the _commit_session function for completion. The _commit_session
+    function should call the required methods without any errors
     """
 
     # Mocks the async-session class
@@ -114,21 +115,44 @@ async def test_commit_session_error():
 @mark.asyncio
 async def test_execute_query():
     """
-    Tests the _execute_query function for completion. The _execute_query function
-    should call the required methods without any errors
+    Tests the _execute_query function for completion. The _execute_query
+    function should call the required methods without any errors
     """
+
+    # Mocks the select class
+    statement_mock = MagicMock(spec_set=Select)
 
     # Mocks the async-session class
     async_session_mock = AsyncMock(spec_set=AsyncSession)
 
-    # Mocks the query class
-    query_mock = MagicMock(spec_set=Select)
+    # Mocks the async_sessionmaker aenter function
+    async def aenter_mock(_):
+        return async_session_mock
+
+    # Mocks the async_sessionmaker class
+    session_maker_mock = MagicMock()
+    session_maker_mock.__aenter__ = aenter_mock
+
+    # Mocks the _commit_session function
+    commit_session_mock = AsyncMock()
+
+    # Mocks the database-row-operations class
+    database_row_operations_mock = MagicMock(spec=DatabaseRowOperations)
+    database_row_operations_mock._session_maker = lambda: session_maker_mock
+    database_row_operations_mock._commit_session = commit_session_mock
 
     # Invokes the _execute_query functon
-    await DatabaseRowOperations._execute_query(async_session_mock, query_mock)
+    await DatabaseRowOperations._execute_query(
+        self=database_row_operations_mock, statement=statement_mock, is_commit=True
+    )
 
     # Checks whether the required methods were called correctly
-    assert async_session_mock.execute.call_count == 1
+    assert async_session_mock.execute.called
+    assert commit_session_mock.called
+
+    # Checks whether the required parameters were passed correctly
+    assert async_session_mock.execute.call_args.args[0] == statement_mock
+    assert commit_session_mock.call_args.args[0] == async_session_mock
 
 
 @mark.asyncio
@@ -139,363 +163,26 @@ async def test_execute_query_error():
     """
 
     # Mocks the async-session class
-    async_session_mock = MagicMock(spec_set=AsyncSession)
+    async_session_mock = AsyncMock(spec_set=AsyncSession)
     async_session_mock.execute = error_mock
 
-    # Mocks the query class
-    query_mock = MagicMock(spec_set=Select)
+    # Mocks the async_sessionmaker aenter function
+    async def aenter_mock(_):
+        return async_session_mock
+
+    # Mocks the async_sessionmaker class
+    session_maker_mock = MagicMock()
+    session_maker_mock.__aenter__ = aenter_mock
+
+    # Mocks the database-row-operations class
+    database_row_operations_mock = MagicMock(spec=DatabaseRowOperations)
+    database_row_operations_mock._session_maker = lambda: session_maker_mock
 
     # Checks whether the correct error was raised
     with raises(InternalServerError):
-        await DatabaseRowOperations._execute_query(async_session_mock, query_mock)
-
-
-@mark.asyncio
-async def test_get_rows_all():
-    """
-    Tests the get_rows_all function for completion. The get_rows_all function
-    should return a list of orm tables without any errors
-    """
-
-    # Mocks the return-type class
-    return_type_mock = MagicMock(spec_set=ReturnType)
-
-    # Mocks the data retrieved from the all function
-    all_data_mock = [return_type_mock]
-
-    # Mocks the scalars function
-    scalars_mock = MagicMock()
-    scalars_mock.all = lambda: all_data_mock
-
-    # Mocks the result class
-    result_mock = MagicMock(spec_set=Result)
-    result_mock.scalars = lambda: scalars_mock
-
-    # Mocks the execute_query function
-    async def execute_query_mock(*_):
-        return result_mock
-
-    # Mocks the database-row-operations class
-    database_row_operations_mock = MagicMock(spec=DatabaseRowOperations)
-    database_row_operations_mock._session_maker = lambda: AsyncMock(spec_set=AsyncSession)
-    database_row_operations_mock._execute_query = execute_query_mock
-
-    # Invokes the get_rows_all functon
-    rows = await DatabaseRowOperations.get_rows_all(
-        self=database_row_operations_mock,
-        return_type=return_type_mock,
-        query=MagicMock(spec_set=Select),
-    )
-
-    # Checks whether the rows were retrieved correctly
-    assert rows == all_data_mock
-
-
-@mark.asyncio
-async def test_get_rows_all_no_scalar():
-    """
-    Tests the get_rows_all function when the result should not be filtered though a scalar.
-    The get_rows_all function should return a list of sqlalchemy rows without any errors
-    """
-
-    # Mocks the row class
-    row_mock = MagicMock(spec_set=Row)
-
-    # Mocks the data retrieved from the all function
-    all_data_mock = [row_mock]
-
-    # Mocks the result class
-    result_mock = MagicMock(spec_set=Result)
-    result_mock.all.return_value = all_data_mock
-
-    # Mocks the execute_query function
-    async def execute_query_mock(*_):
-        return result_mock
-
-    # Mocks the database-row-operations class
-    database_row_operations_mock = MagicMock(spec=DatabaseRowOperations)
-    database_row_operations_mock._session_maker = lambda: AsyncMock(spec_set=AsyncSession)
-    database_row_operations_mock._execute_query = execute_query_mock
-
-    # Invokes the get_rows_all functon
-    rows = await DatabaseRowOperations.get_rows_all(
-        self=database_row_operations_mock,
-        return_type=row_mock,
-        query=MagicMock(spec_set=Select),
-        is_scalar=False,
-    )
-
-    # Checks whether the rows were retrieved correctly
-    assert rows == all_data_mock
-
-
-@mark.asyncio
-async def test_get_rows_first():
-    """
-    Tests the get_rows_first function for completion. The get_rows_first function
-    should return an orm table without any errors
-    """
-
-    # Mocks the return-type class
-    return_type_mock = MagicMock(spec_set=ReturnType)
-
-    # Mocks the data retrieved from the first function
-    first_data_mock = return_type_mock
-
-    # Mocks the scalars function
-    scalars_mock = MagicMock()
-    scalars_mock.first = lambda: first_data_mock
-
-    # Mocks the result class
-    result_mock = MagicMock(spec_set=Result)
-    result_mock.scalars = lambda: scalars_mock
-
-    # Mocks the execute_query function
-    async def execute_query_mock(*_):
-        return result_mock
-
-    # Mocks the database-row-operations class
-    database_row_operations_mock = MagicMock(spec=DatabaseRowOperations)
-    database_row_operations_mock._session_maker = lambda: AsyncMock(spec_set=AsyncSession)
-    database_row_operations_mock._execute_query = execute_query_mock
-
-    # Invokes the get_rows_first functon
-    row = await DatabaseRowOperations.get_rows_first(
-        self=database_row_operations_mock,
-        return_type=return_type_mock,
-        query=MagicMock(spec_set=Select),
-    )
-
-    # Checks whether the row was retrieved correctly
-    assert row == first_data_mock
-
-
-@mark.asyncio
-async def test_get_rows_first_no_scalar():
-    """
-    Tests the get_rows_first function when the result should not be filtered though a scalar.
-    The get_rows_first function should return a sqlalchemy row without any errors
-    """
-
-    # Mocks the row class
-    row_mock = MagicMock(spec_set=Row)
-
-    # Mocks the data retrieved from the first function
-    first_data_mock = row_mock
-
-    # Mocks the result class
-    result_mock = MagicMock(spec_set=Result)
-    result_mock.first.return_value = first_data_mock
-
-    # Mocks the execute_query function
-    async def execute_query_mock(*_):
-        return result_mock
-
-    # Mocks the database-row-operations class
-    database_row_operations_mock = MagicMock(spec=DatabaseRowOperations)
-    database_row_operations_mock._session_maker = lambda: AsyncMock(spec_set=AsyncSession)
-    database_row_operations_mock._execute_query = execute_query_mock
-
-    # Invokes the get_rows_first functon
-    row = await DatabaseRowOperations.get_rows_first(
-        self=database_row_operations_mock,
-        return_type=row_mock,
-        query=MagicMock(spec_set=Select),
-        is_scalar=False,
-    )
-
-    # Checks whether the row was retrieved correctly
-    assert row == first_data_mock
-
-
-@mark.asyncio
-async def test_get_rows_one():
-    """
-    Tests the get_rows_one function for completion. The get_rows_one function
-    should return an orm table without any errors
-    """
-
-    # Mocks the return-type class
-    return_type_mock = MagicMock(spec_set=ReturnType)
-
-    # Mocks the data retrieved from the one function
-    one_data_mock = return_type_mock
-
-    # Mocks the scalars function
-    scalars_mock = MagicMock()
-    scalars_mock.one = lambda: one_data_mock
-
-    # Mocks the result class
-    result_mock = MagicMock(spec_set=Result)
-    result_mock.scalars = lambda: scalars_mock
-
-    # Mocks the execute_query function
-    async def execute_query_mock(*_):
-        return result_mock
-
-    # Mocks the database-row-operations class
-    database_row_operations_mock = MagicMock(spec=DatabaseRowOperations)
-    database_row_operations_mock._session_maker = lambda: AsyncMock(spec_set=AsyncSession)
-    database_row_operations_mock._execute_query = execute_query_mock
-
-    # Invokes the get_rows_first functon
-    row = await DatabaseRowOperations.get_rows_one(
-        self=database_row_operations_mock,
-        return_type=return_type_mock,
-        query=MagicMock(spec_set=Select),
-    )
-
-    # Checks whether the row was retrieved correctly
-    assert row == one_data_mock
-
-
-@mark.asyncio
-async def test_get_rows_one_no_scalar():
-    """
-    Tests the get_rows_one function when the result should not be filtered though a scalar.
-    The get_rows_one function should return a sqlalchemy row without any errors
-    """
-
-    # Mocks the row class
-    row_mock = MagicMock(spec_set=Row)
-
-    # Mocks the data retrieved from the one function
-    one_data_mock = row_mock
-
-    # Mocks the result class
-    result_mock = MagicMock(spec_set=Result)
-    result_mock.one.return_value = one_data_mock
-
-    # Mocks the execute_query function
-    async def execute_query_mock(*_):
-        return result_mock
-
-    # Mocks the database-row-operations class
-    database_row_operations_mock = MagicMock(spec=DatabaseRowOperations)
-    database_row_operations_mock._session_maker = lambda: AsyncMock(spec_set=AsyncSession)
-    database_row_operations_mock._execute_query = execute_query_mock
-
-    # Invokes the get_rows_first functon
-    row = await DatabaseRowOperations.get_rows_one(
-        self=database_row_operations_mock,
-        return_type=row_mock,
-        query=MagicMock(spec_set=Select),
-        is_scalar=False,
-    )
-
-    # Checks whether the row was retrieved correctly
-    assert row == one_data_mock
-
-
-@mark.asyncio
-async def test_get_rows_one_no_row():
-    """
-    Tests the get_rows_one function when no rows are returned. The get_rows_one
-    function should raise an InternalServerError
-    """
-
-    # Mocks the return-type class
-    return_type_mock = MagicMock(spec_set=ReturnType)
-
-    # Mocks the one function
-    def one_mock():
-        raise InternalServerError()
-
-    # Mocks the scalars function
-    scalars_mock = MagicMock()
-    scalars_mock.one = one_mock
-
-    # Mocks the result class
-    result_mock = MagicMock(spec_set=Result)
-    result_mock.scalars = lambda: scalars_mock
-
-    # Mocks the execute_query function
-    async def execute_query_mock(*_):
-        return result_mock
-
-    # Mocks the database-row-operations class
-    database_row_operations_mock = MagicMock(spec=DatabaseRowOperations)
-    database_row_operations_mock._session_maker = lambda: AsyncMock(spec_set=AsyncSession)
-    database_row_operations_mock._execute_query = execute_query_mock
-
-    # Checks whether the correct error was raised
-    with raises(InternalServerError):
-        await DatabaseRowOperations.get_rows_one(
-            self=database_row_operations_mock,
-            return_type=return_type_mock,
-            query=MagicMock(spec_set=Select),
+        await DatabaseRowOperations._execute_query(
+            self=database_row_operations_mock, statement=MagicMock(), is_commit=False
         )
-
-
-@mark.asyncio
-async def test_get_rows_unique():
-    """
-    Tests the get_rows_unique function for completion. The get_rows_unique function
-    should return a scalar-result without any errors
-    """
-
-    # Mocks the scalar-result class
-    unique_scalar_result_mock = MagicMock(spec_set=ScalarResult)
-
-    # Mocks the data retrieved from the unique function
-    unique_data_mock = unique_scalar_result_mock
-
-    # Mocks the scalars function
-    scalars_mock = MagicMock()
-    scalars_mock.unique = lambda _: unique_data_mock
-
-    # Mocks the result class
-    result_mock = MagicMock(spec_set=Result)
-    result_mock.scalars = lambda: scalars_mock
-
-    # Mocks the execute_query function
-    async def execute_query_mock(*_):
-        return result_mock
-
-    # Mocks the database-row-operations class
-    database_row_operations_mock = MagicMock(spec=DatabaseRowOperations)
-    database_row_operations_mock._session_maker = lambda: AsyncMock(spec_set=AsyncSession)
-    database_row_operations_mock._execute_query = execute_query_mock
-
-    # Invokes the get_rows_unique functon
-    result = await DatabaseRowOperations.get_rows_unique(
-        self=database_row_operations_mock, query=MagicMock(spec_set=Select)
-    )
-
-    # Checks whether the row was retrieved correctly
-    assert result == unique_scalar_result_mock
-
-
-@mark.asyncio
-async def test_get_rows_unique_no_scalar():
-    """
-    Tests the get_rows_unique function when the result should not be filtered though a scalar.
-    The get_rows_unique function should return a result without any errors
-    """
-
-    # Mocks the result's unique function
-    result_unique_mock = MagicMock()
-
-    # Mocks the result class
-    result_mock = MagicMock(spec_set=Result)
-    result_mock.unique.return_value = result_unique_mock
-
-    # Mocks the execute_query function
-    async def execute_query_mock(*_):
-        return result_mock
-
-    # Mocks the database-row-operations class
-    database_row_operations_mock = MagicMock(spec=DatabaseRowOperations)
-    database_row_operations_mock._session_maker = lambda: AsyncMock(spec_set=AsyncSession)
-    database_row_operations_mock._execute_query = execute_query_mock
-
-    # Invokes the get_rows_unique functon
-    result = await DatabaseRowOperations.get_rows_unique(
-        self=database_row_operations_mock, query=MagicMock(spec_set=Select), is_scalar=False
-    )
-
-    # Checks whether the row was retrieved correctly
-    assert result == result_unique_mock
 
 
 def test_init():
@@ -510,5 +197,185 @@ def test_init():
     # Define and instantiates the DatabaseRowOperations class
     db_connection = DatabaseRowOperations(session_maker=session_maker_mock)
 
-    # Checks whether the DatabaseRowOperations class correctly instantiated
+    # Checks whether the database-row-operations class was instantiated correctly
     assert db_connection._session_maker == session_maker_mock
+
+
+@mark.asyncio
+async def test_query_row(mocker):
+    """
+    Tests the query_row function for completion. The query_row function
+    should call the required methods without any errors
+
+    :param mocker: Fixture to mock specific functions for testing
+    """
+
+    # Mocks the execute_query function
+    execute_query_mock = AsyncMock()
+    execute_query_mock.return_value = execute_query_mock
+
+    # Mocks the row-result class
+    row_result_mock = MagicMock(spec_set=RowResult)
+    row_result_mock.return_value = row_result_mock
+    mocker.patch.object(row_operations, "RowResult", row_result_mock)
+
+    # Mocks the database-row-operations class
+    database_row_operations_mock = MagicMock(spec=DatabaseRowOperations)
+    database_row_operations_mock._execute_query = execute_query_mock
+
+    # Mocks the select class
+    statement_mock = MagicMock(spec_set=Select)
+
+    # Invokes the query_row functon
+    row_result = await DatabaseRowOperations.query_row(
+        self=database_row_operations_mock, statement=statement_mock
+    )
+
+    # Checks whether the required methods were called correctly
+    assert row_result == row_result_mock
+    assert execute_query_mock.called
+    assert row_result_mock.called
+
+    # Checks whether the required parameters were passed correctly
+    assert execute_query_mock.call_args.args == (statement_mock, False)
+    assert row_result_mock.call_args.args == (execute_query_mock, True)
+
+
+@mark.asyncio
+async def test_query_rows(mocker):
+    """
+    Tests the query_rows function for completion. The query_rows function
+    should call the required methods without any errors
+
+    :param mocker: Fixture to mock specific functions for testing
+    """
+
+    # Mocks the execute_query function
+    execute_query_mock = AsyncMock()
+    execute_query_mock.return_value = execute_query_mock
+
+    # Mocks the row-result class
+    row_results_mock = MagicMock(spec_set=RowResults)
+    row_results_mock.return_value = row_results_mock
+    mocker.patch.object(row_operations, "RowResults", row_results_mock)
+
+    # Mocks the database-row-operations class
+    database_row_operations_mock = MagicMock(spec=DatabaseRowOperations)
+    database_row_operations_mock._execute_query = execute_query_mock
+
+    # Mocks the select class
+    statement_mock = MagicMock(spec_set=Select)
+
+    # Invokes the query_row functon
+    row_results = await DatabaseRowOperations.query_rows(
+        self=database_row_operations_mock, statement=statement_mock
+    )
+
+    # Checks whether the required methods were called correctly
+    assert row_results == row_results_mock
+    assert execute_query_mock.called
+    assert row_results_mock.called
+
+    # Checks whether the required parameters were passed correctly
+    assert execute_query_mock.call_args.args == (statement_mock, False)
+    assert row_results_mock.call_args.args == (execute_query_mock, True)
+
+
+@mark.asyncio
+async def test_stream_rows():
+    """
+    Tests the stream_rows function for completion. The stream_rows function
+    should call the required methods without any errors
+    """
+
+    # Mocks the fetchmany function
+    fetch_many_mock = AsyncMock()
+    fetch_many_mock.return_value = ["test-value-one"]
+
+    # Mocks the result value
+    result_mock = MagicMock()
+    result_mock.fetchmany = fetch_many_mock
+
+    # Mocks the stream result value
+    stream_result_mock = MagicMock()
+    stream_result_mock.scalars.return_value = result_mock
+
+    # Mocks the stream function
+    stream_mock = AsyncMock()
+    stream_mock.return_value = stream_result_mock
+
+    # Mocks the async-session class
+    async_session_mock = AsyncMock(spec_set=AsyncSession)
+    async_session_mock.stream = stream_mock
+
+    # Mocks the async_sessionmaker class
+    session_maker_mock = MagicMock()
+    session_maker_mock.__aenter__.return_value = async_session_mock
+
+    # Mocks the database-row-operations class
+    database_row_operations_mock = MagicMock(spec=DatabaseRowOperations)
+    database_row_operations_mock._session_maker = lambda: session_maker_mock
+
+    # Mocks the return-type type-var
+    return_type_mock = MagicMock()
+
+    # Mocks the select class
+    statement_mock = MagicMock(spec_set=Select)
+
+    # Invokes the stream_rows function
+    async for rows in DatabaseRowOperations.stream_rows(
+        self=database_row_operations_mock,
+        return_type=return_type_mock,
+        statement=statement_mock,
+        batch=1,
+    ):
+        assert rows == ["test-value-one"]
+        fetch_many_mock.return_value = []
+
+    # Invokes the stream_rows function
+    fetch_many_mock.return_value = ["test-value-one"]
+    stream_mock.return_value = result_mock
+    async for rows in DatabaseRowOperations.stream_rows(
+        self=database_row_operations_mock,
+        return_type=return_type_mock,
+        statement=statement_mock,
+        batch=1,
+        is_scalar=False,
+    ):
+        assert rows == ["test-value-one"]
+        fetch_many_mock.return_value = []
+
+    # Checks whether the required methods were called correctly
+    assert stream_mock.called
+    assert stream_result_mock.scalars.called
+    assert result_mock.fetchmany.called
+
+    # Checks whether the required parameters were passed correctly
+    assert stream_mock.call_args.args[0] == statement_mock
+
+
+@mark.asyncio
+async def test_stream_rows_error():
+    """
+    Tests the stream_rows function when an error occurs. The
+    stream_rows function should raise an InternalServerError
+    """
+
+    # Mocks the database-row-operations class
+    database_row_operations_mock = MagicMock(spec=DatabaseRowOperations)
+
+    # Mocks the return-type type-var
+    return_type_mock = MagicMock()
+
+    # Mocks the select class
+    statement_mock = MagicMock(spec_set=Select)
+
+    # Checks whether the correct error was raised
+    with raises(InternalServerError):
+        async for _ in DatabaseRowOperations.stream_rows(
+            self=database_row_operations_mock,
+            return_type=return_type_mock,
+            statement=statement_mock,
+            batch=1,
+        ):
+            pass
