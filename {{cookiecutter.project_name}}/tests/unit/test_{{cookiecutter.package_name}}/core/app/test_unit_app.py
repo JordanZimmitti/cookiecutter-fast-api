@@ -14,14 +14,22 @@ from {{cookiecutter.package_name}}.core.app import (
 )
 from {{cookiecutter.package_name}}.core.cache import FastApiContext
 from {{cookiecutter.package_name}}.core.database import DatabaseManager
+from {{cookiecutter.package_name}}.core.settings import Settings
 
 
 @mark.asyncio
-async def test_deconstruct_app_state():
+async def test_deconstruct_app_state(mocker):
     """
     Tests the deconstruct_app_state function for completion. The deconstruct_app_state function
     should run without any errors
+
+    :param mocker: Fixture to mock specific functions for testing
     """
+
+    # Mocks and overrides the settings class
+    settings_mock = MagicMock(spec=Settings)
+    settings_mock.IS_API_DB_ENABLED = True
+    mocker.patch.object(app, "settings", settings_mock)
 
     # Mocks the fast-api class
     app_mock = MagicMock(spec=FastAPI)
@@ -39,8 +47,8 @@ async def test_deconstruct_app_state():
     await deconstruct_app_state(app_mock)
 
     # Checks whether the required methods were called correctly
-    assert app_mock.state.db_manager.connection.disconnect.call_count == 1
-    assert app_mock.state.fast_api_context.reset.call_count == 1
+    assert app_mock.state.fast_api_context.reset.called
+    assert app_mock.state.db_manager.connection.disconnect.called
 
 
 def test_expose_metrics_endpoint(mocker):
@@ -125,20 +133,36 @@ def test_setup_app_state(mocker):
     should run without any errors
     """
 
+    # Mocks and overrides the settings class
+    settings_mock = MagicMock(spec=Settings)
+    settings_mock.IS_API_DB_ENABLED = True
+    settings_mock.API_DB_DISPLAY_NAME = "test-db-name"
+    settings_mock.API_DB_DESCRIPTION = "test-db-description"
+    settings_mock.API_DB_CONN_URI = "test-db-uri"
+    mocker.patch.object(app, "settings", settings_mock)
+
     # Mocks the fast-api class
     app_mock = MagicMock(spec=FastAPI)
     app_mock.state = MagicMock()
 
-    # Mocks and overrides the db-manager class
-    db_manager_mock = MagicMock(spec_set=DatabaseManager)
-    mocker.patch.object(app, "DatabaseManager", return_value=db_manager_mock)
-
     # Mocks and overrides the get_fast_api_context function
     fast_api_context_mock = MagicMock(spec_set=FastApiContext)
-    mocker.patch.object(app, "get_fast_api_context", return_value=fast_api_context_mock)
+    fast_api_context_mock.return_value = fast_api_context_mock
+    mocker.patch.object(app, "get_fast_api_context", fast_api_context_mock)
 
-    # Checks whether the setup_app_state function runs without any errors
+    # Mocks and overrides the db-manager class
+    db_manager_mock = MagicMock(spec_set=DatabaseManager)
+    db_manager_mock.return_value = db_manager_mock
+    mocker.patch.object(app, "DatabaseManager", db_manager_mock)
+
+    # Invokes the setup_app_state function
     setup_app_state(app_mock)
-    assert app_mock.state.db_manager == db_manager_mock
-    assert app_mock.state.db_manager.connection.connect.called
+
+    # Checks whether the fast-api-context was set up correctly
+    assert fast_api_context_mock.called
     assert app_mock.state.fast_api_context == fast_api_context_mock
+
+    # Checks whether the db-manager was set up correctly
+    assert db_manager_mock.called
+    assert app_mock.state.db_manager == db_manager_mock
+    assert db_manager_mock.call_args.args == ("test-db-name", "test-db-description", "test-db-uri")

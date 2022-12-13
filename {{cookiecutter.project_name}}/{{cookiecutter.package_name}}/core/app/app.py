@@ -36,9 +36,10 @@ async def deconstruct_app_state(app: FastAPI):
     fast_api_context: FastApiContext = app.state.fast_api_context
     fast_api_context.reset()
 
-    # Disconnects the database connection pool
-    db_manager: DatabaseManager = app.state.db_manager
-    await db_manager.connection.disconnect()
+    # Disconnects the database connection pool when it is enabled
+    if settings.IS_API_DB_ENABLED:
+        db_manager: DatabaseManager = app.state.db_manager
+        await db_manager.connection.disconnect()
 
 
 def expose_metrics_endpoint(app: FastAPI):
@@ -142,13 +143,14 @@ def setup_app_state(app: FastAPI):
     fast_api_context = get_fast_api_context()
     app.state.fast_api_context = fast_api_context
 
-    # Adds the database manager instance into the app state
-    db_manager = DatabaseManager(
-        settings.API_DB_DISPLAY_NAME,
-        settings.API_DB_DESCRIPTION,
-        settings.API_DB_CONN_URI,
-    )
-    app.state.db_manager = db_manager
+    # Adds the database manager instance into the app state when it is enabled
+    if settings.IS_API_DB_ENABLED:
+        db_manager = DatabaseManager(
+            settings.API_DB_DISPLAY_NAME,
+            settings.API_DB_DESCRIPTION,
+            settings.API_DB_CONN_URI,
+        )
+        app.state.db_manager = db_manager
 
-    # Connects to the database
-    db_manager.connection.connect()
+        # Connects to the database
+        db_manager.connection.connect()
