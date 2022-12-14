@@ -1,5 +1,3 @@
-from typing import Any, Dict
-
 from fastapi import FastAPI
 from pytest import mark
 from starlette.testclient import TestClient
