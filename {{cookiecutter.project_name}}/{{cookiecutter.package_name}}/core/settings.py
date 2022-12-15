@@ -97,10 +97,11 @@ class Settings(BaseSettings):
     API_DB_DESCRIPTION: str = "{{cookiecutter.api_database_description}}"
 
     # {{cookiecutter.friendly_name}} server database
+    IS_API_DB_ENABLED: bool = False
     API_DB_DRIVER: SecretStr = "postgresql+asyncpg"
     API_DB_HOST: SecretStr = "127.0.0.1"
     API_DB_PORT: SecretStr = "5432"
-    API_DB_DB: SecretStr = "api_db"
+    API_DB_DB: SecretStr = "{{cookiecutter.package_name}}"
     API_DB_SCHEMA: SecretStr = "public"
     API_DB_USER: SecretStr = "local_user"
     API_DB_PASSWORD: SecretStr = "very-secure-password"

@@ -31,8 +31,7 @@ services:
     environment:
       - "POSTGRESQL_USERNAME=local_user"
       - "POSTGRESQL_PASSWORD=very-secure-password"
-      - "POSTGRESQL_DATABASE=api_db"
-      - "ALLOW_EMPTY_PASSWORD=yes"
+      - "POSTGRESQL_DATABASE={{cookiecutter.package_name}}"
     ports:
       - "5432:5432"
     volumes:
