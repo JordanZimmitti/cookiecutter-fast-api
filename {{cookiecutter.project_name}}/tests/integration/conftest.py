@@ -1,9 +1,9 @@
 from os import environ
 
 from pytest import Config, Parser, fixture
-from pytest_config_pro import PytestConfigPro
 
 from tests.integration.client import ApiClient
+from tests.integration.pytest_config_pro import PytestConfigPro
 
 
 def pytest_addoption(parser: Parser):

@@ -1,44 +1,72 @@
-FROM python:3.11.0-slim
+ARG POETRY_VERSION
+ARG PYTHON_VERSION
+
+# Configures the operating system
+FROM python:$PYTHON_VERSION-alpine as os
+
+# Creates environment variables from docker arguments
+ENV PYTHON_VERSION=$PYTHON_VERSION
+ENV POETRY_VERSION=$POETRY_VERSION
+ENV PYTHONUNBUFFERED=1
 
 # Installs/Updates linux packages
-RUN apt-get update
-RUN apt-get upgrade -y
-RUN apt-get install curl gcc -y
+RUN apk update
+RUN apk add curl gcc libffi-dev libressl-dev make musl-dev
 
 # Creates the group and user the project should run in
-RUN groupadd --gid 1000 appuser
-RUN useradd  --uid 1000 --gid appuser --create-home appuser
+RUN addgroup --gid 1000 appuser
+RUN adduser --uid 1000 --ingroup appuser --disabled-password --home appuser appuser
 
 # Sets the project working directory
 WORKDIR /home/appuser
+RUN chown -R appuser:appuser .
 
-# Installs poetry
-RUN curl -sSL https://install.python-poetry.org | python -
+# Updates pip defaults, uninstalls pip, then installs poetry
+RUN pip install --upgrade certifi setuptools wheel
+RUN pip uninstall pip -y
+RUN curl -ssl https://install.python-poetry.org | python -
 ENV PATH="${PATH}:/root/.local/bin"
 
-# Copies over files necessary for using poetry
+# Configures poetry for use
+RUN poetry config virtualenvs.create false
 COPY poetry.lock .
 COPY pyproject.toml .
 
-# Copies over any locally installed packages
-RUN mkdir {{cookiecutter.package_name}}
-COPY {{cookiecutter.package_name}}/utils/packages {{cookiecutter.package_name}}/utils/packages
 
-# Installs production dependencies
-RUN pip3 install --upgrade pip setuptools wheel
-RUN poetry config virtualenvs.create false
-RUN poetry install --no-root --no-dev
+# Configures running the API
+FROM os as api
 
-# Copies the project into the docker container
+# Installs the API only dependencies
+RUN poetry install --no-root --only main
+
+# Copies the API project into the docker container
 COPY {{cookiecutter.package_name}} {{cookiecutter.package_name}}
-COPY scripts/entrypoint.sh entrypoint.sh
+COPY scripts/entrypoint.sh scripts/entrypoint.sh
 
 # Exposes the port that the API server runs on
 EXPOSE 2000
 
-# Sets the user to the appuser
-RUN chown -R appuser:appuser .
-USER appuser
-
 # Starts the API server
-CMD ["sh", "entrypoint.sh"]
+USER appuser
+CMD ["sh", "scripts/entrypoint.sh"]
+
+
+# Configures running the API unit tests
+FROM os as api_unit_tests
+
+# Installs the API dependencies with test dependencies
+RUN poetry install --no-root --with main --with test
+
+# Copies the API project and unit tests into the docker container
+COPY .coveragerc .coveragerc
+COPY {{cookiecutter.package_name}} {{cookiecutter.package_name}}
+COPY scripts/run_tests.sh scripts/run_tests.sh
+COPY tests/api tests/api
+COPY tests/unit tests/unit
+COPY tests/mocks tests/mocks
+COPY tests/pytest.env tests/pytest.env
+COPY tests/pytest.ini tests/pytest.ini
+
+# Starts the API unit tests
+USER appuser
+CMD ["sh", "scripts/run_tests.sh"]

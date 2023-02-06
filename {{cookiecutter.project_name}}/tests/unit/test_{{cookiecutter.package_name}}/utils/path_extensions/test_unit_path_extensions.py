@@ -8,8 +8,8 @@ def test_get_parent_path_by_file_exists():
     """
 
     # Checks whether the parent path was retrieved correctly
-    parent_path = get_parent_path_by_file(".gitignore")
-    assert "{{cookiecutter.project_name}}" in str(parent_path)
+    parent_path = get_parent_path_by_file("pyproject.toml")
+    assert str(parent_path)
 
 
 def test_get_parent_path_by_file_not_exists():

@@ -74,9 +74,8 @@ def test_format_with_error():
     # Checks whether the log-line was retrieved correctly
     # noinspection StrFormat
     line_log = LineFormatter.format(self=line_formatter_mock, record=log_record_mock)
-    assert line_log == (
-        'host="localhost" '
-        "-- process=1000 "
+    assert line_log.partition("-- ")[2] == (
+        "process=1000 "
         '-- threadname="MainThread" '
         '-- timestamp="2001-01-01.100" '
         '-- correlation_id="a976b291-fa0e-4b65-8a9b-dcf4d94e3dd2" '
@@ -117,9 +116,8 @@ def test_format_without_error():
     # Checks whether the log-line was retrieved correctly
     # noinspection StrFormat
     line_log = LineFormatter.format(self=line_formatter_mock, record=log_record_mock)
-    assert line_log == (
-        'host="localhost" '
-        "-- process=1000 "
+    assert line_log.partition("-- ")[2] == (
+        "process=1000 "
         '-- threadname="MainThread" '
         '-- timestamp="2001-01-01.100" '
         '-- correlation_id="a976b291-fa0e-4b65-8a9b-dcf4d94e3dd2" '

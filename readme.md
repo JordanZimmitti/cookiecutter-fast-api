@@ -10,8 +10,12 @@ Create a fully-working production-ready Fast-API server in minutes!
     * Script for easy local environment setup
   
 * **Docker**
-    * Production-Ready dockerfile configured
-    * Docker-Compose configured with Fast-API server and Postgres database
+    * Production-Ready multi-stage dockerfile configured
+    * Alpine base-image for the best os-security and smaller build sizes 
+    * Docker-Compose configured with: 
+        * Fast-API server 
+        * Unit-Test runner
+        * Postgres database
     
 * **Fast-API Server**
     * Application-Level context management 

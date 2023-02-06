@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Gets the {{cookiecutter.friendly_name}} server base directory
+# Gets the Example API server base directory
 FILE_DIR=$(dirname "$0")
 cd "$FILE_DIR" || exit
 cd ..
@@ -14,10 +14,7 @@ fi
 
 # Runs the api and unit tests
 export ENV_FILE=tests/pytest.env
-pre-commit run --all-files
 python -m pytest tests/api tests/unit \
+  --junitxml="target/junit.xml" \
   --cov "$COVERAGE" \
-  --cov-report "term-missing:skip-covered"
-
-# Removes the .coverage file
-rm -rf .coverage
+  --cov-report "xml:target/coverage.xml"

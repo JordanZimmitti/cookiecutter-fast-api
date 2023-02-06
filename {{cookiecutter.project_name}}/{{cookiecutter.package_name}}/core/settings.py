@@ -1,5 +1,4 @@
 from copy import deepcopy
-from enum import Enum
 from os.path import dirname, join
 from typing import Any, Dict, List
 from urllib.parse import quote
@@ -8,25 +7,10 @@ from pydantic import BaseSettings, SecretStr, validator
 from pydantic.networks import AnyHttpUrl
 
 
-class Environment(Enum):
-    """
-    Enum class that describes the different
-    environment options
-    """
-
-    DEV = "dev"
-    LOCAL = "local"
-    PROD = "prod"
-    STAGING = "staging"
-
-
 class Settings(BaseSettings):
 
     # The name of the host the project is running on
     HOSTNAME: str = "localhost"
-
-    # The type of environment the project is running on
-    ENVIRONMENT: Environment = Environment.LOCAL
 
     # The name of the project
     PROJECT_NAME: str = "{{cookiecutter.friendly_name}}"
