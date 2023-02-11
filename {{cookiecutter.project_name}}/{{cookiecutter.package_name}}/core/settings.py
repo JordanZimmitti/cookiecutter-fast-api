@@ -82,6 +82,7 @@ class Settings(BaseSettings):
 
     # {{cookiecutter.friendly_name}} server database
     IS_API_DB_ENABLED: bool = False
+    API_DB_QUERY_RETRY_NUMBER: int = 3
     API_DB_DRIVER: SecretStr = "postgresql+asyncpg"
     API_DB_HOST: SecretStr = "127.0.0.1"
     API_DB_PORT: SecretStr = "5432"
