@@ -13,6 +13,7 @@ ENV PYTHONUNBUFFERED=1
 # Installs/Updates linux packages
 RUN apk update
 RUN apk add curl gcc libffi-dev libressl-dev make musl-dev
+RUN apk upgrade --available && sync
 
 # Creates the group and user the project should run in
 RUN addgroup --gid 1000 appuser
