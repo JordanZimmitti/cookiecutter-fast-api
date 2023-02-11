@@ -3,6 +3,7 @@ from typing import Any, AsyncIterator, Callable, List, TypeVar
 
 from sqlalchemy import Delete, Result, ScalarResult, Select, Update
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+from tenacity import retry, stop_after_attempt, wait_fixed
 
 from {{cookiecutter.package_name}}.exceptions import InternalServerError
 
@@ -154,6 +155,7 @@ class DatabaseRowOperations:
             logger.debug(message, exc_info=exc)
             raise InternalServerError()
 
+    @retry(stop=stop_after_attempt(3), wait=wait_fixed(1))
     async def add_row(self, table: ORMTable):
         """
         Function that adds a
@@ -167,6 +169,7 @@ class DatabaseRowOperations:
             session.add(table)
             await self._commit_session(session)
 
+    @retry(stop=stop_after_attempt(3), wait=wait_fixed(1))
     async def add_rows(self, tables: List[ORMTable]):
         """
         Function that adds a list
@@ -180,6 +183,7 @@ class DatabaseRowOperations:
             session.add_all(tables)
             await self._commit_session(session)
 
+    @retry(stop=stop_after_attempt(3), wait=wait_fixed(1))
     async def query_row(
         self, statement: Delete | Select | Update, is_commit: bool = False, is_scalar: bool = True
     ) -> RowResult:
@@ -201,6 +205,7 @@ class DatabaseRowOperations:
         row_result = RowResult(result, is_scalar)
         return row_result
 
+    @retry(stop=stop_after_attempt(3), wait=wait_fixed(1))
     async def query_rows(
         self, statement: Delete | Select | Update, is_commit: bool = False, is_scalar: bool = True
     ) -> RowResults:
@@ -222,6 +227,7 @@ class DatabaseRowOperations:
         row_results = RowResults(result, is_scalar)
         return row_results
 
+    @retry(stop=stop_after_attempt(3), wait=wait_fixed(1))
     async def stream_rows(
         self, return_type: ReturnType, statement: Select, batch: int, is_scalar: bool = True
     ) -> AsyncIterator[List[ReturnType]]:
@@ -252,6 +258,7 @@ class DatabaseRowOperations:
             logger.debug(message, exc_info=exc)
             raise InternalServerError()
 
+    @retry(stop=stop_after_attempt(3), wait=wait_fixed(1))
     async def _execute_query(self, statement: Delete | Select | Update, is_commit: bool) -> Result:
         """
         Function that executes the query and gets the result. When the
