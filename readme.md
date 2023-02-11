@@ -1,7 +1,7 @@
-# Fast-API Postgres Cookiecutter Template (MacOS/Linux)
+# __Fast-API Postgres Cookiecutter Template (MacOS/Linux)__
 Create a fully-working production-ready Fast-API server in minutes!
 
-## Features
+## __Features__
 
 * **Project Configuration**
     * Python 11 support 
@@ -37,4 +37,5 @@ Create a fully-working production-ready Fast-API server in minutes!
     * Built-in Async Alembic migration for Postgres
 
 * **Utilities**
-    * A pydantic utility decorator function that creates a fast-api form from a pydantic model 
+    * A pydantic utility decorator function that creates a fast-api form from a pydantic model
+    * An async utility function to run synchronous code asynchronously

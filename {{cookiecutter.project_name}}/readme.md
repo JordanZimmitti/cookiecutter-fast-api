@@ -1,4 +1,4 @@
-# {{cookiecutter.friendly_name}}
+# __{{cookiecutter.friendly_name}}__
 {{cookiecutter.project_description}}
 
 ![Code Style](https://img.shields.io/badge/Code%20Style-flake8-blue)
@@ -13,14 +13,14 @@
 
 ## __Testing__
 
-### __Running unit and e2e tests__
+### __Running api and unit tests__
 * API and Unit tests: `sh scripts/run_tests_local.sh`
 
 ### __Running integration tests__
 * Integration tests: `sh scripts/run_integration_tests.sh`
 
 
-## Docker Deployments
+## __Docker Deployments__
 The {{cookiecutter.friendly_name}} project comes equipped with a dockerfile and docker-compose file. The 
 docker-compose file is equipped to generate a production {{cookiecutter.friendly_name}} server instance 
 and a development PostgreSQL instance
