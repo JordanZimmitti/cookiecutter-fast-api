@@ -244,6 +244,8 @@ class DatabaseRowOperations:
 
         :return: A chunk all the rows retrieved
         """
+
+        # Attempts to stream rows from the database
         try:
             async with self._session_maker() as session:
                 stream_result = await session.stream(statement)
