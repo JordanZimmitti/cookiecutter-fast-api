@@ -18,7 +18,7 @@ if config.config_file_name is not None:
 target_metadata = TableBase.metadata
 
 # The database schema the tables should be created in
-app_schema = "public"
+app_schema = settings.API_DB_SCHEMA.get_secret_value()
 
 def run_migrations_offline():
     """
