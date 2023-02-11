@@ -37,7 +37,9 @@ async def test_add_row():
     database_row_operations_mock._commit_session = commit_session_mock
 
     # Invokes the add_row functon
-    await DatabaseRowOperations.add_row(self=database_row_operations_mock, table=None)
+    await DatabaseRowOperations.add_row.__wrapped__.__wrapped__(
+        self=database_row_operations_mock, table=None
+    )
 
     # Checks whether the required methods were called correctly
     assert async_session_mock.add.called
@@ -71,7 +73,9 @@ async def test_add_rows():
     database_row_operations_mock._commit_session = commit_session_mock
 
     # Invokes the add_rows functon
-    await DatabaseRowOperations.add_rows(self=database_row_operations_mock, tables=[None])
+    await DatabaseRowOperations.add_rows.__wrapped__.__wrapped__(
+        self=database_row_operations_mock, tables=[None]
+    )
 
     # Checks whether the required methods were called correctly
     assert async_session_mock.add_all.called
@@ -142,7 +146,7 @@ async def test_execute_query():
     database_row_operations_mock._commit_session = commit_session_mock
 
     # Invokes the _execute_query functon
-    await DatabaseRowOperations._execute_query(
+    await DatabaseRowOperations._execute_query.__wrapped__.__wrapped__(
         self=database_row_operations_mock, statement=statement_mock, is_commit=True
     )
 
@@ -180,7 +184,7 @@ async def test_execute_query_error():
 
     # Checks whether the correct error was raised
     with raises(InternalServerError):
-        await DatabaseRowOperations._execute_query(
+        await DatabaseRowOperations._execute_query.__wrapped__.__wrapped__(
             self=database_row_operations_mock, statement=MagicMock(), is_commit=False
         )
 
@@ -227,7 +231,7 @@ async def test_query_row(mocker):
     statement_mock = MagicMock(spec_set=Select)
 
     # Invokes the query_row functon
-    row_result = await DatabaseRowOperations.query_row(
+    row_result = await DatabaseRowOperations.query_row.__wrapped__.__wrapped__(
         self=database_row_operations_mock, statement=statement_mock
     )
 
@@ -267,7 +271,7 @@ async def test_query_rows(mocker):
     statement_mock = MagicMock(spec_set=Select)
 
     # Invokes the query_row functon
-    row_results = await DatabaseRowOperations.query_rows(
+    row_results = await DatabaseRowOperations.query_rows.__wrapped__.__wrapped__(
         self=database_row_operations_mock, statement=statement_mock
     )
 
@@ -323,7 +327,7 @@ async def test_stream_rows():
     statement_mock = MagicMock(spec_set=Select)
 
     # Invokes the stream_rows function
-    async for rows in DatabaseRowOperations.stream_rows(
+    async for rows in DatabaseRowOperations.stream_rows.__wrapped__(
         self=database_row_operations_mock,
         return_type=return_type_mock,
         statement=statement_mock,
@@ -335,7 +339,7 @@ async def test_stream_rows():
     # Invokes the stream_rows function
     fetch_many_mock.return_value = ["test-value-one"]
     stream_mock.return_value = result_mock
-    async for rows in DatabaseRowOperations.stream_rows(
+    async for rows in DatabaseRowOperations.stream_rows.__wrapped__(
         self=database_row_operations_mock,
         return_type=return_type_mock,
         statement=statement_mock,
@@ -372,7 +376,7 @@ async def test_stream_rows_error():
 
     # Checks whether the correct error was raised
     with raises(InternalServerError):
-        async for _ in DatabaseRowOperations.stream_rows(
+        async for _ in DatabaseRowOperations.stream_rows.__wrapped__(
             self=database_row_operations_mock,
             return_type=return_type_mock,
             statement=statement_mock,
