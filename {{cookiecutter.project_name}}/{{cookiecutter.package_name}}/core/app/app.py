@@ -11,7 +11,7 @@ from {{cookiecutter.package_name}}.api.dependencies.middleware import (
     get_response_size,
     set_correlation_id,
 )
-from {{cookiecutter.package_name}}.core.cache import FastApiContext, get_fast_api_context
+from {{cookiecutter.package_name}}.core.cache import FastApiContext, RedisManager, get_fast_api_context
 from {{cookiecutter.package_name}}.core.database import DatabaseManager
 from {{cookiecutter.package_name}}.core.open_api import get_open_api_instance
 from {{cookiecutter.package_name}}.core.settings import settings
@@ -40,6 +40,11 @@ async def deconstruct_app_state(app: FastAPI):
     if settings.IS_API_DB_ENABLED:
         db_manager: DatabaseManager = app.state.db_manager
         await db_manager.connection.disconnect()
+
+    # Disconnects the redis instance when it is enabled
+    if settings.IS_API_REDIS_ENABLED:
+        redis_manager: RedisManager = app.state.redis_manager
+        await redis_manager.disconnect()
 
 
 def expose_metrics_endpoint(app: FastAPI):
@@ -154,3 +159,17 @@ def setup_app_state(app: FastAPI):
 
         # Connects to the database
         db_manager.connection.connect()
+
+    # Adds the redis instance into the app state when it is enabled
+    if settings.IS_API_REDIS_ENABLED:
+        redis_manager = RedisManager(
+            settings.API_REDIS_DISPLAY_NAME,
+            settings.API_REDIS_DESCRIPTION,
+            settings.API_REDIS_HOST,
+            settings.API_REDIS_PORT,
+            settings.API_REDIS_PASSWORD,
+        )
+        app.state.redis_manager = redis_manager
+
+        # Connects to the redis instance
+        redis_manager.connect()

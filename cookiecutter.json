@@ -8,5 +8,8 @@
   "project_authors": "[\"John Doe <johndoe@gmail.com>\"]",
 
   "api_database_display_name": "Example Database",
-  "api_database_description": "Database that stores..."
+  "api_database_description": "Database that stores...",
+
+  "redis_cache_display_name": "Example Redis",
+  "redis_cache_description": "Redis that caches..."
 }

@@ -76,6 +76,17 @@ class Settings(BaseSettings):
     # How many active database connections are available in the connection pool
     SQLALCHEMY_POOL_SIZE: int = 5
 
+    # {{cookiecutter.friendly_name}} server redis metadata
+    API_REDIS_DISPLAY_NAME: str = "{{cookiecutter.redis_cache_display_name}}"
+    API_REDIS_DESCRIPTION: str = "{{cookiecutter.redis_cache_description}}"
+
+    # {{cookiecutter.friendly_name}} server redis
+    IS_API_REDIS_ENABLED: bool = False
+    API_REDIS_HOST: SecretStr = "127.0.0.1"
+    API_REDIS_PORT: SecretStr = "6379"
+    API_REDIS_PASSWORD: SecretStr = "very-secure-password"
+    API_REDIS_DECODE_RESPONSES: bool = True
+
     # {{cookiecutter.friendly_name}} server database metadata
     API_DB_DISPLAY_NAME: str = "{{cookiecutter.api_database_display_name}}"
     API_DB_DESCRIPTION: str = "{{cookiecutter.api_database_description}}"

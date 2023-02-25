@@ -26,10 +26,12 @@ services:
           memory: "500M"
     links:
       - "postgres:postgres"
+      - "redis:redis"
     depends_on:
       - "postgres"
+      - "redis"
 
-  example_api_unit_tests:
+  {{cookiecutter.package_name}}_unit_tests:
     image: "{{cookiecutter.package_name}}_unit_tests:0.1.0"
     build:
       context: "."
@@ -59,3 +61,22 @@ services:
         reservations:
           cpus: "2.0"
           memory: "1000M"
+
+  redis:
+    image: "docker.io/bitnami/redis:latest"
+    container_name: "redis"
+    platform: "linux/amd64"
+    environment:
+      - "REDIS_PASSWORD=very-secure-password"
+    ports:
+      - "6379:6379"
+    volumes:
+      - "./local/redis_data:/bitnami/redis/data"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: "100M"
+        reservations:
+          cpus: "0.5"
+          memory: "100M"

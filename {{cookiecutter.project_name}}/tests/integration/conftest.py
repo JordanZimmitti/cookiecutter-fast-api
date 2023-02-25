@@ -38,7 +38,7 @@ def client(pytestconfig: Config):
     password = pytest_config.get_cli_argument("password", environ.get("password"))
 
     # Returns the API client instance
-    client = ApiClient(api_url, None, username, password)
+    api_client = ApiClient(api_url, None, username, password)
     if username and password:
-        client.login()
-    return client
+        api_client.login()
+    return api_client
