@@ -25,11 +25,11 @@ services:
           cpus: "1.0"
           memory: "500M"
     links:
-      - "postgres:postgres"
-      - "redis:redis"
+      - "{{cookiecutter.package_name}}_postgres:{{cookiecutter.package_name}}_postgres"
+      - "{{cookiecutter.package_name}}_redis:{{cookiecutter.package_name}}_redis"
     depends_on:
-      - "postgres"
-      - "redis"
+      - "{{cookiecutter.package_name}}_postgres"
+      - "{{cookiecutter.package_name}}_redis"
 
   {{cookiecutter.package_name}}_unit_tests:
     image: "{{cookiecutter.package_name}}_unit_tests:0.1.0"
@@ -41,9 +41,9 @@ services:
         PYTHON_VERSION: "3.11.1"
     container_name: "{{cookiecutter.package_name}}_unit_tests"
 
-  postgres:
+  {{cookiecutter.package_name}}_postgres:
     image: "docker.io/bitnami/postgresql:latest"
-    container_name: "database"
+    container_name: "{{cookiecutter.package_name}}_database"
     platform: "linux/amd64"
     environment:
       - "POSTGRESQL_USERNAME=local_user"
@@ -62,9 +62,9 @@ services:
           cpus: "2.0"
           memory: "1000M"
 
-  redis:
+  {{cookiecutter.package_name}}_redis:
     image: "docker.io/bitnami/redis:latest"
-    container_name: "redis"
+    container_name: "{{cookiecutter.package_name}}_redis"
     platform: "linux/amd64"
     environment:
       - "REDIS_PASSWORD=very-secure-password"

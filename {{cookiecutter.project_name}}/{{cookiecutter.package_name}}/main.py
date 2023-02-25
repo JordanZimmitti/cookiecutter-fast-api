@@ -11,7 +11,6 @@ from starlette.responses import JSONResponse, RedirectResponse, Response
 from {{cookiecutter.package_name}}.core.app import (
     {{cookiecutter.class_name}}Base,
     deconstruct_app_state,
-    expose_metrics_endpoint,
     handle_request,
     setup_app_state,
 )
@@ -41,9 +40,6 @@ class {{cookiecutter.class_name}}({{cookiecutter.class_name}}Base, ABC):
 
         # Starts the logger and gets its instance
         start_logger(settings.LOG_LEVEL)
-
-        # Exposes the metrics endpoint
-        expose_metrics_endpoint({{cookiecutter.class_name}}.app)
 
         # Configures the fast-api state instances
         setup_app_state({{cookiecutter.class_name}}.app)

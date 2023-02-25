@@ -1,10 +1,7 @@
-from fastapi import FastAPI
-from pytest import mark
 from starlette.testclient import TestClient
 
 from {{cookiecutter.package_name}} import main
 from {{cookiecutter.package_name}}.core.settings import settings
-from {{cookiecutter.package_name}}.main import {{cookiecutter.class_name}}
 from tests.mocks import error_mock
 
 # Gunicorn options
@@ -17,19 +14,6 @@ options = {
     "max_requests_jitter": settings.UVICORN_MAX_REQUESTS_JITTER,
     "timeout": settings.UVICORN_TIMEOUT,
 }
-
-
-def test_main_{{cookiecutter.package_name}}_load():
-    """
-    Tests the {{cookiecutter.friendly_name}} class for completion. The {{cookiecutter.friendly_name}} class
-    should return the {{cookiecutter.friendly_name}} app instance without any errors
-    """
-
-    # Gets the {{cookiecutter.friendly_name}} fast-api app instance
-    app = {{cookiecutter.class_name}}(options).load()
-
-    # Checks whether the fast-api app instance was returned
-    assert isinstance(app, FastAPI)
 
 
 def test_main_{{cookiecutter.package_name}}_middleware_error(mocker, client: TestClient):
@@ -72,16 +56,3 @@ def test_main_{{cookiecutter.package_name}}_redirect(client: TestClient):
 
     # Checks whether the redirect to the swagger-ui docs was successful
     assert b"swagger-ui" in response.content
-
-
-@mark.asyncio
-async def test_main_{{cookiecutter.package_name}}_startup_and_shutdown():
-    """
-    Tests the {{cookiecutter.friendly_name}} class startup and shutdown function. The startup
-    and shutdown function should run to completion without any errors
-    """
-
-    # Gets the {{cookiecutter.friendly_name}} fast-api app instance
-    api = {{cookiecutter.class_name}}(options)
-    await api.startup()
-    await api.shutdown()

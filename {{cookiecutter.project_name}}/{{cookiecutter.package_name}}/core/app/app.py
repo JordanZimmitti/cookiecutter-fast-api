@@ -135,6 +135,9 @@ def setup_app(app: FastAPI):
     # Sets the custom open-api instance
     app.openapi = lambda: get_open_api_instance(app)
 
+    # Exposes the metrics endpoint
+    expose_metrics_endpoint(app)
+
 
 def setup_app_state(app: FastAPI):
     """
