@@ -1,8 +1,8 @@
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock
 
 from pydantic import SecretStr
 from pytest import mark, raises
-from redis.asyncio.client import Redis
+from redis.asyncio.client import Pipeline, Redis
 
 from {{cookiecutter.package_name}}.core.cache import RedisManager, redis_manager
 from {{cookiecutter.package_name}}.core.settings import Settings
@@ -105,6 +105,30 @@ def test_get_display_name():
     assert display_name == "test-name"
 
 
+def test_init():
+    """
+    Tests the RedisManager init function for completion. The RedisManager init
+    function should instantiate a RedisManager instance without any errors
+    """
+
+    # Define and instantiates the redis-manager class
+    redis_manager_instance = RedisManager(
+        display_name="test-display-name",
+        description="test-description",
+        host=SecretStr("test-host"),
+        port=SecretStr("test-port"),
+        password=SecretStr("test-password"),
+    )
+
+    # Checks whether the redis-manager class correctly instantiated
+    assert redis_manager_instance._display_name == "test-display-name"
+    assert redis_manager_instance._description == "test-description"
+    assert redis_manager_instance._host == SecretStr("test-host")
+    assert redis_manager_instance._port == SecretStr("test-port")
+    assert redis_manager_instance._password == SecretStr("test-password")
+    assert redis_manager_instance._operation is None
+
+
 def test_get_operation():
     """
     Tests the operation property for completion. The
@@ -149,25 +173,103 @@ def test_get_operation_no_operation():
         assert redis_manager_instance.operation
 
 
-def test_init():
+@mark.asyncio
+async def test_pipeline():
     """
-    Tests the RedisManager init function for completion. The RedisManager init
-    function should instantiate a RedisManager instance without any errors
+    Tests the RedisManager pipeline function for completion. The RedisManager
+    pipeline class should return a result without any errors
     """
 
-    # Define and instantiates the redis-manager class
-    redis_manager_instance = RedisManager(
-        display_name="test-display-name",
-        description="test-description",
-        host=SecretStr("test-host"),
-        port=SecretStr("test-port"),
-        password=SecretStr("test-password"),
+    # Mocks the pipeline class
+    pipe_mock = AsyncMock(spec_set=Pipeline)
+    pipe_mock.execute.return_value = ["result"]
+
+    # Mocks the redis class
+    operation_mock = MagicMock(spec_set=Redis)
+    operation_mock.pipeline.return_value.__aenter__.return_value = pipe_mock
+
+    # Mocks the redis-manager class
+    redis_manager_mock = MagicMock(spec=RedisManager)
+    redis_manager_mock._operation = operation_mock
+
+    # Mocks the pipe_ops function
+    pipe_ops_mock = MagicMock()
+
+    # Invokes the redis-manager pipeline class
+    result = await RedisManager.pipeline(self=redis_manager_mock, pipe_ops=pipe_ops_mock)
+
+    # Checks whether the result was retrieved correctly
+    assert result == ["result"]
+    assert operation_mock.pipeline.called
+    assert operation_mock.pipeline.call_args.args[0] is True
+    assert pipe_ops_mock.called
+    assert pipe_ops_mock.call_args.args[0] == pipe_mock
+    assert pipe_mock.execute.called
+
+
+@mark.asyncio
+async def test_pipeline_vector():
+    """
+    Tests the RedisManager pipeline function when a vector is expected.
+    The RedisManager pipeline class should return a vectored result
+    """
+
+    # Mocks the pipeline class
+    pipe_mock = AsyncMock(spec_set=Pipeline)
+    pipe_mock.execute.return_value = ["result"]
+
+    # Mocks the redis class
+    operation_mock = MagicMock(spec_set=Redis)
+    operation_mock.pipeline.return_value.__aenter__.return_value = pipe_mock
+
+    # Mocks the redis-manager class
+    redis_manager_mock = MagicMock(spec=RedisManager)
+    redis_manager_mock._operation = operation_mock
+
+    # Mocks the pipe_ops function
+    pipe_ops_mock = MagicMock()
+
+    # Invokes the redis-manager pipeline class
+    result = await RedisManager.pipeline(
+        self=redis_manager_mock, pipe_ops=pipe_ops_mock, is_vector=True
     )
 
-    # Checks whether the redis-manager class correctly instantiated
-    assert redis_manager_instance._display_name == "test-display-name"
-    assert redis_manager_instance._description == "test-description"
-    assert redis_manager_instance._host == SecretStr("test-host")
-    assert redis_manager_instance._port == SecretStr("test-port")
-    assert redis_manager_instance._password == SecretStr("test-password")
-    assert redis_manager_instance._operation is None
+    # Checks whether the result was retrieved correctly
+    assert result == "result"
+    assert operation_mock.pipeline.called
+    assert operation_mock.pipeline.call_args.args[0] is True
+    assert pipe_ops_mock.called
+    assert pipe_ops_mock.call_args.args[0] == pipe_mock
+    assert pipe_mock.execute.called
+
+
+@mark.asyncio
+async def test_pipeline_error():
+    """
+    Tests the RedisManager pipeline function when an error occurs. The
+    RedisManager pipeline class should raise an InternalServerError
+    """
+
+    # Mocks the pipeline class
+    pipe_mock = AsyncMock(spec_set=Pipeline)
+
+    # Mocks the redis class
+    operation_mock = MagicMock(spec_set=Redis)
+    operation_mock.pipeline.return_value.__aenter__.return_value = pipe_mock
+
+    # Mocks the redis-manager class
+    redis_manager_mock = MagicMock(spec=RedisManager)
+    redis_manager_mock._operation = operation_mock
+
+    # Mocks the pipe_ops function
+    pipe_ops_mock = MagicMock(side_effect=InternalServerError())
+
+    # Checks whether the correct error was raised
+    with raises(InternalServerError):
+        await RedisManager.pipeline(self=redis_manager_mock, pipe_ops=pipe_ops_mock)
+
+    # Checks whether the result was retrieved correctly
+    assert operation_mock.pipeline.called
+    assert operation_mock.pipeline.call_args.args[0] is True
+    assert pipe_ops_mock.called
+    assert pipe_ops_mock.call_args.args[0] == pipe_mock

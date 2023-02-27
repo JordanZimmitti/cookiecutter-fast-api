@@ -1,7 +1,9 @@
 from logging import getLogger
+from typing import Any, Callable
 
 from pydantic import SecretStr
 from redis.asyncio.client import Redis
+from redis.client import Pipeline
 
 from {{cookiecutter.package_name}}.core.settings import settings
 from {{cookiecutter.package_name}}.exceptions import InternalServerError
@@ -103,3 +105,32 @@ class RedisManager:
         # Disconnects the async redis instance
         await self._operation.close()
         logger.info(f"Disconnected the {self._display_name} instance")
+
+    async def pipeline(
+        self,
+        pipe_ops: Callable[[Pipeline], None],
+        is_transaction: bool = True,
+        is_vector: bool = False,
+    ) -> Any:
+        """
+        Function that wraps the redis pipeline function in a try/catch to handle unexpected errors.
+        The redis pipeline function queues multiple commands for later execution. Apart from making
+        a group of operations atomic, pipelines are useful for reducing the back-and-forth overhead
+        between the client and server
+
+        :param pipe_ops: A function that contains redis operations to add to the pipeline
+        :param is_transaction: Whether all commands should be executed atomically
+        :param is_vector: Whether the result returned is a vector
+        """
+
+        # Attempts to execute redis-operations in the pipeline
+        try:
+            async with self._operation.pipeline(is_transaction) as pipe:
+                pipe_ops(pipe)
+                result = await pipe.execute()
+                return result[0] if is_vector else result
+        except Exception as exc:
+            message = "Redis pipeline execute failed"
+            logger.error(message)
+            logger.debug(message, exc_info=exc)
+            raise InternalServerError()
