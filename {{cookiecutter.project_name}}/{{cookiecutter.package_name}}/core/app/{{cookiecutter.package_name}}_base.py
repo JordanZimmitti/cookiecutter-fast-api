@@ -1,4 +1,5 @@
 from abc import ABC
+from logging import getLogger
 from typing import Any, Dict
 
 from fastapi import FastAPI
@@ -16,6 +17,9 @@ from {{cookiecutter.package_name}}.exceptions import (
 )
 
 from .app import setup_app
+
+# Gets {{cookiecutter.friendly_name}} server logger instance
+logger = getLogger("{{cookiecutter.package_name}}.core.app.{{cookiecutter.package_name}}_base")
 
 
 class {{cookiecutter.class_name}}Base(BaseApplication, ABC):
@@ -71,6 +75,7 @@ class {{cookiecutter.class_name}}Base(BaseApplication, ABC):
 
         # Sends the bad-request-error response
         content = {"message": f"Bad Request Error: {exc.detail}"}
+        logger.error(content)
         return JSONResponse(status_code=exc.status_code, content=content)
 
     @staticmethod
@@ -79,6 +84,7 @@ class {{cookiecutter.class_name}}Base(BaseApplication, ABC):
 
         # Sends the forbidden-error response
         content = {"message": f"Forbidden Error: {exc.detail}"}
+        logger.error(content)
         return JSONResponse(status_code=exc.status_code, content=content)
 
     @staticmethod
@@ -87,6 +93,7 @@ class {{cookiecutter.class_name}}Base(BaseApplication, ABC):
 
         # Sends the internal-server-error response
         content = {"message": f"Internal Server Error: {exc.detail}"}
+        logger.error(content)
         return JSONResponse(status_code=exc.status_code, content=content)
 
     @staticmethod
@@ -95,6 +102,7 @@ class {{cookiecutter.class_name}}Base(BaseApplication, ABC):
 
         # Sends the not-found-error response
         content = {"message": f"Not Found Error: {exc.detail}"}
+        logger.error(content)
         return JSONResponse(status_code=exc.status_code, content=content)
 
     @staticmethod
@@ -103,6 +111,7 @@ class {{cookiecutter.class_name}}Base(BaseApplication, ABC):
 
         # Sends the unauthenticated-error response
         content = {"message": f"Unauthenticated Error: {exc.detail}"}
+        logger.error(content)
         return JSONResponse(status_code=exc.status_code, content=content)
 
     @staticmethod
@@ -111,4 +120,5 @@ class {{cookiecutter.class_name}}Base(BaseApplication, ABC):
 
         # Sends the validation-error response
         content = {"message": f"Validation Error: {exc.detail}"}
+        logger.error(content)
         return JSONResponse(status_code=exc.status_code, content=content)

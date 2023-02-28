@@ -9,8 +9,8 @@ services:
       context: "."
       target: "api"
       args:
-        POETRY_VERSION: "1.3.2"
-        PYTHON_VERSION: "3.11.1"
+        POETRY_VERSION: "1.4.0"
+        PYTHON_VERSION: "3.11.2"
     container_name: "{{cookiecutter.package_name}}"
     env_file:
       - "local/override-docker.env"
@@ -37,8 +37,8 @@ services:
       context: "."
       target: "api_unit_tests"
       args:
-        POETRY_VERSION: "1.3.2"
-        PYTHON_VERSION: "3.11.1"
+        POETRY_VERSION: "1.4.0"
+        PYTHON_VERSION: "3.11.2"
     container_name: "{{cookiecutter.package_name}}_unit_tests"
 
   {{cookiecutter.package_name}}_postgres:
