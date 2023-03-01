@@ -38,6 +38,7 @@ Create a fully-working production-ready Fast-API server in minutes!
 
 * **Caching**
     * Async Redis support via built-in redis helper classes 
+    * Pipeline wrapper function for protecting transactions with retries and proper http errors
 
 * **Utilities**
     * A pydantic utility decorator function that creates a fast-api form from a pydantic model
