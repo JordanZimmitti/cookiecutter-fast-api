@@ -196,7 +196,9 @@ async def test_pipeline():
     pipe_ops_mock = MagicMock()
 
     # Invokes the redis-manager pipeline class
-    result = await RedisManager.pipeline(self=redis_manager_mock, pipe_ops=pipe_ops_mock)
+    result = await RedisManager.pipeline.__wrapped__.__wrapped__(
+        self=redis_manager_mock, pipe_ops=pipe_ops_mock
+    )
 
     # Checks whether the result was retrieved correctly
     assert result == ["result"]
@@ -230,7 +232,7 @@ async def test_pipeline_vector():
     pipe_ops_mock = MagicMock()
 
     # Invokes the redis-manager pipeline class
-    result = await RedisManager.pipeline(
+    result = await RedisManager.pipeline.__wrapped__.__wrapped__(
         self=redis_manager_mock, pipe_ops=pipe_ops_mock, is_vector=True
     )
 
@@ -266,7 +268,9 @@ async def test_pipeline_error():
 
     # Checks whether the correct error was raised
     with raises(InternalServerError):
-        await RedisManager.pipeline(self=redis_manager_mock, pipe_ops=pipe_ops_mock)
+        await RedisManager.pipeline.__wrapped__.__wrapped__(
+            self=redis_manager_mock, pipe_ops=pipe_ops_mock
+        )
 
     # Checks whether the result was retrieved correctly
     assert operation_mock.pipeline.called

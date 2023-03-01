@@ -82,6 +82,7 @@ class Settings(BaseSettings):
 
     # {{cookiecutter.friendly_name}} server redis
     IS_API_REDIS_ENABLED: bool = False
+    API_REDIS_PIPELINE_RETRY_NUMBER: int = 3
     API_REDIS_HOST: SecretStr = "127.0.0.1"
     API_REDIS_PORT: SecretStr = "6379"
     API_REDIS_PASSWORD: SecretStr = "very-secure-password"

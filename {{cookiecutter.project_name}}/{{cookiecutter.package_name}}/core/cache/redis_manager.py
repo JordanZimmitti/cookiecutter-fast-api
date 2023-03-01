@@ -4,6 +4,7 @@ from typing import Any, Callable
 from pydantic import SecretStr
 from redis.asyncio.client import Redis
 from redis.client import Pipeline
+from tenacity import retry, stop_after_attempt, wait_fixed
 
 from {{cookiecutter.package_name}}.core.settings import settings
 from {{cookiecutter.package_name}}.exceptions import InternalServerError
@@ -106,6 +107,7 @@ class RedisManager:
         await self._operation.close()
         logger.info(f"Disconnected the {self._display_name} instance")
 
+    @retry(stop=stop_after_attempt(settings.API_REDIS_PIPELINE_RETRY_NUMBER), wait=wait_fixed(1))
     async def pipeline(
         self,
         pipe_ops: Callable[[Pipeline], None],
