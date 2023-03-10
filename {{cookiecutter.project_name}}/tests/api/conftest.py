@@ -92,17 +92,17 @@ def client(app) -> TestClient:
 
 
 @fixture(scope="function")
-def dependency_overrides() -> Dict:
+def dependency_overrides(app) -> Dict:
     """
     Pytest fixture that gets the fast-api dependency overrides dict
     for overriding certain route dependencies while testing
     """
 
-    # Import Example API dependencies after pytest environment settings are loaded
-    from {{cookiecutter.package_name}}.main import {{cookiecutter.class_name}}
+    # Yields the fast-api dependency overrides dict
+    yield app.dependency_overrides
 
-    # Returns the fast-api dependency overrides dict
-    return {{cookiecutter.class_name}}.app.dependency_overrides
+    # Clears dependency overrides for the next test
+    app.dependency_overrides.clear()
 
 
 @fixture(scope="session", autouse=True)
