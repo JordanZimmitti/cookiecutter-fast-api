@@ -67,7 +67,7 @@ class Settings(BaseSettings):
     # Number of minutes an uvicorn process can start up for before the process is restarted
     UVICORN_TIMEOUT: int = 60 * 5  # 5 minutes
 
-    # Echo's sql-alchemy logs for advanced debugging
+    # Echo sqlalchemy logs for advanced debugging
     IS_ECHO_SQLALCHEMY_LOGS: bool = False
 
     # How many database connections to temporarily create when the connection pool is full

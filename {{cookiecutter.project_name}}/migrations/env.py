@@ -4,7 +4,7 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy.ext.asyncio import create_async_engine
 
-from {{cookiecutter.package_name}}.core.database import TableBase
+from {{cookiecutter.package_name}}.core.database import BaseTable
 from {{cookiecutter.package_name}}.core.settings import settings
 
 # Sets the alembic config with values from the alembic.ini file
@@ -15,7 +15,7 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # Sets the target metadata from the base-model
-target_metadata = TableBase.metadata
+target_metadata = BaseTable.metadata
 
 # The database schema the tables should be created in
 app_schema = settings.API_DB_SCHEMA.get_secret_value()

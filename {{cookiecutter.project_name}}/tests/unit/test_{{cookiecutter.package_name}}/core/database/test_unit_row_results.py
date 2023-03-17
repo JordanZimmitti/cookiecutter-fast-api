@@ -2,14 +2,21 @@ from unittest.mock import MagicMock
 
 from sqlalchemy import Result, Row
 
+from {{cookiecutter.package_name}}.core.database import row_operations
 from {{cookiecutter.package_name}}.core.database.row_operations import RowResults
 
 
-def test_all():
+def test_all(mocker):
     """
     Tests the all function for completion. The all function
     should call the required methods without any errors
+
+    :param mocker: Fixture to mock specific functions for testing
     """
+
+    # Mocks and overrides the _enforce_base_type_mock function
+    enforce_base_type_mock = MagicMock()
+    mocker.patch.object(row_operations, "_enforce_base_type", enforce_base_type_mock)
 
     # Mocks the row class
     row_mock = MagicMock(Row)
@@ -20,22 +27,31 @@ def test_all():
 
     # Mocks the row-results class
     row_results_mock = MagicMock(spec=RowResults)
-    row_results_mock._is_scalar = False
     row_results_mock._result = result_mock
 
+    # Mocks the return-type type class
+    return_type_mock = MagicMock()
+
     # Invokes the all functon
-    rows = RowResults.all(self=row_results_mock, return_type=MagicMock())
+    rows = RowResults.all(self=row_results_mock, return_type=return_type_mock)
 
     # Checks whether the required methods were called correctly
-    assert result_mock.all.called
     assert rows == [row_mock]
+    assert result_mock.all.called
+    assert enforce_base_type_mock.called
+    assert enforce_base_type_mock.call_args.args[0] == [row_mock]
+    assert enforce_base_type_mock.call_args.args[1] == return_type_mock
 
 
-def test_fetch():
+def test_fetch(mocker):
     """
     Tests the fetch function for completion. The fetch function
     should call the required methods without any errors
     """
+
+    # Mocks and overrides the _enforce_base_type_mock function
+    enforce_base_type_mock = MagicMock()
+    mocker.patch.object(row_operations, "_enforce_base_type", enforce_base_type_mock)
 
     # Mocks the row class
     row_mock = MagicMock(Row)
@@ -46,15 +62,20 @@ def test_fetch():
 
     # Mocks the row-results class
     row_results_mock = MagicMock(spec=RowResults)
-    row_results_mock._is_scalar = False
     row_results_mock._result = result_mock
 
+    # Mocks the return-type type class
+    return_type_mock = MagicMock()
+
     # Invokes the fetch functon
-    rows = RowResults.fetch(self=row_results_mock, return_type=MagicMock(), size=1)
+    rows = RowResults.fetch(self=row_results_mock, return_type=return_type_mock, size=1)
 
     # Checks whether the required methods were called correctly
-    assert result_mock.fetchmany.called
     assert rows == [row_mock]
+    assert result_mock.fetchmany.called
+    assert enforce_base_type_mock.called
+    assert enforce_base_type_mock.call_args.args[0] == [row_mock]
+    assert enforce_base_type_mock.call_args.args[1] == return_type_mock
 
 
 def test_init():
@@ -110,5 +131,5 @@ def test_unique():
     row_results = RowResults.unique(self=row_results_mock)
 
     # Checks whether the required methods were called correctly
-    assert unique_result_mock.called
     assert row_results._result == new_result_mock
+    assert unique_result_mock.called

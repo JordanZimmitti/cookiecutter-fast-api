@@ -3,18 +3,25 @@ from unittest.mock import MagicMock
 from pytest import raises
 from sqlalchemy import Result, Row
 
+from {{cookiecutter.package_name}}.core.database import row_operations
 from {{cookiecutter.package_name}}.core.database.row_operations import RowResult
 from {{cookiecutter.package_name}}.exceptions import InternalServerError
 
 
-def test_first():
+def test_first(mocker):
     """
     Tests the first function for completion. The first function
     should call the required methods without any errors
+
+    :param mocker: Fixture to mock specific functions for testing
     """
 
+    # Mocks and overrides the _enforce_base_type_mock function
+    enforce_base_type_mock = MagicMock()
+    mocker.patch.object(row_operations, "_enforce_base_type", enforce_base_type_mock)
+
     # Mocks the row class
-    row_mock = MagicMock(Row)
+    row_mock = MagicMock(spec_set=Row)
 
     # Mocks the result class
     result_mock = MagicMock(spec_set=Result)
@@ -22,15 +29,20 @@ def test_first():
 
     # Mocks the row-result class
     row_result_mock = MagicMock(spec=RowResult)
-    row_result_mock._is_scalar = False
     row_result_mock._result = result_mock
 
+    # Mocks the return-type type class
+    return_type_mock = MagicMock()
+
     # Invokes the first functon
-    row = RowResult.first(self=row_result_mock, return_type=MagicMock())
+    row = RowResult.first(self=row_result_mock, return_type=return_type_mock)
 
     # Checks whether the required methods were called correctly
-    assert result_mock.first.called
     assert row == row_mock
+    assert result_mock.first.called
+    assert enforce_base_type_mock.called
+    assert enforce_base_type_mock.call_args.args[0] == row_mock
+    assert enforce_base_type_mock.call_args.args[1] == return_type_mock
 
 
 def test_init():
@@ -56,11 +68,17 @@ def test_init():
     row_result_without_scalar._result = result_mock
 
 
-def test_one():
+def test_one(mocker):
     """
     Tests the one function for completion. The one function
     should call the required methods without any errors
+
+    :param mocker: Fixture to mock specific functions for testing
     """
+
+    # Mocks and overrides the _enforce_base_type_mock function
+    enforce_base_type_mock = MagicMock()
+    mocker.patch.object(row_operations, "_enforce_base_type", enforce_base_type_mock)
 
     # Mocks the row class
     row_mock = MagicMock(Row)
@@ -71,15 +89,20 @@ def test_one():
 
     # Mocks the row-result class
     row_result_mock = MagicMock(spec=RowResult)
-    row_result_mock._is_scalar = False
     row_result_mock._result = result_mock
 
+    # Mocks the return-type type class
+    return_type_mock = MagicMock()
+
     # Invokes the one functon
-    row = RowResult.one(self=row_result_mock, return_type=MagicMock())
+    row = RowResult.one(self=row_result_mock, return_type=return_type_mock)
 
     # Checks whether the required methods were called correctly
-    assert result_mock.one.called
     assert row == row_mock
+    assert result_mock.one.called
+    assert enforce_base_type_mock.called
+    assert enforce_base_type_mock.call_args.args[0] == row_mock
+    assert enforce_base_type_mock.call_args.args[1] == return_type_mock
 
 
 def test_one_error():

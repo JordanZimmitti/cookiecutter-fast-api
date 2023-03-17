@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import Any, AsyncIterator, Callable, List, TypeVar
+from typing import Any, AsyncIterator, Callable, List, TypeVar, get_origin
 
 from sqlalchemy import Delete, Result, ScalarResult, Select, Update
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
@@ -35,13 +35,14 @@ class RowResult:
         Function that gets the first row retrieved
         or none when no rows are retrieved
 
-        :param return_type: The return-type the query
+        :param return_type: The return-type of the query
 
         :return: The first row retrieved or none when no rows are retrieved
         """
 
         # Returns the first row retrieved or none when no rows are retrieved
         row: return_type | None = self._result.first()
+        _enforce_base_type(row, return_type)
         return row
 
     def one(self, return_type: ReturnType) -> ReturnType:
@@ -49,7 +50,7 @@ class RowResult:
         Function that gets the first row retrieved or
         raises an error when no rows are retrieved
 
-        :param return_type: The return-type the query
+        :param return_type: The return-type of the query
 
         :return: The first row retrieved or an error when no rows are retrieved
         """
@@ -57,6 +58,7 @@ class RowResult:
         # Returns the first row retrieved or an error when no rows are retrieved
         try:
             row: return_type = self._result.one()
+            _enforce_base_type(row, return_type)
             return row
         except Exception as exc:
             message = "A single row query came back empty or with multiple rows"
@@ -85,13 +87,14 @@ class RowResults:
         Function that gets a list of
         all the rows retrieved
 
-        :param return_type: The return-type the query
+        :param return_type: The return-type of the query
 
         :return: A list of all the rows retrieved
         """
 
         # Returns a list of all the rows retrieved
         rows: List[return_type] = list(self._result.all())
+        _enforce_base_type(rows, return_type)
         return rows
 
     def fetch(self, return_type: ReturnType, size: int) -> List[ReturnType]:
@@ -99,7 +102,7 @@ class RowResults:
         Function that fetches a subset of
         all the rows retrieved
 
-        :param return_type: The return-type the query
+        :param return_type: The return-type of the query
         :param size: The size of the subset of rows to retrieve
 
         :return: A subset of all the rows retrieved
@@ -107,6 +110,7 @@ class RowResults:
 
         # Returns a subset of all the rows retrieved
         rows: List[return_type] = list(self._result.fetchmany(size))
+        _enforce_base_type(rows, return_type)
         return rows
 
     def unique(self, strategy: Callable[[Any], Any] = None) -> "RowResults":
@@ -131,7 +135,7 @@ class DatabaseRowOperations:
         Class that handles executing various
         queries on a database table
 
-        :param session_maker: An async-session-maker instance
+        :param session_maker: An async sessionmaker instance
         """
 
         # Initializes given variables
@@ -237,7 +241,7 @@ class DatabaseRowOperations:
         of rows given from the batch number will be yielded until all rows from the select query
         statement are retrieved
 
-        :param return_type: The return-type the query
+        :param return_type: The return-type of the query
         :param statement: The query select statement to execute
         :param batch: The number of rows to retrieve per chunk
         :param is_scalar: Whether the object should be filtered through a scalar
@@ -252,6 +256,7 @@ class DatabaseRowOperations:
                 result = stream_result.scalars() if is_scalar else stream_result
                 while True:
                     rows: List[return_type] = list(await result.fetchmany(batch))
+                    _enforce_base_type(rows, return_type)
                     if not rows:
                         break
                     yield rows
@@ -285,3 +290,21 @@ class DatabaseRowOperations:
             logger.error(message)
             logger.debug(message, exc_info=exc)
             raise InternalServerError()
+
+
+def _enforce_base_type(row_data: Any, return_type: ReturnType):
+    """
+    Function that checks whether the row data returned from the database matches the
+    given return-type. When the types do not match an InternalServerError is raised
+
+    :param row_data: The data retrieved from the database
+    :param return_type: The return-type of the query
+    """
+
+    # Checks whether the row data returned from the database matches the given return-type
+    origin_type = get_origin(return_type)
+    instance_type = return_type if not origin_type else origin_type
+    if not isinstance(row_data, instance_type):
+        message = f"the given row is not an instance of the base type '{return_type}'"
+        logger.error(message)
+        raise InternalServerError()

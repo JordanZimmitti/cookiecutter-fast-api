@@ -5,12 +5,12 @@ from sqlalchemy.dialects.postgresql import TIMESTAMP, UUID
 from sqlalchemy.orm import declarative_base
 
 # Creates the base used by explicit models created in {{cookiecutter.friendly_name}}
-TableBase = declarative_base()
+BaseTable = declarative_base()
 
 
 class StampMixin:
     """
-    Mixin that adds creation and update metadata to an existing model
+    Mixin that adds creation and update metadata to an existing table
     """
 
     # StampMixin Columns

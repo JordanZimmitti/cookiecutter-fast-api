@@ -1,3 +1,4 @@
+from typing import List
 from unittest.mock import AsyncMock, MagicMock
 
 from pytest import mark, raises
@@ -5,9 +6,25 @@ from sqlalchemy import Select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from {{cookiecutter.package_name}}.core.database import row_operations
-from {{cookiecutter.package_name}}.core.database.row_operations import DatabaseRowOperations, RowResult, RowResults
+from {{cookiecutter.package_name}}.core.database.row_operations import (
+    DatabaseRowOperations,
+    RowResult,
+    RowResults,
+    _enforce_base_type,
+)
 from {{cookiecutter.package_name}}.exceptions import InternalServerError
 from tests.mocks import error_mock
+
+
+def test_enforce_base_type_not_same():
+    """
+    Tests the _enforce_base_type function when the row-data type does not match the given
+    return-type. The _enforce_base_type function should raise an InternalServerError
+    """
+
+    # Checks whether the correct error was raised
+    with raises(InternalServerError):
+        _enforce_base_type(row_data={}, return_type=List)
 
 
 @mark.asyncio
@@ -286,11 +303,17 @@ async def test_query_rows(mocker):
 
 
 @mark.asyncio
-async def test_stream_rows():
+async def test_stream_rows(mocker):
     """
     Tests the stream_rows function for completion. The stream_rows function
     should call the required methods without any errors
+
+    :param mocker: Fixture to mock specific functions for testing
     """
+
+    # Mocks and overrides the _enforce_base_type_mock function
+    enforce_base_type_mock = MagicMock()
+    mocker.patch.object(row_operations, "_enforce_base_type", enforce_base_type_mock)
 
     # Mocks the fetchmany function
     fetch_many_mock = AsyncMock()
@@ -353,6 +376,9 @@ async def test_stream_rows():
     assert stream_mock.called
     assert stream_result_mock.scalars.called
     assert result_mock.fetchmany.called
+    assert enforce_base_type_mock.called
+    assert enforce_base_type_mock.call_args.args[0] == []
+    assert enforce_base_type_mock.call_args.args[1] == return_type_mock
 
     # Checks whether the required parameters were passed correctly
     assert stream_mock.call_args.args[0] == statement_mock

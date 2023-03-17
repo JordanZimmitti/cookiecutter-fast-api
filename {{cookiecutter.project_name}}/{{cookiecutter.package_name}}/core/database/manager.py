@@ -12,7 +12,7 @@ class DatabaseManager:
 
         :param display_name: The name of the database to display to the client
         :param description: the description of the database
-        :param db_uri: The database connection url
+        :param db_uri: The connection uri of the database
         """
 
         # Initializes given variables
@@ -20,7 +20,7 @@ class DatabaseManager:
         self._description = description
         self._db_uri = db_uri
 
-        # Instantiated class-created classes
+        # Instantiates the database-connection class
         self._connection = DatabaseConnection(self._display_name, self._db_uri)
 
     @property

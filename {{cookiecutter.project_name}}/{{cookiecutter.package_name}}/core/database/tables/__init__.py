@@ -1,1 +1,1 @@
-from .table_base import TableBase
+from .table_base import BaseTable

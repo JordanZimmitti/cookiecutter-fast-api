@@ -37,16 +37,18 @@ class DatabaseConnection:
     @property
     def session_maker(self) -> async_sessionmaker[AsyncSession]:
         """
-        Property that gets the async sessionmaker. The async sessionmaker is used to create new
-        database sessions and execute row operations on a database table
+        Property that gets the async sessionmaker. The async sessionmaker is used to
+        create new database sessions and execute row operations on a database table
+
+        :return: The sqlalchemy async sessionmaker
         """
 
         # Checks whether a session-maker instance exists
         if self._session_maker is None:
-            logger.info("The database is not connected, was the connect function called?")
+            logger.error("The database is not connected, was the connect function called?")
             raise InternalServerError()
 
-        # Returns the session_maker instance
+        # Returns the session-maker instance
         return self._session_maker
 
     def connect(self):
@@ -56,7 +58,7 @@ class DatabaseConnection:
         connection when a new async session is created
         """
 
-        # Creates the async engine to the database
+        # Creates the async engine for the database
         self._engine: AsyncEngine = create_async_engine(
             self._db_uri.get_secret_value(),
             pool_pre_ping=True,
@@ -66,7 +68,7 @@ class DatabaseConnection:
             connect_args={"server_settings": {"application_name": f"{settings.PROJECT_NAME}"}},
         )
 
-        # Creates the async-session-maker for creating database sessions
+        # Creates the async sessionmaker for creating database sessions
         self._session_maker = async_sessionmaker(self._engine, expire_on_commit=False)
 
         # Logs that the database connection pool was successfully created
@@ -74,7 +76,7 @@ class DatabaseConnection:
 
     async def disconnect(self):
         """
-        Function that disconnects all sessions from the async-session-maker that are in memory as
+        Function that disconnects all sessions from the async sessionmaker that are in memory as
         well as disposing all connection pool connections that are currently checked in
         """
 
