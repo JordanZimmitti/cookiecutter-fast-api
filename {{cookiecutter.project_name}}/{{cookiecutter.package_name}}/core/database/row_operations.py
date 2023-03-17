@@ -94,7 +94,8 @@ class RowResults:
 
         # Returns a list of all the rows retrieved
         rows: List[return_type] = list(self._result.all())
-        _enforce_base_type(rows, return_type)
+        if rows:
+            _enforce_base_type(rows[0], return_type)
         return rows
 
     def fetch(self, return_type: ReturnType, size: int) -> List[ReturnType]:
@@ -110,7 +111,8 @@ class RowResults:
 
         # Returns a subset of all the rows retrieved
         rows: List[return_type] = list(self._result.fetchmany(size))
-        _enforce_base_type(rows, return_type)
+        if rows:
+            _enforce_base_type(rows[0], return_type)
         return rows
 
     def unique(self, strategy: Callable[[Any], Any] = None) -> "RowResults":
@@ -256,9 +258,9 @@ class DatabaseRowOperations:
                 result = stream_result.scalars() if is_scalar else stream_result
                 while True:
                     rows: List[return_type] = list(await result.fetchmany(batch))
-                    _enforce_base_type(rows, return_type)
                     if not rows:
                         break
+                    _enforce_base_type(rows[0], return_type)
                     yield rows
         except Exception as exc:
             message = "SQL-Alchemy session streaming failed"
@@ -266,7 +268,6 @@ class DatabaseRowOperations:
             logger.debug(message, exc_info=exc)
             raise InternalServerError()
 
-    @retry(stop=stop_after_attempt(settings.API_DB_QUERY_RETRY_NUMBER), wait=wait_fixed(1))
     async def _execute_query(self, statement: Delete | Select | Update, is_commit: bool) -> Result:
         """
         Function that executes the query and gets the result. When the

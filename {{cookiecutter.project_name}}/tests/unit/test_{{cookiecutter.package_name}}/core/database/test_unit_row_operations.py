@@ -163,7 +163,7 @@ async def test_execute_query():
     database_row_operations_mock._commit_session = commit_session_mock
 
     # Invokes the _execute_query functon
-    await DatabaseRowOperations._execute_query.__wrapped__.__wrapped__(
+    await DatabaseRowOperations._execute_query(
         self=database_row_operations_mock, statement=statement_mock, is_commit=True
     )
 
@@ -201,7 +201,7 @@ async def test_execute_query_error():
 
     # Checks whether the correct error was raised
     with raises(InternalServerError):
-        await DatabaseRowOperations._execute_query.__wrapped__.__wrapped__(
+        await DatabaseRowOperations._execute_query(
             self=database_row_operations_mock, statement=MagicMock(), is_commit=False
         )
 
@@ -377,7 +377,7 @@ async def test_stream_rows(mocker):
     assert stream_result_mock.scalars.called
     assert result_mock.fetchmany.called
     assert enforce_base_type_mock.called
-    assert enforce_base_type_mock.call_args.args[0] == []
+    assert enforce_base_type_mock.call_args.args[0] == "test-value-one"
     assert enforce_base_type_mock.call_args.args[1] == return_type_mock
 
     # Checks whether the required parameters were passed correctly

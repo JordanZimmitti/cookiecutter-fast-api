@@ -39,7 +39,7 @@ def test_all(mocker):
     assert rows == [row_mock]
     assert result_mock.all.called
     assert enforce_base_type_mock.called
-    assert enforce_base_type_mock.call_args.args[0] == [row_mock]
+    assert enforce_base_type_mock.call_args.args[0] == row_mock
     assert enforce_base_type_mock.call_args.args[1] == return_type_mock
 
 
@@ -74,7 +74,7 @@ def test_fetch(mocker):
     assert rows == [row_mock]
     assert result_mock.fetchmany.called
     assert enforce_base_type_mock.called
-    assert enforce_base_type_mock.call_args.args[0] == [row_mock]
+    assert enforce_base_type_mock.call_args.args[0] == row_mock
     assert enforce_base_type_mock.call_args.args[1] == return_type_mock
 
 
