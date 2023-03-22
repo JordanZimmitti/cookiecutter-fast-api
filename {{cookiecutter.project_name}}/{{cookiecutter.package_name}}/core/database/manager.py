@@ -22,6 +22,7 @@ class DatabaseManager:
 
         # Instantiates the database-connection class
         self._connection = DatabaseConnection(self._display_name, self._db_uri)
+        self._row_operations: DatabaseRowOperations | None = None
 
     @property
     def connection(self) -> DatabaseConnection:
@@ -61,5 +62,10 @@ class DatabaseManager:
 
         :return: A database-row-operations instance
         """
-        row_operations = DatabaseRowOperations(self._connection.session_maker)
-        return row_operations
+
+        # Creates a database-row-operations instance when non exists
+        if not self._row_operations:
+            self._row_operations = DatabaseRowOperations(self._connection.session_maker)
+
+        # Returns a database-row-operations instance
+        return self._row_operations
