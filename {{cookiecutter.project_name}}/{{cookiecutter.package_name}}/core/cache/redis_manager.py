@@ -112,7 +112,7 @@ class RedisManager:
         self,
         pipe_ops: Callable[[Pipeline], None],
         is_transaction: bool = True,
-        is_vector: bool = False,
+        is_scalar: bool = False,
     ) -> Any:
         """
         Function that wraps the redis pipeline function in a try/catch to handle unexpected errors.
@@ -122,7 +122,7 @@ class RedisManager:
 
         :param pipe_ops: A function that contains redis operations to add to the pipeline
         :param is_transaction: Whether all commands should be executed atomically
-        :param is_vector: Whether the result returned is a vector
+        :param is_scalar: Whether the result returned is a scalar
         """
 
         # Attempts to execute redis-operations in the pipeline
@@ -130,7 +130,7 @@ class RedisManager:
             async with self._operation.pipeline(is_transaction) as pipe:
                 pipe_ops(pipe)
                 result = await pipe.execute()
-                return result[0] if is_vector else result
+                return result[0] if is_scalar else result
         except Exception as exc:
             message = "Redis pipeline execute failed"
             logger.error(message)

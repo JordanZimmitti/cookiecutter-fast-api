@@ -210,10 +210,10 @@ async def test_pipeline():
 
 
 @mark.asyncio
-async def test_pipeline_vector():
+async def test_pipeline_scalar():
     """
-    Tests the RedisManager pipeline function when a vector is expected.
-    The RedisManager pipeline class should return a vectored result
+    Tests the RedisManager pipeline function when a scalar is expected.
+    The RedisManager pipeline class should return a scalar result
     """
 
     # Mocks the pipeline class
@@ -233,7 +233,7 @@ async def test_pipeline_vector():
 
     # Invokes the redis-manager pipeline class
     result = await RedisManager.pipeline.__wrapped__.__wrapped__(
-        self=redis_manager_mock, pipe_ops=pipe_ops_mock, is_vector=True
+        self=redis_manager_mock, pipe_ops=pipe_ops_mock, is_scalar=True
     )
 
     # Checks whether the result was retrieved correctly
