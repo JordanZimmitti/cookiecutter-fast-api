@@ -1,7 +1,7 @@
 from logging import getLogger
 from typing import Any, AsyncIterator, Callable, List, TypeVar, get_origin
 
-from sqlalchemy import Delete, Result, ScalarResult, Select, Update
+from sqlalchemy import Delete, Result, Row, ScalarResult, Select, Update
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from tenacity import retry, stop_after_attempt, wait_fixed
 
@@ -14,6 +14,7 @@ logger = getLogger("{{cookiecutter.package_name}}.core.database.row_operations")
 # Row-Operations type-hinting
 ORMTable = TypeVar("ORMTable")
 ReturnType = TypeVar("ReturnType")
+RowType = TypeVar("RowType", bound=Row)
 
 
 class RowResult:
@@ -305,7 +306,10 @@ def _enforce_base_type(row_data: Any, return_type: ReturnType):
     # Checks whether the row data returned from the database matches the given return-type
     origin_type = get_origin(return_type)
     instance_type = return_type if not origin_type else origin_type
-    if not isinstance(row_data, instance_type):
-        message = f"the given row is not an instance of the base type '{return_type}'"
-        logger.error(message)
-        raise InternalServerError()
+    if return_type == RowType and isinstance(row_data, Row) or isinstance(row_data, instance_type):
+        return
+
+    # Raises an internal-server-error
+    message = f"the given row is not an instance of the base type '{return_type}'"
+    logger.error(message)
+    raise InternalServerError()
