@@ -1,6 +1,16 @@
 # __Fast-API Postgres Cookiecutter Template (MacOS/Linux)__
 Create a fully-working production-ready Fast-API server in minutes!
 
+## __Install And Run Cookiecutter__
+
+1. Install dependencies
+   * `brew install python@3.11`
+   * `brew install poetry`
+   * `brew install cookiecutter`
+
+2. Run cookiecutter to create template
+    * `cookiecutter https://github.com/JordanZimmitti/cookiecutter-fast-api.git --checkout vx.x.x`
+
 ## __Features__
 
 * **Project Configuration**
