@@ -1,8 +1,8 @@
 from logging import getLogger
-from typing import Any, AsyncIterator, Callable, List, TypeVar, get_origin
+from typing import Any, AsyncIterator, Callable, List, Type, TypeVar, get_origin
 
 from sqlalchemy import Delete, Result, ScalarResult, Select, Update
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+from sqlalchemy.ext.asyncio import AsyncResult, AsyncSession, async_sessionmaker
 from tenacity import retry, stop_after_attempt, wait_fixed
 
 from {{cookiecutter.package_name}}.core.settings import settings
@@ -30,7 +30,7 @@ class RowResult:
         self._is_scalar = is_scalar
         self._result: ScalarResult | Result = result.scalars() if is_scalar else result
 
-    def first(self, return_type: ReturnType) -> ReturnType | None:
+    def first(self, return_type: Type[ReturnType]) -> ReturnType | None:
         """
         Function that gets the first row retrieved
         or none when no rows are retrieved
@@ -45,7 +45,7 @@ class RowResult:
         _enforce_base_type(row, return_type)
         return row
 
-    def one(self, return_type: ReturnType) -> ReturnType:
+    def one(self, return_type: Type[ReturnType]) -> ReturnType:
         """
         Function that gets the first row retrieved or
         raises an error when no rows are retrieved
@@ -82,7 +82,7 @@ class RowResults:
         self._unique_result = result.unique
         self._result: ScalarResult | Result = result.scalars() if is_scalar else result
 
-    def all(self, return_type: ReturnType) -> List[ReturnType]:
+    def all(self, return_type: Type[ReturnType]) -> List[ReturnType]:
         """
         Function that gets a list of
         all the rows retrieved
@@ -98,7 +98,7 @@ class RowResults:
             _enforce_base_type(rows[0], return_type)
         return rows
 
-    def fetch(self, return_type: ReturnType, size: int) -> List[ReturnType]:
+    def fetch(self, return_type: Type[ReturnType], size: int) -> List[ReturnType]:
         """
         Function that fetches a subset of
         all the rows retrieved
@@ -234,9 +234,8 @@ class DatabaseRowOperations:
         row_results = RowResults(result, is_scalar)
         return row_results
 
-    @retry(stop=stop_after_attempt(settings.API_DB_QUERY_RETRY_NUMBER), wait=wait_fixed(1))
     async def stream_rows(
-        self, return_type: ReturnType, statement: Select, batch: int, is_scalar: bool = True
+        self, return_type: Type[ReturnType], statement: Select, batch: int, is_scalar: bool = True
     ) -> AsyncIterator[List[ReturnType]]:
         """
         Function that streams rows from the database using the given select statement. The number
@@ -252,21 +251,14 @@ class DatabaseRowOperations:
         """
 
         # Attempts to stream rows from the database
-        try:
-            async with self._session_maker() as session:
-                stream_result = await session.stream(statement)
-                result = stream_result.scalars() if is_scalar else stream_result
-                while True:
-                    rows: List[return_type] = list(await result.fetchmany(batch))
-                    if not rows:
-                        break
-                    _enforce_base_type(rows[0], return_type)
-                    yield rows
-        except Exception as exc:
-            message = "SQL-Alchemy session streaming failed"
-            logger.error(message)
-            logger.debug(message, exc_info=exc)
-            raise InternalServerError()
+        async with self._session_maker() as session:
+            stream_result = await self._start_stream(session, statement, is_scalar)
+            while True:
+                rows: List[return_type] = list(await stream_result.fetchmany(batch))
+                if not rows:
+                    break
+                _enforce_base_type(rows[0], return_type)
+                yield rows
 
     async def _execute_query(self, statement: Delete | Select | Update, is_commit: bool) -> Result:
         """
@@ -292,8 +284,35 @@ class DatabaseRowOperations:
             logger.debug(message, exc_info=exc)
             raise InternalServerError()
 
+    @retry(stop=stop_after_attempt(settings.API_DB_QUERY_RETRY_NUMBER), wait=wait_fixed(1))
+    async def _start_stream(
+            self, session: AsyncSession, statement: Delete | Select | Update, is_scalar: bool
+    ) -> AsyncResult:
+        """
+        Function that starts the stream and gets the streaming result for streaming rows in batches.
+        This function's main purpose is to get tenacity retries to work since retries do not work
+        on generator functions
 
-def _enforce_base_type(row_data: Any, return_type: ReturnType):
+        :param session: An async session instance
+        :param statement: The query select statement to execute
+        :param is_scalar: Whether the object should be filtered through a scalar
+
+        :return: An async streaming result
+        """
+
+        # Attempts to Start the stream and return the stream result
+        try:
+            result = await session.stream(statement)
+            stream_result = result.scalars() if is_scalar else result
+            return stream_result
+        except Exception as exc:
+            message = "SQL-Alchemy session streaming failed"
+            logger.error(message)
+            logger.debug(message, exc_info=exc)
+            raise InternalServerError()
+
+
+def _enforce_base_type(row_data: Any, return_type: Type[ReturnType]):
     """
     Function that checks whether the row data returned from the database matches the
     given return-type. When the types do not match an InternalServerError is raised
@@ -306,6 +325,9 @@ def _enforce_base_type(row_data: Any, return_type: ReturnType):
     origin_type = get_origin(return_type)
     instance_type = return_type if not origin_type else origin_type
     if not isinstance(row_data, instance_type):
-        message = f"the given row is not an instance of the base type '{return_type}'"
+        message = (
+            f"the given row with a type of '{type(row_data)}'"
+            f" is not an instance of the base type '{return_type}'"
+        )
         logger.error(message)
         raise InternalServerError()

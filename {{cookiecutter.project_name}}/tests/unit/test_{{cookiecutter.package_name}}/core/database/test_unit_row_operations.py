@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 from pytest import mark, raises
 from sqlalchemy import Select
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+from sqlalchemy.ext.asyncio import AsyncResult, AsyncSession, async_sessionmaker
 
 from {{cookiecutter.package_name}}.core.database import row_operations
 from {{cookiecutter.package_name}}.core.database.row_operations import (
@@ -287,7 +287,7 @@ async def test_query_rows(mocker):
     # Mocks the select class
     statement_mock = MagicMock(spec_set=Select)
 
-    # Invokes the query_row functon
+    # Invokes the query_rows functon
     row_results = await DatabaseRowOperations.query_rows.__wrapped__.__wrapped__(
         self=database_row_operations_mock, statement=statement_mock
     )
@@ -303,6 +303,73 @@ async def test_query_rows(mocker):
 
 
 @mark.asyncio
+async def test_start_stream():
+    """
+    Tests the _start_stream function for completion. The _start_stream function
+    should return an AsyncResult without any errors
+    """
+
+    # Mocks the scalars function
+    scalars_mock = MagicMock()
+    scalars_mock.return_value = scalars_mock
+
+    # Mocks the async-result class
+    async_result_mock = MagicMock(spec_set=AsyncResult)
+    async_result_mock.scalars = scalars_mock
+
+    # Mocks the async-session class
+    async_session_mock = AsyncMock(spec_set=AsyncSession)
+    async_session_mock.stream.return_value = async_result_mock
+
+    # Mocks the database-row-operations class
+    database_row_operations_mock = MagicMock(spec=DatabaseRowOperations)
+
+    # Mocks the select class
+    statement_mock = MagicMock(spec_set=Select)
+
+    # Invokes the start_stream functon
+    stream_result = await DatabaseRowOperations._start_stream.__wrapped__.__wrapped__(
+        self=database_row_operations_mock,
+        session=async_session_mock,
+        statement=statement_mock,
+        is_scalar=True
+    )
+
+    # Checks whether the async-result was retrieved correctly
+    assert stream_result == scalars_mock
+    assert async_session_mock.stream.called
+    assert async_session_mock.stream.call_args.args[0] == statement_mock
+    assert scalars_mock.called
+
+
+@mark.asyncio
+async def test_start_stream_error():
+    """
+    Tests the _start_stream function when an error occurs. The
+    _start_stream function should raise an InternalServerError
+    """
+
+    # Mocks the async-session class
+    async_session_mock = AsyncMock(spec_set=AsyncSession)
+    async_session_mock.stream.side_effect = error_mock
+
+    # Mocks the database-row-operations class
+    database_row_operations_mock = MagicMock(spec=DatabaseRowOperations)
+
+    # Mocks the select class
+    statement_mock = MagicMock(spec_set=Select)
+
+    # Checks whether the correct error was raised
+    with raises(InternalServerError):
+        await DatabaseRowOperations._start_stream.__wrapped__.__wrapped__(
+            self=database_row_operations_mock,
+            session=async_session_mock,
+            statement=statement_mock,
+            is_scalar=True,
+        )
+
+
+@mark.asyncio
 async def test_stream_rows(mocker):
     """
     Tests the stream_rows function for completion. The stream_rows function
@@ -315,97 +382,49 @@ async def test_stream_rows(mocker):
     enforce_base_type_mock = MagicMock()
     mocker.patch.object(row_operations, "_enforce_base_type", enforce_base_type_mock)
 
+    # Mocks the async-session class
+    async_session_mock = AsyncMock(spec_set=AsyncSession)
+
+    # Mocks the async_sessionmaker class
+    session_maker_mock = MagicMock()
+    session_maker_mock.return_value = session_maker_mock
+    session_maker_mock.__aenter__.return_value = async_session_mock
+
     # Mocks the fetchmany function
     fetch_many_mock = AsyncMock()
     fetch_many_mock.return_value = ["test-value-one"]
 
-    # Mocks the result value
-    result_mock = MagicMock()
-    result_mock.fetchmany = fetch_many_mock
-
-    # Mocks the stream result value
-    stream_result_mock = MagicMock()
-    stream_result_mock.scalars.return_value = result_mock
-
-    # Mocks the stream function
-    stream_mock = AsyncMock()
-    stream_mock.return_value = stream_result_mock
-
-    # Mocks the async-session class
-    async_session_mock = AsyncMock(spec_set=AsyncSession)
-    async_session_mock.stream = stream_mock
-
-    # Mocks the async_sessionmaker class
-    session_maker_mock = MagicMock()
-    session_maker_mock.__aenter__.return_value = async_session_mock
+    # Mocks the start_stream function
+    start_stream_mock = AsyncMock()
+    start_stream_mock.return_value = start_stream_mock
+    start_stream_mock.fetchmany = fetch_many_mock
 
     # Mocks the database-row-operations class
     database_row_operations_mock = MagicMock(spec=DatabaseRowOperations)
-    database_row_operations_mock._session_maker = lambda: session_maker_mock
-
-    # Mocks the return-type type-var
-    return_type_mock = MagicMock()
+    database_row_operations_mock._session_maker = session_maker_mock
+    database_row_operations_mock._start_stream = start_stream_mock
 
     # Mocks the select class
     statement_mock = MagicMock(spec_set=Select)
 
     # Invokes the stream_rows function
-    async for rows in DatabaseRowOperations.stream_rows.__wrapped__(
+    async for rows in DatabaseRowOperations.stream_rows(
         self=database_row_operations_mock,
-        return_type=return_type_mock,
+        return_type=str,
         statement=statement_mock,
         batch=1,
-    ):
-        assert rows == ["test-value-one"]
-        fetch_many_mock.return_value = []
-
-    # Invokes the stream_rows function
-    fetch_many_mock.return_value = ["test-value-one"]
-    stream_mock.return_value = result_mock
-    async for rows in DatabaseRowOperations.stream_rows.__wrapped__(
-        self=database_row_operations_mock,
-        return_type=return_type_mock,
-        statement=statement_mock,
-        batch=1,
-        is_scalar=False,
     ):
         assert rows == ["test-value-one"]
         fetch_many_mock.return_value = []
 
     # Checks whether the required methods were called correctly
-    assert stream_mock.called
-    assert stream_result_mock.scalars.called
-    assert result_mock.fetchmany.called
+    assert start_stream_mock.called
+    assert start_stream_mock.called
+    assert start_stream_mock.call_args.args[0] == async_session_mock
+    assert start_stream_mock.call_args.args[1] == statement_mock
+    assert start_stream_mock.call_args.args[2] is True
+    assert fetch_many_mock.call_count == 2
+    assert fetch_many_mock.call_args.args[0] == 1
     assert enforce_base_type_mock.called
     assert enforce_base_type_mock.call_args.args[0] == "test-value-one"
-    assert enforce_base_type_mock.call_args.args[1] == return_type_mock
-
-    # Checks whether the required parameters were passed correctly
-    assert stream_mock.call_args.args[0] == statement_mock
-
-
-@mark.asyncio
-async def test_stream_rows_error():
-    """
-    Tests the stream_rows function when an error occurs. The
-    stream_rows function should raise an InternalServerError
-    """
-
-    # Mocks the database-row-operations class
-    database_row_operations_mock = MagicMock(spec=DatabaseRowOperations)
-
-    # Mocks the return-type type-var
-    return_type_mock = MagicMock()
-
-    # Mocks the select class
-    statement_mock = MagicMock(spec_set=Select)
-
-    # Checks whether the correct error was raised
-    with raises(InternalServerError):
-        async for _ in DatabaseRowOperations.stream_rows.__wrapped__(
-            self=database_row_operations_mock,
-            return_type=return_type_mock,
-            statement=statement_mock,
-            batch=1,
-        ):
-            pass
+    assert enforce_base_type_mock.call_args.args[1] == str
