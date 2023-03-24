@@ -29,18 +29,15 @@ def test_all(mocker):
     row_results_mock = MagicMock(spec=RowResults)
     row_results_mock._result = result_mock
 
-    # Mocks the return-type type class
-    return_type_mock = MagicMock()
-
     # Invokes the all functon
-    rows = RowResults.all(self=row_results_mock, return_type=return_type_mock)
+    rows = RowResults.all(self=row_results_mock, return_type=str)
 
     # Checks whether the required methods were called correctly
     assert rows == [row_mock]
     assert result_mock.all.called
     assert enforce_base_type_mock.called
     assert enforce_base_type_mock.call_args.args[0] == row_mock
-    assert enforce_base_type_mock.call_args.args[1] == return_type_mock
+    assert enforce_base_type_mock.call_args.args[1] == str
 
 
 def test_fetch(mocker):
@@ -64,18 +61,15 @@ def test_fetch(mocker):
     row_results_mock = MagicMock(spec=RowResults)
     row_results_mock._result = result_mock
 
-    # Mocks the return-type type class
-    return_type_mock = MagicMock()
-
     # Invokes the fetch functon
-    rows = RowResults.fetch(self=row_results_mock, return_type=return_type_mock, size=1)
+    rows = RowResults.fetch(self=row_results_mock, return_type=str, size=1)
 
     # Checks whether the required methods were called correctly
     assert rows == [row_mock]
     assert result_mock.fetchmany.called
     assert enforce_base_type_mock.called
     assert enforce_base_type_mock.call_args.args[0] == row_mock
-    assert enforce_base_type_mock.call_args.args[1] == return_type_mock
+    assert enforce_base_type_mock.call_args.args[1] == str
 
 
 def test_init():

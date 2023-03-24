@@ -31,18 +31,15 @@ def test_first(mocker):
     row_result_mock = MagicMock(spec=RowResult)
     row_result_mock._result = result_mock
 
-    # Mocks the return-type type class
-    return_type_mock = MagicMock()
-
     # Invokes the first functon
-    row = RowResult.first(self=row_result_mock, return_type=return_type_mock)
+    row = RowResult.first(self=row_result_mock, return_type=str)
 
     # Checks whether the required methods were called correctly
     assert row == row_mock
     assert result_mock.first.called
     assert enforce_base_type_mock.called
     assert enforce_base_type_mock.call_args.args[0] == row_mock
-    assert enforce_base_type_mock.call_args.args[1] == return_type_mock
+    assert enforce_base_type_mock.call_args.args[1] == str
 
 
 def test_init():
@@ -91,18 +88,15 @@ def test_one(mocker):
     row_result_mock = MagicMock(spec=RowResult)
     row_result_mock._result = result_mock
 
-    # Mocks the return-type type class
-    return_type_mock = MagicMock()
-
     # Invokes the one functon
-    row = RowResult.one(self=row_result_mock, return_type=return_type_mock)
+    row = RowResult.one(self=row_result_mock, return_type=str)
 
     # Checks whether the required methods were called correctly
     assert row == row_mock
     assert result_mock.one.called
     assert enforce_base_type_mock.called
     assert enforce_base_type_mock.call_args.args[0] == row_mock
-    assert enforce_base_type_mock.call_args.args[1] == return_type_mock
+    assert enforce_base_type_mock.call_args.args[1] == str
 
 
 def test_one_error():
@@ -122,4 +116,4 @@ def test_one_error():
 
     # Checks whether the correct error was raised
     with raises(InternalServerError):
-        RowResult.one(self=row_result_mock, return_type=MagicMock())
+        RowResult.one(self=row_result_mock, return_type=str)
