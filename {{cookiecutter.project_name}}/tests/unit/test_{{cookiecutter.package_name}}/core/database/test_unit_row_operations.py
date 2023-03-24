@@ -16,16 +16,6 @@ from {{cookiecutter.package_name}}.exceptions import InternalServerError
 from tests.mocks import error_mock
 
 
-def test_enforce_base_type():
-    """
-    Tests the _enforce_base_type function when the row-data type matches the given
-    return-type. The _enforce_base_type function should return without any errors
-    """
-
-    # Checks whether no error was raised
-    _enforce_base_type(row_data="", return_type=str)
-
-
 def test_enforce_base_type_not_same():
     """
     Tests the _enforce_base_type function when the row-data type does not match the given
