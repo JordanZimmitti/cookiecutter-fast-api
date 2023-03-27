@@ -1,7 +1,7 @@
 from logging import getLogger
 from typing import Any, AsyncIterator, Callable, List, Type, TypeVar, get_origin
 
-from sqlalchemy import Delete, Result, ScalarResult, Select, Update
+from sqlalchemy import Delete, Result, ScalarResult, Select, TextClause, Update
 from sqlalchemy.ext.asyncio import AsyncResult, AsyncSession, async_sessionmaker
 from tenacity import retry, stop_after_attempt, wait_fixed
 
@@ -14,6 +14,7 @@ logger = getLogger("{{cookiecutter.package_name}}.core.database.row_operations")
 # Row-Operations type-hinting
 ORMTable = TypeVar("ORMTable")
 ReturnType = TypeVar("ReturnType")
+Statement = Delete | Select | Update | TextClause
 
 
 class RowResult:
@@ -192,7 +193,7 @@ class DatabaseRowOperations:
 
     @retry(stop=stop_after_attempt(settings.API_DB_QUERY_RETRY_NUMBER), wait=wait_fixed(1))
     async def query_row(
-        self, statement: Delete | Select | Update, is_commit: bool = False, is_scalar: bool = True
+        self, statement: Statement, is_commit: bool = False, is_scalar: bool = True, **kwargs
     ) -> RowResult:
         """
         Function that queries the database using the given statement. The given
@@ -201,12 +202,13 @@ class DatabaseRowOperations:
         :param statement: The query statement to execute
         :param is_commit: Whether the executed query statement should be committed
         :param is_scalar: Whether the object should be filtered through a scalar
+        :param kwargs: Any kwarg accepted in the :class:`AsyncSession` execute function
 
         :return: A row-result instance
         """
 
         # Executes the query and gets the result
-        result = await self._execute_query(statement, is_commit)
+        result = await self._execute_query(statement, is_commit, **kwargs)
 
         # Returns the row result
         row_result = RowResult(result, is_scalar)
@@ -214,7 +216,7 @@ class DatabaseRowOperations:
 
     @retry(stop=stop_after_attempt(settings.API_DB_QUERY_RETRY_NUMBER), wait=wait_fixed(1))
     async def query_rows(
-        self, statement: Delete | Select | Update, is_commit: bool = False, is_scalar: bool = True
+        self, statement: Statement, is_commit: bool = False, is_scalar: bool = True, **kwargs
     ) -> RowResults:
         """
         Function that queries the database using the given statement. The given
@@ -223,19 +225,25 @@ class DatabaseRowOperations:
         :param statement: The query statement to execute
         :param is_commit: Whether the executed query statement should be committed
         :param is_scalar: Whether the object should be filtered through a scalar
+        :param kwargs: Any kwarg accepted in the :class:`AsyncSession` execute function
 
         :return: A row-results instance
         """
 
         # Executes the query and gets the result
-        result = await self._execute_query(statement, is_commit)
+        result = await self._execute_query(statement, is_commit, **kwargs)
 
         # Returns the row result
         row_results = RowResults(result, is_scalar)
         return row_results
 
     async def stream_rows(
-        self, return_type: Type[ReturnType], statement: Select, batch: int, is_scalar: bool = True
+        self,
+        return_type: Type[ReturnType],
+        statement: Select | TextClause,
+        batch: int,
+        is_scalar: bool = True,
+        **kwargs
     ) -> AsyncIterator[List[ReturnType]]:
         """
         Function that streams rows from the database using the given select statement. The number
@@ -246,13 +254,14 @@ class DatabaseRowOperations:
         :param statement: The query select statement to execute
         :param batch: The number of rows to retrieve per chunk
         :param is_scalar: Whether the object should be filtered through a scalar
+        :param kwargs: Any kwarg accepted in the :class:`AsyncSession` execute function
 
         :return: A chunk all the rows retrieved
         """
 
         # Attempts to stream rows from the database
         async with self._session_maker() as session:
-            stream_result = await self._start_stream(session, statement, is_scalar)
+            stream_result = await self._start_stream(session, statement, is_scalar, **kwargs)
             while True:
                 rows: List[return_type] = list(await stream_result.fetchmany(batch))
                 if not rows:
@@ -260,13 +269,14 @@ class DatabaseRowOperations:
                 _enforce_base_type(rows[0], return_type)
                 yield rows
 
-    async def _execute_query(self, statement: Delete | Select | Update, is_commit: bool) -> Result:
+    async def _execute_query(self, statement: Statement, is_commit: bool, **kwargs) -> Result:
         """
         Function that executes the query and gets the result. When the
         query cannot be executed an InternalServerError is raised
 
         :param statement: The query statement to execute
         :param is_commit: Whether the executed query statement should be committed
+        :param kwargs: Any kwarg accepted in the :class:`AsyncSession` execute function
 
         :return: The result from the database
         """
@@ -274,7 +284,7 @@ class DatabaseRowOperations:
         # Attempts to execute the query
         try:
             async with self._session_maker() as session:
-                result = await session.execute(statement)
+                result = await session.execute(statement, **kwargs)
                 if is_commit:
                     await self._commit_session(session)
                 return result
@@ -286,7 +296,7 @@ class DatabaseRowOperations:
 
     @retry(stop=stop_after_attempt(settings.API_DB_QUERY_RETRY_NUMBER), wait=wait_fixed(1))
     async def _start_stream(
-            self, session: AsyncSession, statement: Delete | Select | Update, is_scalar: bool
+        self, session: AsyncSession, statement: Select | TextClause, is_scalar: bool, **kwargs
     ) -> AsyncResult:
         """
         Function that starts the stream and gets the streaming result for streaming rows in batches.
@@ -296,13 +306,14 @@ class DatabaseRowOperations:
         :param session: An async session instance
         :param statement: The query select statement to execute
         :param is_scalar: Whether the object should be filtered through a scalar
+        :param kwargs: Any kwarg accepted in the :class:`AsyncSession` execute function
 
         :return: An async streaming result
         """
 
         # Attempts to Start the stream and return the stream result
         try:
-            result = await session.stream(statement)
+            result = await session.stream(statement, **kwargs)
             stream_result = result.scalars() if is_scalar else result
             return stream_result
         except Exception as exc:
