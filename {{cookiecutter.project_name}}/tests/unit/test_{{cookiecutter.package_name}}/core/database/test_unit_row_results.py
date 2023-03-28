@@ -29,7 +29,7 @@ def test_all(mocker):
     row_results_mock = MagicMock(spec=RowResults)
     row_results_mock._result = result_mock
 
-    # Invokes the all functon
+    # Invokes the all function
     rows = RowResults.all(self=row_results_mock, return_type=str)
 
     # Checks whether the required methods were called correctly
@@ -61,7 +61,7 @@ def test_fetch(mocker):
     row_results_mock = MagicMock(spec=RowResults)
     row_results_mock._result = result_mock
 
-    # Invokes the fetch functon
+    # Invokes the fetch function
     rows = RowResults.fetch(self=row_results_mock, return_type=str, size=1)
 
     # Checks whether the required methods were called correctly
@@ -121,7 +121,7 @@ def test_unique():
     row_results_mock._is_scalar = False
     row_results_mock._unique_result = unique_result_mock
 
-    # Invokes the first functon
+    # Invokes the first function
     row_results = RowResults.unique(self=row_results_mock)
 
     # Checks whether the required methods were called correctly

@@ -18,7 +18,7 @@ from {{cookiecutter.package_name}}.core.settings import settings
 from {{cookiecutter.package_name}}.services.logger import start_logger
 from {{cookiecutter.package_name}}.utils.modules.path_extensions import get_parent_path_by_file
 
-# Gets {{cookiecutter.friendly_name}} server logger instance
+# Gets the {{cookiecutter.friendly_name}} server logger instance
 logger = getLogger("{{cookiecutter.package_name}}.main")
 
 

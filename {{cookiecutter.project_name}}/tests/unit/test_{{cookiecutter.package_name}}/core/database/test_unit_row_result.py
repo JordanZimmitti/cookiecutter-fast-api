@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock
 
 from pytest import raises
-from sqlalchemy import Result, Row
+from sqlalchemy import Result
 
 from {{cookiecutter.package_name}}.core.database import row_operations
 from {{cookiecutter.package_name}}.core.database.row_operations import RowResult
@@ -28,7 +28,7 @@ def test_first(mocker):
     row_result_mock = MagicMock(spec=RowResult)
     row_result_mock._result = result_mock
 
-    # Invokes the first functon
+    # Invokes the first function
     row_data = RowResult.first(self=row_result_mock, return_type=str)
 
     # Checks whether the required methods were called correctly
@@ -82,7 +82,7 @@ def test_one(mocker):
     row_result_mock = MagicMock(spec=RowResult)
     row_result_mock._result = result_mock
 
-    # Invokes the one functon
+    # Invokes the one function
     row_data = RowResult.one(self=row_result_mock, return_type=str)
 
     # Checks whether the required methods were called correctly

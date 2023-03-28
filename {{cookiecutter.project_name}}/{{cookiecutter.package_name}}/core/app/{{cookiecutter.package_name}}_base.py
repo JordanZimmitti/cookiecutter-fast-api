@@ -18,7 +18,7 @@ from {{cookiecutter.package_name}}.exceptions import (
 
 from .app import setup_app
 
-# Gets {{cookiecutter.friendly_name}} server logger instance
+# Gets the {{cookiecutter.friendly_name}} server logger instance
 logger = getLogger("{{cookiecutter.package_name}}.core.app.{{cookiecutter.package_name}}_base")
 
 

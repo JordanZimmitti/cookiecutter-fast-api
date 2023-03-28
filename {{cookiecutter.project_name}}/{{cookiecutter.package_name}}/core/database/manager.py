@@ -15,7 +15,7 @@ class DatabaseManager:
         :param db_uri: The connection uri of the database
         """
 
-        # Initializes given variables
+        # Initializes the given variables
         self._display_name = display_name
         self._description = description
         self._db_uri = db_uri
@@ -47,8 +47,8 @@ class DatabaseManager:
     @property
     def description(self) -> str:
         """
-        Property that gets the description
-        of the database
+        Property that gets a short description
+        about the database
 
         :return: The database description
         """

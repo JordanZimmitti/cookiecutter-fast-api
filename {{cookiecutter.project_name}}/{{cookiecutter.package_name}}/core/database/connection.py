@@ -12,7 +12,7 @@ from sqlalchemy.orm import close_all_sessions
 from {{cookiecutter.package_name}}.core.settings import settings
 from {{cookiecutter.package_name}}.exceptions import InternalServerError
 
-# Gets {{cookiecutter.friendly_name}} server logger instance
+# Gets the {{cookiecutter.friendly_name}} server logger instance
 logger = getLogger("{{cookiecutter.package_name}}.core.database.connection")
 
 
@@ -23,10 +23,10 @@ class DatabaseConnection:
         and handles various aspects of the connection
 
         :param display_name: The name of the database to display to the client
-        :param db_uri: The database connection url
+        :param db_uri: The connection uri of the database
         """
 
-        # Initializes given variables
+        # Initializes the given variables
         self._display_name = display_name
         self._db_uri = db_uri
 
@@ -53,13 +53,13 @@ class DatabaseConnection:
 
     def connect(self):
         """
-        Function that creates the async engine for handing the connection pool to the database.
+        Function that creates the async engine for handling the connection pool to the database.
         The engine is used to instantiate the async sessionmaker and handles the underlying
         connection when a new async session is created
         """
 
         # Creates the async engine for the database
-        self._engine: AsyncEngine = create_async_engine(
+        self._engine = create_async_engine(
             self._db_uri.get_secret_value(),
             pool_pre_ping=True,
             pool_size=settings.SQLALCHEMY_POOL_SIZE,
@@ -76,8 +76,8 @@ class DatabaseConnection:
 
     async def disconnect(self):
         """
-        Function that disconnects all sessions from the async sessionmaker that are in memory as
-        well as disposing all connection pool connections that are currently checked in
+        Function that disconnects all sessions from the async sessionmaker that are in memory
+        as well as disposing all connection pool connections that are currently checked in
         """
 
         # Disconnects all active sessions and the connection pool
