@@ -35,17 +35,38 @@ class DatabaseConnection:
         self._session_maker: async_sessionmaker[AsyncSession] | None = None
 
     @property
+    def engine(self) -> AsyncEngine:
+        """
+        Property that gets the async engine. The async engine is the core database management system
+        of sqlalchemy and should only be used directly when no other solution provided can be used
+
+        :return: The async engine instance
+        """
+
+        # Checks whether an engine instance exists
+        if self._engine is None:
+            message = "The database is not connected, was the connect function called?"
+            logger.error(message)
+            raise InternalServerError()
+
+        # Returns the async engine instance
+        return self._engine
+
+    @property
     def session_maker(self) -> async_sessionmaker[AsyncSession]:
         """
         Property that gets the async sessionmaker. The async sessionmaker is used to
-        create new database sessions and execute row operations on a database table
+        create new database sessions and execute row operations on a database table.
+        The async sessionmaker should only be used directly when a solution is not
+        provided through the RowOperations class
 
         :return: The sqlalchemy async sessionmaker
         """
 
         # Checks whether a session-maker instance exists
         if self._session_maker is None:
-            logger.error("The database is not connected, was the connect function called?")
+            message = "The database is not connected, was the connect function called?"
+            logger.error(message)
             raise InternalServerError()
 
         # Returns the session-maker instance
