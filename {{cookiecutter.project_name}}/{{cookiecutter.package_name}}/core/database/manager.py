@@ -11,7 +11,7 @@ class DatabaseManager:
         database operations
 
         :param display_name: The name of the database to display to the client
-        :param description: the description of the database
+        :param description: A short description about the database
         :param db_uri: The connection uri of the database
         """
 
@@ -20,7 +20,7 @@ class DatabaseManager:
         self._description = description
         self._db_uri = db_uri
 
-        # Instantiates the database-connection class
+        # Instantiates the database-manager classes
         self._connection = DatabaseConnection(self._display_name, self._db_uri)
         self._row_operations: DatabaseRowOperations | None = None
 
@@ -63,7 +63,7 @@ class DatabaseManager:
         :return: A database-row-operations instance
         """
 
-        # Creates a database-row-operations instance when non exists
+        # Creates a database-row-operations instance when it does not exist
         if not self._row_operations:
             self._row_operations = DatabaseRowOperations(self._connection.session_maker)
 
