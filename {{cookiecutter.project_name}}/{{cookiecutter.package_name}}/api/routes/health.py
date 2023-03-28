@@ -13,7 +13,7 @@ async def get_health_check_endpoint() -> Health:
     Endpoint that checks the health of the {{cookiecutter.friendly_name}} server
     """
 
-    # Returns the {{cookiecutter.friendly_name}} server status and build number to the client
+    # Returns the {{cookiecutter.friendly_name}} server status and version number to the client
     return Health(status="healthy", version=settings.PROJECT_VERSION)
 
 
