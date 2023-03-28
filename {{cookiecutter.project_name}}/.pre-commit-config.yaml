@@ -21,3 +21,10 @@ repos:
     hooks:
       - id: isort
         args: [--settings-path, pyproject.toml]
+
+  # Poetry pre-commit
+  - repo: https://github.com/python-poetry/poetry
+    rev: 1.4.1
+    hooks:
+      - id: poetry-check
+      - id: poetry-lock
