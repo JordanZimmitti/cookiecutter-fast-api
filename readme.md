@@ -15,7 +15,7 @@ Create a fully-working production-ready Fast-API server in minutes!
 
 * **Project Configuration**
     * Python 11 support 
-    * Black, Flake8, and Isort pre-commits configured
+    * Black, Flake8, Isort, and Poetry pre-commits configured
     * Poetry package manager for enhanced package management
     * Script for easy local environment setup
   
