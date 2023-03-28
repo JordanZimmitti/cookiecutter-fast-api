@@ -43,7 +43,8 @@ class RowResult:
 
         # Returns the first row retrieved or none when no rows are retrieved
         row: return_type | None = self._result.first()
-        _enforce_base_type(row, return_type)
+        if row:
+            _enforce_base_type(row, return_type)
         return row
 
     def one(self, return_type: Type[ReturnType]) -> ReturnType:
@@ -59,7 +60,8 @@ class RowResult:
         # Returns the first row retrieved or an error when no rows are retrieved
         try:
             row: return_type = self._result.one()
-            _enforce_base_type(row, return_type)
+            if row:
+                _enforce_base_type(row, return_type)
             return row
         except Exception as exc:
             message = "A single row query came back empty or with multiple rows"
