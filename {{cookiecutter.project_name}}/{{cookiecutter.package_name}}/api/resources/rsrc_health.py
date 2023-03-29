@@ -3,7 +3,7 @@ from typing import Any, Dict
 from pydantic import BaseModel, Field
 
 
-class Health(BaseModel):
+class HealthModel(BaseModel):
     """
     Model for describing the properties of a response that
     determines the health of the {{cookiecutter.friendly_name}} worker
@@ -21,7 +21,7 @@ class Health(BaseModel):
     )
 
 
-class Settings(BaseModel):
+class SettingsModel(BaseModel):
     """
     Model for describing the properties of a response that gets the
     environment settings of the running {{cookiecutter.friendly_name}} worker
