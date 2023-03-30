@@ -49,9 +49,6 @@ if [ "$USERNAME" != "None" ]; then
   getPassword
 fi
 
-# Runs pre-commit checks
-pre-commit run --all-files
-
 # Runs the integration tests
 python -m pytest \
   "$TESTDIR" \
