@@ -9,6 +9,10 @@ class HealthModel(BaseModel):
     determines the health of the {{cookiecutter.friendly_name}} worker
     """
 
+    # Config that makes all attributes immutable
+    class Config:
+        frozen = True
+
     status: str = Field(
         ...,
         title="Status",
@@ -26,6 +30,10 @@ class SettingsModel(BaseModel):
     Model for describing the properties of a response that gets the
     environment settings of the running {{cookiecutter.friendly_name}} worker
     """
+
+    # Config that makes all attributes immutable
+    class Config:
+        frozen = True
 
     settings: Dict[str, Any] = Field(
         ...,
