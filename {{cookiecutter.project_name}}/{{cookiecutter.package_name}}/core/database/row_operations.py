@@ -65,7 +65,7 @@ class RowResult:
             return row
         except Exception as exc:
             message = "A single row query came back empty or with multiple rows"
-            logger.error(message)
+            logger.critical(message)
             logger.debug(message, exc_info=exc)
             raise InternalServerError()
 
@@ -161,7 +161,7 @@ class DatabaseRowOperations:
             await session.commit()
         except Exception as exc:
             message = "SQL-Alchemy session commit failed"
-            logger.error(message)
+            logger.critical(message)
             logger.debug(message, exc_info=exc)
             raise InternalServerError()
 
@@ -292,7 +292,7 @@ class DatabaseRowOperations:
                 return result
         except Exception as exc:
             message = "SQL-Alchemy session execution failed"
-            logger.error(message)
+            logger.critical(message)
             logger.debug(message, exc_info=exc)
             raise InternalServerError()
 
@@ -320,7 +320,7 @@ class DatabaseRowOperations:
             return stream_result
         except Exception as exc:
             message = "SQL-Alchemy session streaming failed"
-            logger.error(message)
+            logger.critical(message)
             logger.debug(message, exc_info=exc)
             raise InternalServerError()
 
@@ -342,5 +342,5 @@ def _enforce_base_type(row_data: Any, return_type: Type[ReturnType]):
             f"the given row with a type of '{type(row_data)}'"
             f" is not an instance of the base type '{return_type}'"
         )
-        logger.error(message)
+        logger.critical(message)
         raise InternalServerError()

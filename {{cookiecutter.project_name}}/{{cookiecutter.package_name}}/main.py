@@ -84,7 +84,7 @@ class {{cookiecutter.class_name}}({{cookiecutter.class_name}}Base, ABC):
             message = {
                 "message": "Internal Server Error: An unexpected error occurred, please try again"
             }
-            logger.error(message)
+            logger.critical(message)
             logger.debug(message, exc_info=exc)
             return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=message)
 

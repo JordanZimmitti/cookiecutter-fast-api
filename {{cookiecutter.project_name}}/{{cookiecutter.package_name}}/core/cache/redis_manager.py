@@ -74,7 +74,7 @@ class RedisManager:
 
         # Checks whether the async redis instance exists
         if self._operation is None:
-            logger.info("The redis instance is not connected, was the connect function called?")
+            logger.critical("The redis instance is not connected, was the connect function called?")
             raise InternalServerError()
 
         # Returns the redis instance
@@ -133,6 +133,6 @@ class RedisManager:
                 return result[0] if is_scalar else result
         except Exception as exc:
             message = "Redis pipeline execute failed"
-            logger.error(message)
+            logger.critical(message)
             logger.debug(message, exc_info=exc)
             raise InternalServerError()

@@ -46,7 +46,7 @@ class DatabaseConnection:
         # Checks whether an engine instance exists
         if self._engine is None:
             message = "The database is not connected, was the connect function called?"
-            logger.error(message)
+            logger.critical(message)
             raise InternalServerError()
 
         # Returns the async engine instance
@@ -66,7 +66,7 @@ class DatabaseConnection:
         # Checks whether a session-maker instance exists
         if self._session_maker is None:
             message = "The database is not connected, was the connect function called?"
-            logger.error(message)
+            logger.critical(message)
             raise InternalServerError()
 
         # Returns the session-maker instance
