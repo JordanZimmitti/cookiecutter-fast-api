@@ -2,7 +2,7 @@ from starlette.testclient import TestClient
 
 from {{cookiecutter.package_name}} import main
 from {{cookiecutter.package_name}}.core.settings import settings
-from tests.mocks import error_mock
+from tests.mocks import async_error_mock
 
 # Gunicorn options
 options = {
@@ -26,7 +26,7 @@ def test_main_{{cookiecutter.package_name}}_middleware_error(mocker, client: Tes
     """
 
     # Overrides the handle_request function
-    mocker.patch.object(main, "handle_request", error_mock)
+    mocker.patch.object(main, "handle_request", async_error_mock)
 
     # Hits the default {{cookiecutter.friendly_name}} endpoint
     response = client.get("/")

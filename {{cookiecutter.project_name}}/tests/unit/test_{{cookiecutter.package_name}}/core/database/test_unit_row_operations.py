@@ -13,7 +13,7 @@ from {{cookiecutter.package_name}}.core.database.row_operations import (
     _enforce_base_type,
 )
 from {{cookiecutter.package_name}}.exceptions import InternalServerError
-from tests.mocks import error_mock
+from tests.mocks import async_error_mock
 
 
 def test_enforce_base_type_not_same():
@@ -126,7 +126,7 @@ async def test_commit_session_error():
 
     # Mocks the async-session class
     async_session_mock = MagicMock(spec_set=AsyncSession)
-    async_session_mock.flush = error_mock
+    async_session_mock.flush = async_error_mock
 
     # Checks whether the correct error was raised
     with raises(InternalServerError):
@@ -185,7 +185,7 @@ async def test_execute_query_error():
 
     # Mocks the async-session class
     async_session_mock = AsyncMock(spec_set=AsyncSession)
-    async_session_mock.execute = error_mock
+    async_session_mock.execute = async_error_mock
 
     # Mocks the async_sessionmaker aenter function
     async def aenter_mock(_):
@@ -351,7 +351,7 @@ async def test_start_stream_error():
 
     # Mocks the async-session class
     async_session_mock = AsyncMock(spec_set=AsyncSession)
-    async_session_mock.stream.side_effect = error_mock
+    async_session_mock.stream.side_effect = async_error_mock
 
     # Mocks the database-row-operations class
     database_row_operations_mock = MagicMock(spec=DatabaseRowOperations)
