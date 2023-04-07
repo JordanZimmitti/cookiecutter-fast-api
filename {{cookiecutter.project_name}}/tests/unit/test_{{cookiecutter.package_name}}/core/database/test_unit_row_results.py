@@ -87,12 +87,12 @@ def test_init():
     row_result_with_scalar = RowResults(result_mock, True)
     row_result_without_scalar = RowResults(result_mock, False)
 
-    # Checks whether the row-result class with scalars was instantiated correctly
+    # Checks whether the row-results class with scalars was instantiated correctly
     assert row_result_with_scalar._is_scalar is True
     assert row_result_with_scalar._unique_result == result_mock
     assert row_result_with_scalar._result == result_mock
 
-    # Checks whether the row-result class without scalars was instantiated correctly
+    # Checks whether the row-results class without scalars was instantiated correctly
     assert row_result_without_scalar._is_scalar is False
     assert row_result_without_scalar._unique_result == result_mock
     assert row_result_without_scalar._result == result_mock
