@@ -5,4 +5,4 @@ from .app import (
     setup_app,
     setup_app_state,
 )
-from .{{cookiecutter.package_name}}_base import {{cookiecutter.class_name}}Base
+from .{{cookiecutter.package_name}}_base import {{cookiecutter.class_name}}Base, {{cookiecutter.class_name}}UvicornWorker

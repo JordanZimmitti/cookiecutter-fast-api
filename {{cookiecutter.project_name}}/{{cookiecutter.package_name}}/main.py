@@ -106,10 +106,12 @@ if __name__ == "__main__":
         options={
             "bind": f"0.0.0.0:{settings.LISTEN_PORT}",
             "workers": settings.UVICORN_CONCURRENCY,
-            "worker_class": "uvicorn.workers.UvicornWorker",
+            "worker_class": "{{cookiecutter.package_name}}.core.app.{{cookiecutter.class_name}}UvicornWorker",
             "worker_connections": settings.UVICORN_CONNECTIONS,
             "max_requests": settings.UVICORN_MAX_REQUESTS,
             "max_requests_jitter": settings.UVICORN_MAX_REQUESTS_JITTER,
+            "keepalive": settings.UVICORN_KEEP_ALIVE,
+            "graceful_timeout": settings.UVICORN_GRACEFUL_TIMEOUT,
             "timeout": settings.UVICORN_TIMEOUT,
         }
     ).run()
