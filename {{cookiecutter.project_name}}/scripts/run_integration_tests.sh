@@ -5,7 +5,7 @@ set -o pipefail
 set -o errexit
 
 # Creates the overridable environment variables
-: "${IS_ALL_INTEGRATION_TESTS:="true"}"
+: "${IS_RUN_ALL_INTEGRATION_TESTS:="true"}"
 : "${API_URL:="http://{{cookiecutter.package_name}}:2000/api"}"
 : "${USERNAME:=""}"
 : "${PASSWORD:=""}"
@@ -18,7 +18,7 @@ cd ..
 
 # Function that runs all the integration tests or smoke tests
 runTests() {
-  if [[ "$IS_ALL_INTEGRATION_TESTS" == "true" ]]
+  if [[ "$IS_RUN_ALL_INTEGRATION_TESTS" == "true" ]]
   then
     python -m pytest "tests/integration" \
       --junitxml "$TARGET_DIR/integration_junit.xml" \
