@@ -20,7 +20,7 @@ def pytest_addoption(parser: Parser):
     parser.addoption("--password", action="store")
 
 
-@fixture
+@fixture(scope="session")
 def client(pytestconfig: Config):
     """
     Pytest fixture that creates the client for

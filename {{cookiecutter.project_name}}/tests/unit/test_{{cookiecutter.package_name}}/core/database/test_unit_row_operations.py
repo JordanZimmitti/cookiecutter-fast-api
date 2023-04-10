@@ -13,7 +13,7 @@ from {{cookiecutter.package_name}}.core.database.row_operations import (
     _enforce_base_type,
 )
 from {{cookiecutter.package_name}}.exceptions import InternalServerError
-from tests.mocks import error_mock
+from tests.mocks import async_error_mock
 
 
 def test_enforce_base_type_not_same():
@@ -53,7 +53,7 @@ async def test_add_row():
     database_row_operations_mock._session_maker = lambda: session_maker_mock
     database_row_operations_mock._commit_session = commit_session_mock
 
-    # Invokes the add_row functon
+    # Invokes the add_row function
     await DatabaseRowOperations.add_row.__wrapped__.__wrapped__(
         self=database_row_operations_mock, table=None
     )
@@ -89,7 +89,7 @@ async def test_add_rows():
     database_row_operations_mock._session_maker = lambda: session_maker_mock
     database_row_operations_mock._commit_session = commit_session_mock
 
-    # Invokes the add_rows functon
+    # Invokes the add_rows function
     await DatabaseRowOperations.add_rows.__wrapped__.__wrapped__(
         self=database_row_operations_mock, tables=[None]
     )
@@ -109,7 +109,7 @@ async def test_commit_session():
     # Mocks the async-session class
     async_session_mock = AsyncMock(spec_set=AsyncSession)
 
-    # Invokes the _commit_session functon
+    # Invokes the _commit_session function
     await DatabaseRowOperations._commit_session(async_session_mock)
 
     # Checks whether the required methods were called correctly
@@ -126,7 +126,7 @@ async def test_commit_session_error():
 
     # Mocks the async-session class
     async_session_mock = MagicMock(spec_set=AsyncSession)
-    async_session_mock.flush = error_mock
+    async_session_mock.flush = async_error_mock
 
     # Checks whether the correct error was raised
     with raises(InternalServerError):
@@ -162,7 +162,7 @@ async def test_execute_query():
     database_row_operations_mock._session_maker = lambda: session_maker_mock
     database_row_operations_mock._commit_session = commit_session_mock
 
-    # Invokes the _execute_query functon
+    # Invokes the _execute_query function
     await DatabaseRowOperations._execute_query(
         self=database_row_operations_mock, statement=statement_mock, is_commit=True
     )
@@ -185,7 +185,7 @@ async def test_execute_query_error():
 
     # Mocks the async-session class
     async_session_mock = AsyncMock(spec_set=AsyncSession)
-    async_session_mock.execute = error_mock
+    async_session_mock.execute = async_error_mock
 
     # Mocks the async_sessionmaker aenter function
     async def aenter_mock(_):
@@ -247,7 +247,7 @@ async def test_query_row(mocker):
     # Mocks the select class
     statement_mock = MagicMock(spec_set=Select)
 
-    # Invokes the query_row functon
+    # Invokes the query_row function
     row_result = await DatabaseRowOperations.query_row.__wrapped__.__wrapped__(
         self=database_row_operations_mock, statement=statement_mock
     )
@@ -287,7 +287,7 @@ async def test_query_rows(mocker):
     # Mocks the select class
     statement_mock = MagicMock(spec_set=Select)
 
-    # Invokes the query_rows functon
+    # Invokes the query_rows function
     row_results = await DatabaseRowOperations.query_rows.__wrapped__.__wrapped__(
         self=database_row_operations_mock, statement=statement_mock
     )
@@ -327,7 +327,7 @@ async def test_start_stream():
     # Mocks the select class
     statement_mock = MagicMock(spec_set=Select)
 
-    # Invokes the start_stream functon
+    # Invokes the start_stream function
     stream_result = await DatabaseRowOperations._start_stream.__wrapped__.__wrapped__(
         self=database_row_operations_mock,
         session=async_session_mock,
@@ -351,7 +351,7 @@ async def test_start_stream_error():
 
     # Mocks the async-session class
     async_session_mock = AsyncMock(spec_set=AsyncSession)
-    async_session_mock.stream.side_effect = error_mock
+    async_session_mock.stream.side_effect = async_error_mock
 
     # Mocks the database-row-operations class
     database_row_operations_mock = MagicMock(spec=DatabaseRowOperations)

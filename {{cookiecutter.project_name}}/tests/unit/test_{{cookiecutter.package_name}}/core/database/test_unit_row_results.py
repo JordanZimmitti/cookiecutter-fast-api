@@ -29,7 +29,7 @@ def test_all(mocker):
     row_results_mock = MagicMock(spec=RowResults)
     row_results_mock._result = result_mock
 
-    # Invokes the all functon
+    # Invokes the all function
     rows = RowResults.all(self=row_results_mock, return_type=str)
 
     # Checks whether the required methods were called correctly
@@ -61,7 +61,7 @@ def test_fetch(mocker):
     row_results_mock = MagicMock(spec=RowResults)
     row_results_mock._result = result_mock
 
-    # Invokes the fetch functon
+    # Invokes the fetch function
     rows = RowResults.fetch(self=row_results_mock, return_type=str, size=1)
 
     # Checks whether the required methods were called correctly
@@ -87,15 +87,15 @@ def test_init():
     row_result_with_scalar = RowResults(result_mock, True)
     row_result_without_scalar = RowResults(result_mock, False)
 
-    # Checks whether the row-result class with scalars was instantiated correctly
-    row_result_with_scalar._is_scalar = True
-    row_result_with_scalar._unique_result = result_mock
-    row_result_with_scalar._result = result_mock
+    # Checks whether the row-results class with scalars was instantiated correctly
+    assert row_result_with_scalar._is_scalar is True
+    assert row_result_with_scalar._unique_result == result_mock
+    assert row_result_with_scalar._result == result_mock
 
-    # Checks whether the row-result class without scalars was instantiated correctly
-    row_result_without_scalar._is_scalar = False
-    row_result_without_scalar._unique_result = result_mock
-    row_result_without_scalar._result = result_mock
+    # Checks whether the row-results class without scalars was instantiated correctly
+    assert row_result_without_scalar._is_scalar is False
+    assert row_result_without_scalar._unique_result == result_mock
+    assert row_result_without_scalar._result == result_mock
 
 
 def test_unique():
@@ -121,7 +121,7 @@ def test_unique():
     row_results_mock._is_scalar = False
     row_results_mock._unique_result = unique_result_mock
 
-    # Invokes the first functon
+    # Invokes the first function
     row_results = RowResults.unique(self=row_results_mock)
 
     # Checks whether the required methods were called correctly

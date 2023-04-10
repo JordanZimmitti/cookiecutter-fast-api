@@ -25,7 +25,9 @@ Create a fully-working production-ready Fast-API server in minutes!
     * Docker-Compose configured with: 
         * Fast-API server 
         * Unit-Test runner
+        * Integration-Test runner
         * Postgres database
+        * Redis database
     
 * **Fast-API Server**
     * Application-Level context management 
@@ -38,8 +40,8 @@ Create a fully-working production-ready Fast-API server in minutes!
 * **Testing**
     * 100% code-coverage on all template code
     * API, Integration, and Unit tests configured
-    * Script for running all API/Unit tests
-    * Script for running all Integration tests
+    * Script for running all API/Unit tests both deployed and locally
+    * Script for running all Integration tests both deployed and locally
   
 * **Database** 
     * SQLAlchemy 2.0 support 

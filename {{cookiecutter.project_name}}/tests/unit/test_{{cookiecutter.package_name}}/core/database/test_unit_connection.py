@@ -60,10 +60,50 @@ async def test_disconnect(mocker):
     assert db_connection_mock._engine.dispose.call_count == 1
 
 
+def test_get_engine(mocker):
+    """
+    Tests the engine property for completion. The
+    engine property should return an engine
+    """
+
+    # Mocks and overrides the create_async_engine function
+    async_engine_mock = MagicMock(spec_set=AsyncEngine)
+    mocker.patch.object(connection, "create_async_engine", return_value=async_engine_mock)
+
+    # Overrides the async sessionmaker function
+    mocker.patch.object(connection, "async_sessionmaker", MagicMock())
+
+    # Creates a db-connection instance
+    db_connection = DatabaseConnection(
+        display_name="test-display-name", db_uri=SecretStr("test-db-uri")
+    )
+    db_connection.connect()
+
+    # Checks whether the engine was retrieved correctly
+    engine = db_connection.engine
+    assert engine == async_engine_mock
+
+
+def test_get_engine_before_connect():
+    """
+    Tests the engine property when no database is connected. The
+    engine property should raise an InternalServerError
+    """
+
+    # Creates a db-connection instance
+    db_connection = DatabaseConnection(
+        display_name="test-display-name", db_uri=SecretStr("test-db-uri")
+    )
+
+    # Checks whether the correct error was raised
+    with raises(InternalServerError):
+        _ = db_connection.engine
+
+
 def test_get_session_maker(mocker):
     """
-    Tests the session_maker property for completion. The session_maker property should return a
-    session_maker
+    Tests the session_maker property for completion. The
+    session_maker property should return a session_maker
 
     :param mocker: Fixture to mock specific functions for testing
     """
@@ -89,8 +129,8 @@ def test_get_session_maker(mocker):
 
 def test_get_session_maker_before_connect():
     """
-    Tests the session_maker property when no database is connected. The session_maker property
-    should raise an InternalServerError
+    Tests the session_maker property when no database is connected.
+    The session_maker property should raise an InternalServerError
     """
 
     # Creates a db-connection instance
@@ -105,8 +145,8 @@ def test_get_session_maker_before_connect():
 
 def test_init():
     """
-    Tests the DatabaseConnection init function for completion. The DatabaseConnection init function
-    should instantiate a DatabaseConnection instance without any errors
+    Tests the DatabaseConnection init function for completion. The DatabaseConnection
+    init function should instantiate a DatabaseConnection instance without any errors
     """
 
     # Define and instantiates the database-connection class

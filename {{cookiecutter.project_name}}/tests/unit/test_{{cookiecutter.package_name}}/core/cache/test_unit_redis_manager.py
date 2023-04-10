@@ -156,7 +156,7 @@ def test_get_operation():
 def test_get_operation_no_operation():
     """
     Tests the operation property when no operation exists. The
-    operation property should raise an InternalServerError()
+    operation property should raise an InternalServerError
     """
 
     # Creates the redis-manager instance

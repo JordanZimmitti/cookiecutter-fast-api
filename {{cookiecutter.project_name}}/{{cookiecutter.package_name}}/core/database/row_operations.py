@@ -8,7 +8,7 @@ from tenacity import retry, stop_after_attempt, wait_fixed
 from {{cookiecutter.package_name}}.core.settings import settings
 from {{cookiecutter.package_name}}.exceptions import InternalServerError
 
-# Gets {{cookiecutter.friendly_name}} server logger instance
+# Gets the {{cookiecutter.friendly_name}} server logger instance
 logger = getLogger("{{cookiecutter.package_name}}.core.database.row_operations")
 
 # Row-Operations type-hinting
@@ -27,7 +27,7 @@ class RowResult:
         :param is_scalar: Whether the object should be filtered through a scalar
         """
 
-        # Initializes given variables
+        # Initializes the given variables
         self._is_scalar = is_scalar
         self._result: ScalarResult | Result = result.scalars() if is_scalar else result
 
@@ -65,7 +65,7 @@ class RowResult:
             return row
         except Exception as exc:
             message = "A single row query came back empty or with multiple rows"
-            logger.error(message)
+            logger.critical(message)
             logger.debug(message, exc_info=exc)
             raise InternalServerError()
 
@@ -80,7 +80,7 @@ class RowResults:
         :param is_scalar: Whether the object should be filtered through a scalar
         """
 
-        # Initializes given variables
+        # Initializes the given variables
         self._is_scalar = is_scalar
         self._unique_result = result.unique
         self._result: ScalarResult | Result = result.scalars() if is_scalar else result
@@ -143,7 +143,7 @@ class DatabaseRowOperations:
         :param session_maker: An async sessionmaker instance
         """
 
-        # Initializes given variables
+        # Initializes the given variables
         self._session_maker = session_maker
 
     @staticmethod
@@ -161,7 +161,7 @@ class DatabaseRowOperations:
             await session.commit()
         except Exception as exc:
             message = "SQL-Alchemy session commit failed"
-            logger.error(message)
+            logger.critical(message)
             logger.debug(message, exc_info=exc)
             raise InternalServerError()
 
@@ -292,7 +292,7 @@ class DatabaseRowOperations:
                 return result
         except Exception as exc:
             message = "SQL-Alchemy session execution failed"
-            logger.error(message)
+            logger.critical(message)
             logger.debug(message, exc_info=exc)
             raise InternalServerError()
 
@@ -320,7 +320,7 @@ class DatabaseRowOperations:
             return stream_result
         except Exception as exc:
             message = "SQL-Alchemy session streaming failed"
-            logger.error(message)
+            logger.critical(message)
             logger.debug(message, exc_info=exc)
             raise InternalServerError()
 
@@ -342,5 +342,5 @@ def _enforce_base_type(row_data: Any, return_type: Type[ReturnType]):
             f"the given row with a type of '{type(row_data)}'"
             f" is not an instance of the base type '{return_type}'"
         )
-        logger.error(message)
+        logger.critical(message)
         raise InternalServerError()

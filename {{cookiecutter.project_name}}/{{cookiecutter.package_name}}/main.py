@@ -18,7 +18,7 @@ from {{cookiecutter.package_name}}.core.settings import settings
 from {{cookiecutter.package_name}}.services.logger import start_logger
 from {{cookiecutter.package_name}}.utils.modules.path_extensions import get_parent_path_by_file
 
-# Gets {{cookiecutter.friendly_name}} server logger instance
+# Gets the {{cookiecutter.friendly_name}} server logger instance
 logger = getLogger("{{cookiecutter.package_name}}.main")
 
 
@@ -84,7 +84,7 @@ class {{cookiecutter.class_name}}({{cookiecutter.class_name}}Base, ABC):
             message = {
                 "message": "Internal Server Error: An unexpected error occurred, please try again"
             }
-            logger.error(message)
+            logger.critical(message)
             logger.debug(message, exc_info=exc)
             return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=message)
 
@@ -106,10 +106,12 @@ if __name__ == "__main__":
         options={
             "bind": f"0.0.0.0:{settings.LISTEN_PORT}",
             "workers": settings.UVICORN_CONCURRENCY,
-            "worker_class": "uvicorn.workers.UvicornWorker",
+            "worker_class": "{{cookiecutter.package_name}}.core.app.{{cookiecutter.class_name}}UvicornWorker",
             "worker_connections": settings.UVICORN_CONNECTIONS,
             "max_requests": settings.UVICORN_MAX_REQUESTS,
             "max_requests_jitter": settings.UVICORN_MAX_REQUESTS_JITTER,
+            "keepalive": settings.UVICORN_KEEP_ALIVE,
+            "graceful_timeout": settings.UVICORN_GRACEFUL_TIMEOUT,
             "timeout": settings.UVICORN_TIMEOUT,
         }
     ).run()

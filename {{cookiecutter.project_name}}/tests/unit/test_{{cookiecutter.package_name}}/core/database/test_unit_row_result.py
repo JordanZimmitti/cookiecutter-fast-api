@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock
 
 from pytest import raises
-from sqlalchemy import Result, Row
+from sqlalchemy import Result
 
 from {{cookiecutter.package_name}}.core.database import row_operations
 from {{cookiecutter.package_name}}.core.database.row_operations import RowResult
@@ -28,7 +28,7 @@ def test_first(mocker):
     row_result_mock = MagicMock(spec=RowResult)
     row_result_mock._result = result_mock
 
-    # Invokes the first functon
+    # Invokes the first function
     row_data = RowResult.first(self=row_result_mock, return_type=str)
 
     # Checks whether the required methods were called correctly
@@ -54,12 +54,12 @@ def test_init():
     row_result_without_scalar = RowResult(result_mock, False)
 
     # Checks whether the row-result class with scalars was instantiated correctly
-    row_result_with_scalar._is_scalar = True
-    row_result_with_scalar._result = result_mock
+    assert row_result_with_scalar._is_scalar is True
+    assert row_result_with_scalar._result == result_mock
 
     # Checks whether the row-result class without scalars was instantiated correctly
-    row_result_without_scalar._is_scalar = False
-    row_result_without_scalar._result = result_mock
+    assert row_result_without_scalar._is_scalar is False
+    assert row_result_without_scalar._result == result_mock
 
 
 def test_one(mocker):
@@ -82,7 +82,7 @@ def test_one(mocker):
     row_result_mock = MagicMock(spec=RowResult)
     row_result_mock._result = result_mock
 
-    # Invokes the one functon
+    # Invokes the one function
     row_data = RowResult.one(self=row_result_mock, return_type=str)
 
     # Checks whether the required methods were called correctly

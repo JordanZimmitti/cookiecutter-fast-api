@@ -5,6 +5,7 @@ from typing import Any, Dict
 from fastapi import FastAPI
 from gunicorn.app.base import BaseApplication
 from starlette.responses import JSONResponse
+from uvicorn.workers import UvicornWorker
 
 from {{cookiecutter.package_name}}.core.settings import settings
 from {{cookiecutter.package_name}}.exceptions import (
@@ -18,8 +19,16 @@ from {{cookiecutter.package_name}}.exceptions import (
 
 from .app import setup_app
 
-# Gets {{cookiecutter.friendly_name}} server logger instance
+# Gets the {{cookiecutter.friendly_name}} server logger instance
 logger = getLogger("{{cookiecutter.package_name}}.core.app.{{cookiecutter.package_name}}_base")
+
+
+class {{cookiecutter.class_name}}UvicornWorker(UvicornWorker):
+    CONFIG_KWARGS = {
+        "loop": settings.UVICORN_LOOP,
+        "http": settings.UVICORN_HTTP,
+        "interface": settings.UVICORN_INTERFACE
+    }
 
 
 class {{cookiecutter.class_name}}Base(BaseApplication, ABC):

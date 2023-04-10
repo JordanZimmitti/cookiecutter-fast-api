@@ -52,6 +52,15 @@ class Settings(BaseSettings):
         "http://127.0.0.1:3000",
     ]
 
+    # The event loop implementation: [auto|asyncio|uvloop]
+    UVICORN_LOOP: str = "uvloop"
+
+    # The HTTP protocol implementation: [auto|h11|httptools]
+    UVICORN_HTTP: str = "httptools"
+
+    # The application web-interface [auto|asgi3|asgi2|wsgi]
+    UVICORN_INTERFACE: str = "asgi3"
+
     # Number of uvicorn processes
     UVICORN_CONCURRENCY: int = 1
 
@@ -64,17 +73,23 @@ class Settings(BaseSettings):
     # A number 0...jitter to add to the max-requests
     UVICORN_MAX_REQUESTS_JITTER: int = 100
 
+    # The number of seconds to wait for requests on a keep-alive connection
+    UVICORN_KEEP_ALIVE: int = 10  # 10 seconds
+
+    # After receiving a restart signal, workers have this much time to finish serving requests
+    UVICORN_GRACEFUL_TIMEOUT: int = 60  # 1 minute
+
     # Number of minutes an uvicorn process can start up for before the process is restarted
-    UVICORN_TIMEOUT: int = 60 * 5  # 5 minutes
+    UVICORN_TIMEOUT: int = 60  # 1 minute
 
     # Echo sqlalchemy logs for advanced debugging
     IS_ECHO_SQLALCHEMY_LOGS: bool = False
 
     # How many database connections to temporarily create when the connection pool is full
-    SQLALCHEMY_MAX_OVERFLOW: int = 5
+    SQLALCHEMY_MAX_OVERFLOW: int = 2
 
     # How many active database connections are available in the connection pool
-    SQLALCHEMY_POOL_SIZE: int = 5
+    SQLALCHEMY_POOL_SIZE: int = 1
 
     # {{cookiecutter.friendly_name}} server redis metadata
     API_REDIS_DISPLAY_NAME: str = "{{cookiecutter.redis_cache_display_name}}"

@@ -1,4 +1,5 @@
 from requests import Session
+from requests.adapters import HTTPAdapter
 from urllib3 import disable_warnings
 from urllib3.exceptions import InsecureRequestWarning
 
@@ -28,6 +29,7 @@ class ApiClient:
 
         # Creates the client session
         self.session = Session()
+        self.session.mount(api_url, HTTPAdapter(pool_connections=2, max_retries=2))
         self.session.verify = False
 
     def login(self):

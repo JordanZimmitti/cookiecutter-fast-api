@@ -9,7 +9,7 @@ from tenacity import retry, stop_after_attempt, wait_fixed
 from {{cookiecutter.package_name}}.core.settings import settings
 from {{cookiecutter.package_name}}.exceptions import InternalServerError
 
-# Gets {{cookiecutter.friendly_name}} server logger instance
+# Gets the {{cookiecutter.friendly_name}} server logger instance
 logger = getLogger("{{cookiecutter.package_name}}.core.cache.redis_manager")
 
 
@@ -33,7 +33,7 @@ class RedisManager:
         :param password: The password of the redis instance
         """
 
-        # Initializes given variables
+        # Initializes the given variables
         self._display_name = display_name
         self._description = description
         self._host = host
@@ -74,7 +74,7 @@ class RedisManager:
 
         # Checks whether the async redis instance exists
         if self._operation is None:
-            logger.info("The redis instance is not connected, was the connect function called?")
+            logger.critical("The redis instance is not connected, was the connect function called?")
             raise InternalServerError()
 
         # Returns the redis instance
@@ -133,6 +133,6 @@ class RedisManager:
                 return result[0] if is_scalar else result
         except Exception as exc:
             message = "Redis pipeline execute failed"
-            logger.error(message)
+            logger.critical(message)
             logger.debug(message, exc_info=exc)
             raise InternalServerError()

@@ -19,7 +19,7 @@ from {{cookiecutter.package_name}}.services.logger import HealthCheckFilter
 
 from .router import api_router
 
-# Gets {{cookiecutter.friendly_name}} server logger instance
+# Gets the {{cookiecutter.friendly_name}} server logger instance
 logger = getLogger("{{cookiecutter.package_name}}.core.app.app")
 logger.addFilter(HealthCheckFilter())
 
