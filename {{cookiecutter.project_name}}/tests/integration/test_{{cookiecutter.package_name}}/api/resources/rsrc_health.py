@@ -3,11 +3,15 @@ from typing import Any, Dict
 from pydantic import BaseModel, Field
 
 
-class Health(BaseModel):
+class HealthModel(BaseModel):
     """
     Model for describing the properties of a response that
     determines the health of the {{cookiecutter.friendly_name}} worker
     """
+
+    # Config that makes all attributes immutable
+    class Config:
+        frozen = True
 
     status: str = Field(
         ...,
@@ -21,11 +25,15 @@ class Health(BaseModel):
     )
 
 
-class Settings(BaseModel):
+class SettingsModel(BaseModel):
     """
     Model for describing the properties of a response that gets the
     environment settings of the running {{cookiecutter.friendly_name}} worker
     """
+
+    # Config that makes all attributes immutable
+    class Config:
+        frozen = True
 
     settings: Dict[str, Any] = Field(
         ...,

@@ -16,6 +16,11 @@ services:
       - "local/override-docker.env"
     ports:
       - "2000:2000"
+    healthcheck:
+      test: ["CMD", "bash", "scripts/run_health_check.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     deploy:
       resources:
         limits:
@@ -40,6 +45,21 @@ services:
         POETRY_VERSION: "1.4.2"
         PYTHON_VERSION: "3.11.2"
     container_name: "{{cookiecutter.package_name}}_unit_tests"
+
+  {{cookiecutter.package_name}}_integration_tests:
+    image: "{{cookiecutter.package_name}}_integration_tests:0.1.0"
+    build:
+      context: "."
+      target: "api_integration_tests"
+      args:
+        POETRY_VERSION: "1.4.2"
+        PYTHON_VERSION: "3.11.2"
+    container_name: "{{cookiecutter.package_name}}_integration_tests"
+    env_file:
+      - "local/override-docker-integration.env"
+    depends_on:
+      {{cookiecutter.package_name}}:
+        condition: service_healthy
 
   {{cookiecutter.package_name}}_postgres:
     image: "docker.io/bitnami/postgresql:latest"

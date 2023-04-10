@@ -1,57 +1,41 @@
-#!/bin/sh
+#!/bin/bash
+
+# Ensures that errors boil-up properly
+set -o pipefail
+set -o errexit
+
+# Creates the overridable environment variables
+: "${IS_ALL_INTEGRATION_TESTS:="true"}"
+: "${API_URL:="http://{{cookiecutter.package_name}}:2000/api"}"
+: "${USERNAME:=""}"
+: "${PASSWORD:=""}"
+: "${TARGET_DIR:="target"}"
 
 # Gets the {{cookiecutter.friendly_name}} server directory
 FILE_DIR=$(dirname "$0")
 cd "$FILE_DIR" || exit
 cd ..
 
-# Function that gets the password from the user (hides the input)
-getPassword() {
-  echo "Enter password:"
-  read -r -s PASSWORD
+# Function that runs all the integration tests or smoke tests
+runTests() {
+  if [[ "$IS_ALL_INTEGRATION_TESTS" == "true" ]]
+  then
+    python -m pytest "tests/integration" \
+      --junitxml "$TARGET_DIR/integration_junit.xml" \
+      --api_url "$API_URL" \
+      --username "$USERNAME" \
+      --password "$PASSWORD"
+  else
+    python -m pytest -m smoke "tests/integration" \
+      --junitxml "$TARGET_DIR/smoke_junit.xml" \
+      --api_url "$API_URL" \
+      --username "$ITEST_LOGIN_USR" \
+      --password "$ITEST_LOGIN_PSW"
+  fi
 }
 
-# Function that shows the available options
-showHelp() {
-  echo "------------------------------------------------------------------------------------------"
-  echo "Run Integration Test Flags"
-  echo "-a" "The api url the integration tests should hit"
-  echo "-u" "The username for logging into the client"
-  echo "-t" "The directory used to find and run the integration tests"
-  echo "------------------------------------------------------------------------------------------"
+# Function that runs when the script starts
+main() {
+  runTests
 }
-
-# Sets the default variables
-API="None"
-PASSWORD="None"
-USERNAME="None"
-TESTDIR=tests/integration
-
-# Shows the help information
-if [ "$1" = "--help" ]; then
-  showHelp
-  exit 1
-fi
-
-# Gets the command arguments
-while getopts a:u:p:t: flag
-do
-    case "${flag}" in
-        a) API=${OPTARG};;
-        u) USERNAME=${OPTARG};;
-        t) TESTDIR=${OPTARG};;
-        *) ;;
-    esac
-done
-
-# Shows the help information
-if [ "$USERNAME" != "None" ]; then
-  getPassword
-fi
-
-# Runs the integration tests
-python -m pytest \
-  "$TESTDIR" \
-  --username "$USERNAME" \
-  --password "$PASSWORD" \
-  --api_url "$API"
+main

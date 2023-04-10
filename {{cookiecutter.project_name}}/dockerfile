@@ -12,7 +12,7 @@ ENV PYTHONUNBUFFERED=1
 
 # Installs/Updates linux packages
 RUN apk update
-RUN apk add curl gcc libffi-dev libressl-dev make musl-dev
+RUN apk add bash curl gcc libffi-dev libressl-dev make musl-dev
 RUN apk upgrade --available && sync
 
 # Creates the group and user the project should run in
@@ -27,7 +27,6 @@ RUN chown -R appuser:appuser .
 RUN pip install --upgrade certifi setuptools wheel
 RUN curl -ssl https://install.python-poetry.org | python -
 RUN pip uninstall pip -y
-RUN apk del curl
 ENV PATH="${PATH}:/root/.local/bin"
 
 # Configures poetry for use
@@ -54,7 +53,25 @@ COPY tests/pytest.ini tests/pytest.ini
 
 # Starts the API unit tests
 USER appuser
-ENTRYPOINT ["sh", "scripts/run_tests.sh"]
+ENTRYPOINT ["bash", "scripts/run_tests.sh"]
+
+
+# Configures running the API integration tests
+FROM os as api_integration_tests
+
+# Installs the API dependencies with test dependencies
+RUN poetry install --no-root --with main --with test
+
+# Copies the API project and integration tests into the docker container
+COPY .coveragerc .coveragerc
+COPY scripts/run_integration_tests.sh scripts/run_integration_tests.sh
+COPY tests/integration tests/integration
+COPY tests/pytest.env tests/pytest.env
+COPY tests/pytest.ini tests/pytest.ini
+
+# Starts the API integration tests
+USER appuser
+ENTRYPOINT ["bash", "scripts/run_integration_tests.sh"]
 
 
 # Configures running the API
@@ -66,10 +83,11 @@ RUN poetry install --no-root --only main
 # Copies the API project into the docker container
 COPY {{cookiecutter.package_name}} {{cookiecutter.package_name}}
 COPY scripts/entrypoint.sh scripts/entrypoint.sh
+COPY scripts/run_health_check.sh scripts/run_health_check.sh
 
 # Exposes the port that the API server runs on
 EXPOSE 2000
 
 # Starts the API server
 USER appuser
-ENTRYPOINT ["sh", "scripts/entrypoint.sh"]
+ENTRYPOINT ["bash", "scripts/entrypoint.sh"]
