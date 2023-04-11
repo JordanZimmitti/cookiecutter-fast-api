@@ -6,13 +6,13 @@ license = "MIT"
 authors = {{cookiecutter.project_authors}}
 
 [tool.poetry.dependencies]
-alembic = "^1.10.2"
+alembic = "^1.10.3"
 asyncpg = "^0.27.0"
 fastapi = "^0.95.0"
 greenlet = "^2.0.2"
 gunicorn = "^20.1.0"
 httptools = "^0.5.0"
-httpx = {extras = ["h2"], version = "^0.23.3"}
+httpx = {extras = ["h2"], version = "^0.24.0"}
 prometheus-fastapi-instrumentator = "^6.0.0"
 psycopg2-binary = "^2.9.5"
 pydantic = {extras = ["email"], version = "^1.10.7"}
@@ -22,18 +22,18 @@ python-jose = "^3.3.0"
 python-multipart = "^0.0.6"
 redis = {extras = ["hiredis"], version = "^4.5.4"}
 requests = "^2.28.2"
-SQLAlchemy = "^2.0.1"
+SQLAlchemy = "^2.0.9"
 tenacity = "^8.2.2"
-types-redis = "^4.5.2.0"
+types-redis = "^4.5.4.1"
 uvicorn = "^0.21.0"
 uvloop = "^0.17.0"
 
 [tool.poetry.group.dev.dependencies]
-pre-commit = "^3.0.4"
+pre-commit = "^3.2.2"
 
 [tool.poetry.group.test.dependencies]
 locust = "^2.15.0"
-pytest = "^7.2.1"
+pytest = "^7.3.0"
 pytest-asyncio = "^0.21.0"
 pytest-cov = "^4.0.0"
 pytest-mock = "^3.10.0"

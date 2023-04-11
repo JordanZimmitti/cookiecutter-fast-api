@@ -1,7 +1,7 @@
 
 # Configures the operating system
 ARG PYTHON_VERSION
-FROM python:$PYTHON_VERSION-alpine as os
+FROM python:${PYTHON_VERSION}-alpine as os
 
 # Creates environment variables from docker arguments
 ARG POETRY_VERSION
@@ -53,6 +53,7 @@ COPY tests/pytest.ini tests/pytest.ini
 
 # Starts the API unit tests
 USER appuser
+RUN bash scripts/run_tests.sh
 ENTRYPOINT ["bash", "scripts/run_tests.sh"]
 
 

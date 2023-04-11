@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# Ensures that errors boil-up properly
-set -o pipefail
-set -o errexit
-
 # Gets the {{cookiecutter.friendly_name}} server base directory
 FILE_DIR=$(dirname "$0")
 cd "$FILE_DIR" || exit
