@@ -36,6 +36,7 @@ Create a fully-working production-ready Fast-API server in minutes!
     * HTTP status-code error handling
     * Key/Value pair line-logging optimized for Grafana/Loki
     * Built-in health check and prometheus metrics endpoints
+    * A Fast-API decorator for running repeated tasks 
 
 * **Testing**
     * 100% code-coverage on all template code
