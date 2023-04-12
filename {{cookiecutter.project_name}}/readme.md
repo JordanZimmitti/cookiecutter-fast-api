@@ -17,7 +17,7 @@
 * API and Unit tests: `sh scripts/run_tests_local.sh`
 
 ### __Running integration tests__
-* Integration tests: `sh scripts/run_integration_tests.sh`
+* Integration tests: `sh scripts/run_integration_tests_local.sh`
 
 
 ## __Docker Deployments__
@@ -25,11 +25,11 @@ The {{cookiecutter.friendly_name}} project comes equipped with a dockerfile and 
 docker-compose file is equipped to generate a production {{cookiecutter.friendly_name}} server instance 
 and a development PostgreSQL instance
 
-* To build a {{cookiecutter.friendly_name}} image: `docker compose build`
-* To spin-down a {{cookiecutter.friendly_name}} and PostgreSQL instance: `docker compose down -v`
-* To spin-up a {{cookiecutter.friendly_name}} and PostgreSQL instance: `docker compose up -d`
-* To start an existing {{cookiecutter.friendly_name}} and PostgreSQL instance: `docker compose start`
-* To stop an existing {{cookiecutter.friendly_name}} and PostgreSQL instance: `docker compose stop`
+* To build the {{cookiecutter.friendly_name}} images: `docker compose build`
+* To spin-up a {{cookiecutter.friendly_name}}, PostgreSQL, and Redis instance: `docker compose up -d`
+* To spin-down a {{cookiecutter.friendly_name}}, PostgreSQL, and Redis instance: `docker compose down -v`
+* To start an existing {{cookiecutter.friendly_name}}, PostgreSQL, and Redis instance: `docker compose start`
+* To stop an existing {{cookiecutter.friendly_name}}, PostgreSQL, and Redis instance: `docker compose stop`
 
 
 ## __Helpful Commands__
