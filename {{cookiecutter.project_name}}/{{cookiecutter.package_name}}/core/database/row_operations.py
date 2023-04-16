@@ -160,7 +160,7 @@ class DatabaseRowOperations:
             await session.flush()
             await session.commit()
         except Exception as exc:
-            message = "SQL-Alchemy session commit failed"
+            message = "The SQL-Alchemy session commit failed"
             logger.critical(message)
             logger.debug(message, exc_info=exc)
             raise InternalServerError()
@@ -291,7 +291,7 @@ class DatabaseRowOperations:
                     await self._commit_session(session)
                 return result
         except Exception as exc:
-            message = "SQL-Alchemy session execution failed"
+            message = "The SQL-Alchemy session execution failed"
             logger.critical(message)
             logger.debug(message, exc_info=exc)
             raise InternalServerError()
@@ -319,7 +319,7 @@ class DatabaseRowOperations:
             stream_result = result.scalars() if is_scalar else result
             return stream_result
         except Exception as exc:
-            message = "SQL-Alchemy session streaming failed"
+            message = "The SQL-Alchemy session streaming failed"
             logger.critical(message)
             logger.debug(message, exc_info=exc)
             raise InternalServerError()
