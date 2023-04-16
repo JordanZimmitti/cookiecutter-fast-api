@@ -21,7 +21,7 @@ class DatabaseManager:
         self._db_uri = db_uri
 
         # Instantiates the database-manager classes
-        self._connection = DatabaseConnection(self._display_name, self._db_uri)
+        self._connection = DatabaseConnection(display_name, db_uri)
         self._row_operations: DatabaseRowOperations | None = None
 
     @property

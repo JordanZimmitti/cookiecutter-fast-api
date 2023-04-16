@@ -30,7 +30,7 @@ class DatabaseConnection:
         self._display_name = display_name
         self._db_uri = db_uri
 
-        # Initializes class-created variables
+        # Initializes the class-created variables
         self._engine: AsyncEngine | None = None
         self._session_maker: async_sessionmaker[AsyncSession] | None = None
 
