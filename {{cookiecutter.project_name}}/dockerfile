@@ -18,14 +18,15 @@ RUN apk upgrade --available && sync
 # Creates the group and user the project should run in
 RUN addgroup --gid 1000 appuser
 RUN adduser --uid 1000 --ingroup appuser --disabled-password --home appuser appuser
+RUN rm -rf appuser
 
 # Sets the project working directory
 WORKDIR /home/appuser
 RUN chown -R appuser:appuser .
 
-# Updates pip defaults, installs poetry, then uninstalls pip and curl
-RUN pip install --upgrade certifi setuptools wheel
+# Updates pip defaults, installs poetry, then uninstalls pip
 RUN curl -ssl https://install.python-poetry.org | python -
+RUN pip install --upgrade certifi setuptools wheel
 RUN pip uninstall pip -y
 ENV PATH="${PATH}:/root/.local/bin"
 
@@ -38,8 +39,9 @@ COPY pyproject.toml .
 # Configures running the API unit tests
 FROM os as api_unit_tests
 
-# Installs the API dependencies with test dependencies
+# Installs the API dependencies with test dependencies then uninstalls poetry
 RUN poetry install --no-root --with main --with test
+RUN curl -ssl https://install.python-poetry.org | python - --uninstall
 
 # Copies the API project and unit tests into the docker container
 COPY .coveragerc .coveragerc
@@ -60,8 +62,9 @@ ENTRYPOINT ["bash", "scripts/run_tests.sh"]
 # Configures running the API integration tests
 FROM os as api_integration_tests
 
-# Installs the API dependencies with test dependencies
+# Installs the API dependencies with test dependencies then uninstalls poetry
 RUN poetry install --no-root --with main --with test
+RUN curl -ssl https://install.python-poetry.org | python - --uninstall
 
 # Copies the API project and integration tests into the docker container
 COPY .coveragerc .coveragerc
@@ -78,8 +81,9 @@ ENTRYPOINT ["bash", "scripts/run_integration_tests.sh"]
 # Configures running the API
 FROM os as api
 
-# Installs the API only dependencies
+# Installs the API only dependencies then uninstalls poetry
 RUN poetry install --no-root --only main
+RUN curl -ssl https://install.python-poetry.org | python - --uninstall
 
 # Copies the API project into the docker container
 COPY {{cookiecutter.package_name}} {{cookiecutter.package_name}}

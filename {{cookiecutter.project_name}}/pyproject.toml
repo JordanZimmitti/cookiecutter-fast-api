@@ -6,7 +6,7 @@ license = "MIT"
 authors = {{cookiecutter.project_authors}}
 
 [tool.poetry.dependencies]
-alembic = "^1.10.3"
+alembic = "^1.10.4"
 asyncpg = "^0.27.0"
 fastapi = "^0.95.1"
 greenlet = "^2.0.2"
