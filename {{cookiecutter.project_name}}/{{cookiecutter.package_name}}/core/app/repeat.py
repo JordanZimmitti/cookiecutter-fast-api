@@ -17,7 +17,7 @@ def repeated_task(period_seconds: float, repeat: int = 0):
     :param repeat: Number of times to invoke the attached function
     """
 
-    # Created the decorator function
+    # Creates the decorator function
     def decorator(func: Callable):
         """
         Function getting the
@@ -26,6 +26,7 @@ def repeated_task(period_seconds: float, repeat: int = 0):
         :param func: The function attached to the decorator
         """
 
+        # Creates the wrapper function
         async def wrapper():
             """
             Wrapper function that configures the attached function to
