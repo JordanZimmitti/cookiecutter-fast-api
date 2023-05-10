@@ -1,5 +1,6 @@
-from requests import Session
+from requests import Response, Session
 from requests.adapters import HTTPAdapter
+from typing import Dict
 from urllib3 import disable_warnings
 from urllib3.exceptions import InsecureRequestWarning
 
@@ -58,25 +59,33 @@ class ApiClient:
         }
         self.session.headers.update(headers)
 
-    def delete(self, endpoint, params: dict = None):
+    def delete(self, endpoint: str, params: Dict = None) -> Response:
         return self._request(endpoint, "DELETE", params=params)
 
-    def get(self, endpoint, params: dict = None):
+    def get(self, endpoint: str, params: Dict = None) -> Response:
         return self._request(endpoint, "GET", params=params)
 
-    def head(self, endpoint, params: dict = None):
+    def head(self, endpoint: str, params: Dict = None) -> Response:
         return self._request(endpoint, "HEAD", params=params)
 
-    def post(self, endpoint, data, params: dict = None):
-        return self._request(endpoint, "POST", data=data, params=params)
+    def post(
+        self, endpoint: str, data: Dict = None, json: Dict = None, params: Dict = None
+    ) -> Response:
+        return self._request(endpoint, "POST", data=data, json=json, params=params)
 
-    def put(self, endpoint, data, params: dict = None):
-        return self._request(endpoint, "PUT", data=data, params=params)
+    def put(
+        self, endpoint: str, data: Dict = None, json: Dict = None, params: Dict = None
+    ) -> Response:
+        return self._request(endpoint, "PUT", data=data, json=json, params=params)
 
-    def patch(self, endpoint, data, params: dict = None):
-        return self._request(endpoint, "PATCH", data=data, params=params)
+    def patch(
+        self, endpoint: str, data: Dict = None, json: Dict = None, params: Dict = None
+    ) -> Response:
+        return self._request(endpoint, "PATCH", data=data, json=json, params=params)
 
-    def _request(self, endpoint, method, data: dict = None, params: dict = None):
+    def _request(
+        self, endpoint: str, method: str, data: Dict = None, json: Dict = None, params: Dict = None
+    ) -> Response:
         full_url = f"{self.api_url}{endpoint}"
-        response = self.session.request(method, full_url, json=data, params=params)
+        response = self.session.request(method, full_url, data=data, json=json, params=params)
         return response

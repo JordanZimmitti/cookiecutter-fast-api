@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     API_PREFIX: str = "/api"
 
     # The open-api swagger documentation url
-    DOCS_URL: str = f"{API_PREFIX}/docs"
+    DOCS_URL: str = "/api/docs"
 
     # The port that the api can be accessed from
     LISTEN_PORT: int = 2000
@@ -44,9 +44,9 @@ class Settings(BaseSettings):
 
     # Cors Origins used
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = [
-        f"http://localhost:{LISTEN_PORT}",
-        f"http://0.0.0.0:{LISTEN_PORT}",
-        f"http://127.0.0.1:{LISTEN_PORT}",
+        "http://localhost:2000",
+        "http://0.0.0.0:2000",
+        "http://127.0.0.1:2000",
         "http://localhost:3000",
         "http://0.0.0.0:3000",
         "http://127.0.0.1:3000",

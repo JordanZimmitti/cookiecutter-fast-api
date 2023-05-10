@@ -83,7 +83,7 @@ async def handle_request(app: FastAPI, request: Request, call_next: Callable) ->
     set_correlation_id(request, fast_api_context)
 
     # Logs that the request has started
-    start_extra = {"method": method, "url": url, "user-agent": user_agent}
+    start_extra = {"method": method, "url": url, "user_agent": user_agent}
     logger.info("Starting Request", extra=start_extra)
 
     # Handles the request and gets the response
@@ -99,10 +99,10 @@ async def handle_request(app: FastAPI, request: Request, call_next: Callable) ->
     finish_extra = {
         "method": method,
         "url": url,
-        "status-code": status_code,
-        "response-size-bytes": get_response_size(response),
-        "response-time-ms": round(process_time, 3),
-        "user-agent": user_agent,
+        "status_code": status_code,
+        "response_size_bytes": get_response_size(response),
+        "response_time_ms": round(process_time, 3),
+        "user_agent": user_agent,
     }
     logger.info("Finished Request", extra=finish_extra)
 
