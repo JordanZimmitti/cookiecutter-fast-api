@@ -83,51 +83,51 @@ class {{cookiecutter.class_name}}Base(BaseApplication, ABC):
     async def bad_request_error_handler(_, exc: BadRequestError) -> JSONResponse:
 
         # Sends the bad-request-error response
-        content = {"message": f"Bad Request Error: {exc.detail}"}
-        logger.error(content)
-        return JSONResponse(status_code=exc.status_code, content=content)
+        message = f"Bad Request Error: {exc.detail}"
+        logger.error(message)
+        return JSONResponse(status_code=exc.status_code, content={"message": message})
 
     @staticmethod
     @_app.exception_handler(ForbiddenError)
     async def forbidden_error_handler(_, exc: ForbiddenError) -> JSONResponse:
 
         # Sends the forbidden-error response
-        content = {"message": f"Forbidden Error: {exc.detail}"}
-        logger.error(content)
-        return JSONResponse(status_code=exc.status_code, content=content)
+        message = f"Forbidden Error: {exc.detail}"
+        logger.error(message)
+        return JSONResponse(status_code=exc.status_code, content={"message": message})
 
     @staticmethod
     @_app.exception_handler(InternalServerError)
     async def internal_server_error_handler(_, exc: InternalServerError) -> JSONResponse:
 
         # Sends the internal-server-error response
-        content = {"message": f"Internal Server Error: {exc.detail}"}
-        logger.error(content)
-        return JSONResponse(status_code=exc.status_code, content=content)
+        message = f"Internal Server Error: {exc.detail}"
+        logger.error(message)
+        return JSONResponse(status_code=exc.status_code, content={"message": message})
 
     @staticmethod
     @_app.exception_handler(NotFoundError)
     async def not_found_error_handler(_, exc: NotFoundError) -> JSONResponse:
 
         # Sends the not-found-error response
-        content = {"message": f"Not Found Error: {exc.detail}"}
-        logger.error(content)
-        return JSONResponse(status_code=exc.status_code, content=content)
+        message = f"Not Found Error: {exc.detail}"
+        logger.error(message)
+        return JSONResponse(status_code=exc.status_code, content={"message": message})
 
     @staticmethod
     @_app.exception_handler(UnauthenticatedError)
     async def unauthenticated_error_handler(_, exc: UnauthenticatedError) -> JSONResponse:
 
         # Sends the unauthenticated-error response
-        content = {"message": f"Unauthenticated Error: {exc.detail}"}
-        logger.error(content)
-        return JSONResponse(status_code=exc.status_code, content=content)
+        message = f"Unauthenticated Error: {exc.detail}"
+        logger.error(message)
+        return JSONResponse(status_code=exc.status_code, content={"message": message})
 
     @staticmethod
     @_app.exception_handler(ValidationError)
     async def validation_error_handler(_, exc: ValidationError) -> JSONResponse:
 
         # Sends the validation-error response
-        content = {"message": f"Validation Error: {exc.detail}"}
-        logger.error(content)
-        return JSONResponse(status_code=exc.status_code, content=content)
+        message = f"Validation Error: {exc.detail}"
+        logger.error(message)
+        return JSONResponse(status_code=exc.status_code, content={"message": message})
