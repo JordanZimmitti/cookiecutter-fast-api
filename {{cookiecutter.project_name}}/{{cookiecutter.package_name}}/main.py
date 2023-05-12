@@ -55,16 +55,19 @@ class {{cookiecutter.class_name}}({{cookiecutter.class_name}}Base, ABC):
         # Deconstructs the fast-api state instances
         await deconstruct_app_state({{cookiecutter.class_name}}.app)
 
-        # Gets the process id
-        process_id = getpid()
+        # Removes the log file when running locally
+        if settings.HOSTNAME == "localhost":
 
-        # Removes the application log file
-        project_path = f"{get_parent_path_by_file('pyproject.toml')}"
-        log_directory = f"{project_path}/{settings.LOG_FILE_DIRECTORY}/"
-        if exists(log_directory):
-            for file in listdir(log_directory):
-                if f"{process_id}" in file:
-                    remove(join(log_directory, file))
+            # Gets the process id
+            process_id = getpid()
+
+            # Removes the application log file
+            project_path = f"{get_parent_path_by_file('pyproject.toml')}"
+            log_directory = f"{project_path}/{settings.LOG_FILE_DIRECTORY}/"
+            if exists(log_directory):
+                for file in listdir(log_directory):
+                    if f"{process_id}" in file:
+                        remove(join(log_directory, file))
 
     @staticmethod
     @app.middleware("http")
