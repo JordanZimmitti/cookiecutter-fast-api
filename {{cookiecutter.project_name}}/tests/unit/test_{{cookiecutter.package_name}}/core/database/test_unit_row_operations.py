@@ -1,3 +1,4 @@
+from asyncio import CancelledError
 from typing import List
 from unittest.mock import AsyncMock, MagicMock
 
@@ -418,7 +419,7 @@ async def test_stream_rows(mocker):
         fetch_many_mock.return_value = []
 
     # Checks whether the required methods were called correctly
-    assert start_stream_mock.called
+    assert session_maker_mock.called
     assert start_stream_mock.called
     assert start_stream_mock.call_args.args[0] == async_session_mock
     assert start_stream_mock.call_args.args[1] == statement_mock
@@ -428,3 +429,56 @@ async def test_stream_rows(mocker):
     assert enforce_base_type_mock.called
     assert enforce_base_type_mock.call_args.args[0] == "test-value-one"
     assert enforce_base_type_mock.call_args.args[1] == str
+
+
+@mark.asyncio
+async def test_stream_rows_cancelled(mocker):
+    """
+    Tests the stream_rows function when a stream is cancelled. The
+    stream_rows function should complete without any errors
+
+    :param mocker: Fixture to mock specific functions for testing
+    """
+
+    # Mocks and overrides the _enforce_base_type_mock function
+    enforce_base_type_mock = MagicMock()
+    mocker.patch.object(row_operations, "_enforce_base_type", enforce_base_type_mock)
+
+    # Function that raises an async cancelled error
+    def raise_cancelled_error():
+        raise CancelledError()
+
+    # Mocks the async_sessionmaker class
+    session_maker_mock = MagicMock(side_effect=raise_cancelled_error)
+
+    # Mocks the fetchmany function
+    fetch_many_mock = AsyncMock()
+    fetch_many_mock.return_value = ["test-value-one"]
+
+    # Mocks the start_stream function
+    start_stream_mock = AsyncMock()
+    start_stream_mock.return_value = start_stream_mock
+    start_stream_mock.fetchmany = fetch_many_mock
+
+    # Mocks the database-row-operations class
+    database_row_operations_mock = MagicMock(spec=DatabaseRowOperations)
+    database_row_operations_mock._session_maker = session_maker_mock
+    database_row_operations_mock._start_stream = start_stream_mock
+
+    # Mocks the select class
+    statement_mock = MagicMock(spec_set=Select)
+
+    # Invokes the stream_rows function
+    async for rows in DatabaseRowOperations.stream_rows(
+        self=database_row_operations_mock,
+        return_type=str,
+        statement=statement_mock,
+        batch=1,
+    ):
+        pass
+
+    # Checks whether the required methods were called correctly
+    assert session_maker_mock.called
+    assert not start_stream_mock.called
+    assert not fetch_many_mock.called
+    assert not enforce_base_type_mock.called

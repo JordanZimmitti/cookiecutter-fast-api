@@ -1,3 +1,4 @@
+from asyncio import CancelledError
 from logging import getLogger
 from typing import Any, AsyncIterator, Callable, List, Type, TypeVar, get_origin
 
@@ -262,14 +263,18 @@ class DatabaseRowOperations:
         """
 
         # Attempts to stream rows from the database
-        async with self._session_maker() as session:
-            stream_result = await self._start_stream(session, statement, is_scalar, **kwargs)
-            while True:
-                rows: List[return_type] = list(await stream_result.fetchmany(batch))
-                if not rows:
-                    break
-                _enforce_base_type(rows[0], return_type)
-                yield rows
+        try:
+            async with self._session_maker() as session:
+                stream_result = await self._start_stream(session, statement, is_scalar, **kwargs)
+                while True:
+                    rows: List[return_type] = list(await stream_result.fetchmany(batch))
+                    if not rows:
+                        break
+                    _enforce_base_type(rows[0], return_type)
+                    yield rows
+        except CancelledError:
+            message = "A database stream was cancelled"
+            logger.info(message)
 
     async def _execute_query(self, statement: Statement, is_commit: bool, **kwargs) -> Result:
         """

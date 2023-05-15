@@ -84,12 +84,12 @@ class {{cookiecutter.class_name}}({{cookiecutter.class_name}}Base, ABC):
         try:
             return await handle_request({{cookiecutter.class_name}}.app, request, call_next)
         except Exception as exc:
-            message = {
-                "message": "Internal Server Error: An unexpected error occurred, please try again"
-            }
+            message = "Internal Server Error: An unexpected error occurred, please try again"
             logger.critical(message)
             logger.debug(message, exc_info=exc)
-            return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=message)
+            return JSONResponse(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={"message": message}
+            )
 
     @staticmethod
     @app.get("/", include_in_schema=False)

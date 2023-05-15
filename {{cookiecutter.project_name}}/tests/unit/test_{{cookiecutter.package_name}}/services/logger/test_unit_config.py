@@ -1,12 +1,10 @@
-from os import removedirs
-from os.path import exists
+from unittest.mock import MagicMock
 
-from {{cookiecutter.package_name}}.core.settings import settings
+from {{cookiecutter.package_name}}.core.settings import Settings
 from {{cookiecutter.package_name}}.services.logger import config
 
 # noinspection PyProtectedMember
 from {{cookiecutter.package_name}}.services.logger.config import _get_logger_config, start_logger
-from {{cookiecutter.package_name}}.utils.modules.path_extensions import get_parent_path_by_file
 
 
 def test_start_logger(mocker):
@@ -25,17 +23,47 @@ def test_start_logger(mocker):
     start_logger("INFO")
 
 
-def test_get_logger_config():
+def test_get_logger_config(mocker):
     """
     Tests the _get_logger_config function for completion. The _get_logger_config function
     should get the logger configuration dictionary without any errors
+
+    :param mocker: Fixture to mock specific functions for testing
     """
 
-    # Removes the log directory
-    project_path = f"{get_parent_path_by_file('pyproject.toml')}"
-    log_directory = f"{project_path}/{settings.LOG_FILE_DIRECTORY}/"
-    if exists(log_directory):
-        removedirs(log_directory)
+    # Mock and overrides the settings class
+    settings_mock = MagicMock(spec=Settings)
+    settings_mock.HOSTNAME = "hostname"
+    settings_mock.LOG_FILE_DIRECTORY = "log-file-directory"
+    mocker.patch.object(config, "settings", settings_mock)
+
+    # Mock and overrides the get_parent_path_by_file function
+    get_parent_path_by_file_mock = MagicMock()
+    get_parent_path_by_file_mock.return_value = "parent-path"
+    mocker.patch.object(config, "get_parent_path_by_file", get_parent_path_by_file_mock)
+
+    # Mock and overrides the exists function
+    exists_mock = MagicMock()
+    exists_mock.return_value = False
+    mocker.patch.object(config, "exists", exists_mock)
+
+    # Mock and overrides the makedirs function
+    makedirs_mock = MagicMock()
+    mocker.patch.object(config, "makedirs", makedirs_mock)
+
+    # Mock and overrides the getpid function
+    get_pid_mock = MagicMock()
+    get_pid_mock.return_value = "pid"
+    mocker.patch.object(config, "getpid", get_pid_mock)
 
     # Gets the logger config
     _get_logger_config()
+
+    # Checks whether the functions were invoked correctly
+    assert get_parent_path_by_file_mock.called
+    assert get_parent_path_by_file_mock.call_args.args[0] == "pyproject.toml"
+    assert exists_mock.called
+    assert exists_mock.call_args.args[0] == "parent-path/log-file-directory/"
+    assert makedirs_mock.called
+    assert makedirs_mock.call_args.args[0] == "parent-path/log-file-directory/"
+    assert get_pid_mock.called

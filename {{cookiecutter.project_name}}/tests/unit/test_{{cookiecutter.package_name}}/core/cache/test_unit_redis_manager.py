@@ -29,7 +29,7 @@ def test_connect(mocker):
     redis_manager_mock._password = SecretStr("test-password")
     redis_manager_mock._display_name = "test-name"
 
-    # Mocks the redis-manager class
+    # Mock and overrides the settings class
     settings_mock = MagicMock(spec=Settings)
     settings_mock.API_REDIS_DECODE_RESPONSES = True
     mocker.patch.object(redis_manager, "settings", settings_mock)
