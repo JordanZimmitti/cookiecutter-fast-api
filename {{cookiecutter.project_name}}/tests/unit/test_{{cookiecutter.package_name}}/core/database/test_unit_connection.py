@@ -50,9 +50,6 @@ async def test_disconnect(mocker):
     db_connection_mock._display_name = ""
     db_connection_mock._engine = MagicMock(spec_set=AsyncEngine)
 
-    # Overrides the close_all_sessions function
-    mocker.patch.object(connection, "close_all_sessions", MagicMock())
-
     # Invokes the database-connection disconnect function
     await DatabaseConnection.disconnect(self=db_connection_mock)
 
