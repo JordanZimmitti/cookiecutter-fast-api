@@ -392,13 +392,14 @@ async def test_stream_rows(mocker):
     session_maker_mock.__aenter__.return_value = async_session_mock
 
     # Mocks the fetchmany function
-    fetch_many_mock = AsyncMock()
-    fetch_many_mock.return_value = ["test-value-one"]
+    partitions_mock = MagicMock()
+    partitions_mock.return_value = partitions_mock
+    partitions_mock.__aiter__.return_value = [["test-value-one"]]
 
     # Mocks the start_stream function
     start_stream_mock = AsyncMock()
     start_stream_mock.return_value = start_stream_mock
-    start_stream_mock.fetchmany = fetch_many_mock
+    start_stream_mock.partitions = partitions_mock
 
     # Mocks the database-row-operations class
     database_row_operations_mock = MagicMock(spec=DatabaseRowOperations)
@@ -416,7 +417,6 @@ async def test_stream_rows(mocker):
         batch=1,
     ):
         assert rows == ["test-value-one"]
-        fetch_many_mock.return_value = []
 
     # Checks whether the required methods were called correctly
     assert session_maker_mock.called
@@ -424,8 +424,8 @@ async def test_stream_rows(mocker):
     assert start_stream_mock.call_args.args[0] == async_session_mock
     assert start_stream_mock.call_args.args[1] == statement_mock
     assert start_stream_mock.call_args.args[2] is True
-    assert fetch_many_mock.call_count == 2
-    assert fetch_many_mock.call_args.args[0] == 1
+    assert partitions_mock.called
+    assert partitions_mock.call_args.args[0] == 1
     assert enforce_base_type_mock.called
     assert enforce_base_type_mock.call_args.args[0] == "test-value-one"
     assert enforce_base_type_mock.call_args.args[1] == str

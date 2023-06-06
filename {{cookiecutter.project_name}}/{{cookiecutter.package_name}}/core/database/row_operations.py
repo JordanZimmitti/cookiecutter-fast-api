@@ -266,10 +266,7 @@ class DatabaseRowOperations:
         try:
             async with self._session_maker() as session:
                 stream_result = await self._start_stream(session, statement, is_scalar, **kwargs)
-                while True:
-                    rows: List[return_type] = list(await stream_result.fetchmany(batch))
-                    if not rows:
-                        break
+                async for rows in stream_result.partitions(batch):
                     _enforce_base_type(rows[0], return_type)
                     yield rows
         except CancelledError:
