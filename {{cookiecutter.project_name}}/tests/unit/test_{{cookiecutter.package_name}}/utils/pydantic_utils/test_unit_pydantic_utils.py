@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from {{cookiecutter.package_name}}.utils.modules.pydantic_utils import form_body
+from {{cookiecutter.package_name}}.utils.pydantic_utils import form_body
 
 
 def test_form_body():

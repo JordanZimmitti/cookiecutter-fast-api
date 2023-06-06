@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 from pytest import mark
 
-from {{cookiecutter.package_name}}.utils.modules.async_utils import run_sync_function, sync_to_async
+from {{cookiecutter.package_name}}.utils.async_utils import run_sync_function, sync_to_async
 
 
 @mark.asyncio

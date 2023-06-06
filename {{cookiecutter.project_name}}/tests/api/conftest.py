@@ -27,7 +27,7 @@ def cleanup() -> Generator[None, Any, None]:
 
     # Import packages after pytest environment variables are loaded
     from {{cookiecutter.package_name}}.core.settings import settings
-    from {{cookiecutter.package_name}}.utils.modules.path_extensions import get_parent_path_by_file
+    from {{cookiecutter.package_name}}.utils.path_utils import get_parent_path_by_file
 
     # Removes the application log file
     project_path = f"{get_parent_path_by_file('pyproject.toml')}"

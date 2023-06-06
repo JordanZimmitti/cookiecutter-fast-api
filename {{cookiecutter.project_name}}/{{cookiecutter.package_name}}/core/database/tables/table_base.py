@@ -22,7 +22,7 @@ class StampMixin:
     created_on = Column(
         type_=TIMESTAMP,
         nullable=False,
-        default=datetime.utcnow(),
+        default=datetime.utcnow,
         comment="The date when the row was created",
     )
     updated_by = Column(
@@ -33,7 +33,7 @@ class StampMixin:
     updated_on = Column(
         type_=TIMESTAMP,
         nullable=True,
-        onupdate=datetime.utcnow(),
+        onupdate=datetime.utcnow,
         comment="The date when the row was updated",
     )
 

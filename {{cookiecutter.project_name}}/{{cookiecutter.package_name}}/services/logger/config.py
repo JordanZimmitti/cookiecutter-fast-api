@@ -5,7 +5,7 @@ from typing import Any, Dict
 from uuid import uuid4
 
 from {{cookiecutter.package_name}}.core.settings import settings
-from {{cookiecutter.package_name}}.utils.modules.path_extensions import get_parent_path_by_file
+from {{cookiecutter.package_name}}.utils.path_utils import get_parent_path_by_file
 
 
 def start_logger(log_level: str):

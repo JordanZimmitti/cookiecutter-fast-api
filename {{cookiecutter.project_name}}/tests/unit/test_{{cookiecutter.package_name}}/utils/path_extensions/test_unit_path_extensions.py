@@ -1,4 +1,4 @@
-from {{cookiecutter.package_name}}.utils.modules.path_extensions import get_parent_path_by_file
+from {{cookiecutter.package_name}}.utils.path_utils import get_parent_path_by_file
 
 
 def test_get_parent_path_by_file_exists():
