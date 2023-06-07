@@ -7,7 +7,6 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
 )
-from sqlalchemy.orm import close_all_sessions
 
 from {{cookiecutter.package_name}}.core.settings import settings
 from {{cookiecutter.package_name}}.exceptions import InternalServerError
