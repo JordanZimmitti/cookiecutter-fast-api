@@ -1,11 +1,8 @@
 from asyncio import sleep
 
-from pytest import mark
-
 from {{cookiecutter.package_name}}.core.app import repeated_task
 
 
-@mark.asyncio
 async def test_repeated_task():
     """
     Tests the repeated_task decorator function for completion. The repeated_task

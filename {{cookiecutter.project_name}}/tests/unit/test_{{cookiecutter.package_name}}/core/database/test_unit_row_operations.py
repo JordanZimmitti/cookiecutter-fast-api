@@ -2,7 +2,7 @@ from asyncio import CancelledError
 from typing import List
 from unittest.mock import AsyncMock, MagicMock
 
-from pytest import mark, raises
+from pytest import raises
 from sqlalchemy import Select
 from sqlalchemy.ext.asyncio import AsyncResult, AsyncSession, async_sessionmaker
 
@@ -28,7 +28,6 @@ def test_enforce_base_type_not_same():
         _enforce_base_type(row_data={}, return_type=List)
 
 
-@mark.asyncio
 async def test_add_row():
     """
     Tests the add_row function for completion. The add_row function
@@ -64,7 +63,6 @@ async def test_add_row():
     assert commit_session_mock.called
 
 
-@mark.asyncio
 async def test_add_rows():
     """
     Tests the add_rows function for completion. The add_rows function
@@ -100,7 +98,6 @@ async def test_add_rows():
     assert commit_session_mock.called
 
 
-@mark.asyncio
 async def test_commit_session():
     """
     Tests the _commit_session function for completion. The _commit_session
@@ -118,7 +115,6 @@ async def test_commit_session():
     assert async_session_mock.commit.called
 
 
-@mark.asyncio
 async def test_commit_session_error():
     """
     Tests the _commit_session function when an error occurs. The
@@ -134,7 +130,6 @@ async def test_commit_session_error():
         await DatabaseRowOperations._commit_session(async_session_mock)
 
 
-@mark.asyncio
 async def test_execute_query():
     """
     Tests the _execute_query function for completion. The _execute_query
@@ -177,7 +172,6 @@ async def test_execute_query():
     assert commit_session_mock.call_args.args[0] == async_session_mock
 
 
-@mark.asyncio
 async def test_execute_query_error():
     """
     Tests the _execute_query function when an error occurs. The
@@ -223,7 +217,6 @@ def test_init():
     assert db_connection._session_maker == session_maker_mock
 
 
-@mark.asyncio
 async def test_query_row(mocker):
     """
     Tests the query_row function for completion. The query_row function
@@ -263,7 +256,6 @@ async def test_query_row(mocker):
     assert row_result_mock.call_args.args == (execute_query_mock, True)
 
 
-@mark.asyncio
 async def test_query_rows(mocker):
     """
     Tests the query_rows function for completion. The query_rows function
@@ -303,7 +295,6 @@ async def test_query_rows(mocker):
     assert row_results_mock.call_args.args == (execute_query_mock, True)
 
 
-@mark.asyncio
 async def test_start_stream():
     """
     Tests the _start_stream function for completion. The _start_stream function
@@ -343,7 +334,6 @@ async def test_start_stream():
     assert scalars_mock.called
 
 
-@mark.asyncio
 async def test_start_stream_error():
     """
     Tests the _start_stream function when an error occurs. The
@@ -370,7 +360,6 @@ async def test_start_stream_error():
         )
 
 
-@mark.asyncio
 async def test_stream_rows(mocker):
     """
     Tests the stream_rows function for completion. The stream_rows function
@@ -431,7 +420,6 @@ async def test_stream_rows(mocker):
     assert enforce_base_type_mock.call_args.args[1] == str
 
 
-@mark.asyncio
 async def test_stream_rows_cancelled(mocker):
     """
     Tests the stream_rows function when a stream is cancelled. The

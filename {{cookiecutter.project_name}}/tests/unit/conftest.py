@@ -1,4 +1,4 @@
-from asyncio import AbstractEventLoop, get_event_loop_policy
+from asyncio import get_event_loop
 from os import listdir, remove
 from os.path import dirname, exists, join, pardir
 from typing import Any, Generator
@@ -33,17 +33,6 @@ def cleanup() -> Generator[None, Any, None]:
         for file in listdir(log_directory):
             remove(join(log_directory, file))
 
-
-@fixture(scope="session", autouse=True)
-def event_loop() -> Generator[AbstractEventLoop, Any, None]:
-    """
-    Pytest fixture that creates an event-loop
-    for asynchronous operations
-
-    :return: The new event loop
-    """
-
-    # Returns the newly started event-loop
-    loop = get_event_loop_policy().new_event_loop()
-    yield loop
-    loop.close()
+    # Closes the event loop
+    event_loop = get_event_loop()
+    event_loop.close()

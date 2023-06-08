@@ -2,7 +2,6 @@ from unittest.mock import AsyncMock, MagicMock
 
 from fastapi import FastAPI, Request, Response
 from prometheus_fastapi_instrumentator import Instrumentator
-from pytest import mark
 
 from {{cookiecutter.package_name}}.core.app import (
     app,
@@ -17,7 +16,6 @@ from {{cookiecutter.package_name}}.core.database import DatabaseManager
 from {{cookiecutter.package_name}}.core.settings import Settings
 
 
-@mark.asyncio
 async def test_deconstruct_app_state(mocker):
     """
     Tests the deconstruct_app_state function for completion. The deconstruct_app_state function
@@ -81,7 +79,6 @@ def test_expose_metrics_endpoint(mocker):
     assert instrumentator_mock.instrument.called
 
 
-@mark.asyncio
 async def test_handle_request(mocker):
     """
     Tests the handle_request function for completion. The handle_request function

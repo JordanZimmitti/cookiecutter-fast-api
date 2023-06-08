@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock
 
 from pydantic import SecretStr
-from pytest import mark, raises
+from pytest import raises
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from {{cookiecutter.package_name}}.core.database import connection
@@ -36,13 +36,10 @@ def test_connect(mocker):
     assert db_connection_mock._session_maker == session_maker_mock
 
 
-@mark.asyncio
-async def test_disconnect(mocker):
+async def test_disconnect():
     """
     Tests the disconnect function for completion. The disconnect
     function should run without any errors
-
-    :param mocker: Fixture to mock specific functions for testing
     """
 
     # Mocks the db-connection class

@@ -9,8 +9,8 @@ services:
       context: "."
       target: "api"
       args:
-        POETRY_VERSION: "1.4.2"
-        PYTHON_VERSION: "3.11.3"
+        POETRY_VERSION: "1.5.1"
+        PYTHON_VERSION: "3.11.4"
     container_name: "{{cookiecutter.package_name}}"
     env_file:
       - "local/override-docker.env"
@@ -42,8 +42,8 @@ services:
       context: "."
       target: "api_unit_tests"
       args:
-        POETRY_VERSION: "1.4.2"
-        PYTHON_VERSION: "3.11.3"
+        POETRY_VERSION: "1.5.1"
+        PYTHON_VERSION: "3.11.4"
     container_name: "{{cookiecutter.package_name}}_unit_tests"
 
   {{cookiecutter.package_name}}_integration_tests:
@@ -52,8 +52,8 @@ services:
       context: "."
       target: "api_integration_tests"
       args:
-        POETRY_VERSION: "1.4.2"
-        PYTHON_VERSION: "3.11.3"
+        POETRY_VERSION: "1.5.1"
+        PYTHON_VERSION: "3.11.4"
     container_name: "{{cookiecutter.package_name}}_integration_tests"
     env_file:
       - "local/override-docker-integration.env"
@@ -72,7 +72,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - "./local/db_data:/bitnami/postgresql/data/"
+      - "./local/db_data:/bitnami/postgresql"
     deploy:
       resources:
         limits:
@@ -91,7 +91,7 @@ services:
     ports:
       - "6379:6379"
     volumes:
-      - "./local/redis_data:/bitnami/redis/data"
+      - "./local/redis_data:/bitnami/redis"
     deploy:
       resources:
         limits:

@@ -1,7 +1,7 @@
 from unittest.mock import AsyncMock, MagicMock
 
 from pydantic import SecretStr
-from pytest import mark, raises
+from pytest import raises
 from redis.asyncio.client import Pipeline, Redis
 
 from {{cookiecutter.package_name}}.core.cache import RedisManager, redis_manager
@@ -46,7 +46,6 @@ def test_connect(mocker):
     }
 
 
-@mark.asyncio
 async def test_disconnect():
     """
     Tests the disconnect function for completion. The disconnect
@@ -173,7 +172,6 @@ def test_get_operation_no_operation():
         assert redis_manager_instance.operation
 
 
-@mark.asyncio
 async def test_pipeline():
     """
     Tests the RedisManager pipeline function for completion. The RedisManager
@@ -209,7 +207,6 @@ async def test_pipeline():
     assert pipe_mock.execute.called
 
 
-@mark.asyncio
 async def test_pipeline_scalar():
     """
     Tests the RedisManager pipeline function when a scalar is expected.
@@ -245,7 +242,6 @@ async def test_pipeline_scalar():
     assert pipe_mock.execute.called
 
 
-@mark.asyncio
 async def test_pipeline_error():
     """
     Tests the RedisManager pipeline function when an error occurs. The

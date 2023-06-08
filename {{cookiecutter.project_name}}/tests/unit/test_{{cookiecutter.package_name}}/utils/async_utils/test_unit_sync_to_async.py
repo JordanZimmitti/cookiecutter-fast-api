@@ -1,12 +1,9 @@
 from asyncio import AbstractEventLoop
 from unittest.mock import AsyncMock, MagicMock
 
-from pytest import mark
-
 from {{cookiecutter.package_name}}.utils.async_utils import run_sync_function, sync_to_async
 
 
-@mark.asyncio
 async def test_run_sync_function(mocker):
     """
     Mocks the run_sync_function function for completion. The run_sync_function function

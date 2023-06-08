@@ -1,7 +1,5 @@
 from unittest.mock import MagicMock
 
-from pytest import mark
-
 from {{cookiecutter.package_name}}.core.app import {{cookiecutter.class_name}}Base
 from {{cookiecutter.package_name}}.exceptions import (
     BadRequestError,
@@ -13,7 +11,6 @@ from {{cookiecutter.package_name}}.exceptions import (
 )
 
 
-@mark.asyncio
 async def test_bad_request_error_handler():
     """
     Tests the bad_request_error_handler function for completion. The bad_request_error_handler
@@ -31,7 +28,6 @@ async def test_bad_request_error_handler():
     assert json_response.status_code == 400
 
 
-@mark.asyncio
 async def test_forbidden_error_handler():
     """
     Tests the forbidden_error_handler function for completion. The forbidden_error_handler
@@ -49,7 +45,6 @@ async def test_forbidden_error_handler():
     assert json_response.status_code == 403
 
 
-@mark.asyncio
 async def test_internal_server_error_handler():
     """
     Tests the internal_server_error_handler function for completion. The
@@ -72,7 +67,6 @@ async def test_internal_server_error_handler():
     assert json_response.status_code == 500
 
 
-@mark.asyncio
 async def test_not_found_error_handler():
     """
     Tests the not_found_error_handler function for completion. The not_found_error_handler
@@ -90,7 +84,6 @@ async def test_not_found_error_handler():
     assert json_response.status_code == 404
 
 
-@mark.asyncio
 async def test_unauthenticated_error_handler():
     """
     Tests the unauthenticated_error_handler function for completion. The
@@ -113,7 +106,6 @@ async def test_unauthenticated_error_handler():
     assert json_response.status_code == 401
 
 
-@mark.asyncio
 async def test_validation_error_handler():
     """
     Tests the validation_error_handler function for completion. The

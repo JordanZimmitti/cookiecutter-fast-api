@@ -1,13 +1,10 @@
 from unittest.mock import MagicMock
 
-from pytest import mark
-
 from {{cookiecutter.package_name}}.api.resources.rsrc_health import HealthModel, SettingsModel
 from {{cookiecutter.package_name}}.api.routes import health
 from {{cookiecutter.package_name}}.api.routes.health import get_health_check_endpoint, get_health_settings_endpoint
 
 
-@mark.asyncio
 async def test_get_health_check_endpoint(mocker):
     """
     Tests the get_health_check_endpoint function for completion. The get_health_check_endpoint
@@ -25,7 +22,6 @@ async def test_get_health_check_endpoint(mocker):
     assert health_model_mock.called
 
 
-@mark.asyncio
 async def test_get_health_settings_endpoint(mocker):
     """
     Tests the get_health_settings_endpoint function for completion. The get_health_settings_endpoint
