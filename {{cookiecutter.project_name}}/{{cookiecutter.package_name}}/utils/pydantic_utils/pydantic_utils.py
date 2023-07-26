@@ -1,5 +1,6 @@
 from fastapi import Form
-from pydantic.fields import ModelField
+from pydantic.fields import FieldInfo
+
 
 def form_body(cls):
     """
@@ -16,10 +17,10 @@ def form_body(cls):
     form_parameters = []
     for parameter in cls.__signature__.parameters.values():
 
-        # Gets the pydantic model field info
-        model_field: ModelField = cls.__fields__.get(parameter.name)
-        title = model_field.field_info.title
-        description = model_field.field_info.description
+        # Gets the pydantic field info
+        field_info: FieldInfo = cls.model_fields.get(parameter.name)
+        title = field_info.title
+        description = field_info.description
 
         # Sets the fast-api form as the new default
         if str(parameter.default) == "<class 'inspect._empty'>":

@@ -1,6 +1,6 @@
 from typing import Any, Dict
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class HealthModel(BaseModel):
@@ -10,8 +10,7 @@ class HealthModel(BaseModel):
     """
 
     # Config that makes all attributes immutable
-    class Config:
-        frozen = True
+    model_config = ConfigDict(frozen=True)
 
     status: str = Field(
         ...,
@@ -32,8 +31,7 @@ class SettingsModel(BaseModel):
     """
 
     # Config that makes all attributes immutable
-    class Config:
-        frozen = True
+    model_config = ConfigDict(frozen=True)
 
     settings: Dict[str, Any] = Field(
         ...,

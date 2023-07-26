@@ -3,9 +3,10 @@ from os.path import dirname, join
 from typing import Any, Dict, List
 from urllib.parse import quote
 
-from pydantic import BaseSettings, SecretStr, validator
+from pydantic import SecretStr, field_validator
 from pydantic.networks import AnyHttpUrl
-
+from pydantic_core.core_schema import FieldValidationInfo
+from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
 
@@ -119,8 +120,8 @@ class Settings(BaseSettings):
     API_DB_PASSWORD: SecretStr = "very-secure-password"
     API_DB_CONN_URI: SecretStr = None
 
-    @validator("API_DB_CONN_URI", pre=True)
-    def create_api_db_connection_string(cls, _, values: Dict[str, SecretStr]) -> str:
+    @field_validator("API_DB_CONN_URI", mode="before")
+    def create_api_db_connection_string(cls, _, values: FieldValidationInfo) -> str:
         """
         Creates the api connection string based
         on a combination of other environment
@@ -134,12 +135,12 @@ class Settings(BaseSettings):
 
         # Returns the api database connection string
         return cls.create_db_uri(
-            values.get("API_DB_DRIVER").get_secret_value(),
-            quote(values.get("API_DB_HOST").get_secret_value()),
-            int(values.get("API_DB_PORT").get_secret_value()),
-            quote(values.get("API_DB_DB").get_secret_value()),
-            quote(values.get("API_DB_USER").get_secret_value()),
-            quote(values.get("API_DB_PASSWORD").get_secret_value()),
+            values.data.get("API_DB_DRIVER").get_secret_value(),
+            quote(values.data.get("API_DB_HOST").get_secret_value()),
+            int(values.data.get("API_DB_PORT").get_secret_value()),
+            quote(values.data.get("API_DB_DB").get_secret_value()),
+            quote(values.data.get("API_DB_USER").get_secret_value()),
+            quote(values.data.get("API_DB_PASSWORD").get_secret_value()),
         )
 
     @classmethod
@@ -157,7 +158,7 @@ class Settings(BaseSettings):
         """
 
         # Creates a copy of the dictionary
-        dict_copy = deepcopy(self.dict())
+        dict_copy = deepcopy(self.model_dump(mode="json"))
 
         # Returns the dictionary with the protected environment settings hidden
         protected_keys = ["API_DB_CONN_STR"]

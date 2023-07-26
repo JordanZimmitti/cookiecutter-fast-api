@@ -16,5 +16,7 @@ def test_form_body():
 
     # Checks whether the class signature contains the fast-api form instances
     model_with_form_body = form_body(cls=TestModel)
-    assert "Form(Ellipsis)" in str(model_with_form_body(arg_one="test-arg-one").__signature__)
+    assert "Form(PydanticUndefined)" in str(
+        model_with_form_body(arg_one="test-arg-one").__signature__
+    )
     assert "Form(0)" in str(model_with_form_body(arg_one="test-arg-one").__signature__)
