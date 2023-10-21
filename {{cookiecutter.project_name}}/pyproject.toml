@@ -11,7 +11,7 @@ concurrent-log-handler = "^0.9.24"
 fastapi = "^0.103.2"
 greenlet = "^3.0.0"
 gunicorn = "^21.2.0"
-httptools = "^0.6.0"
+httptools = "^0.6.1"
 httpx = {extras = ["h2"], version = "^0.25.0"}
 prometheus-fastapi-instrumentator = "^6.1.0"
 psycopg2-binary = "^2.9.8"
@@ -27,7 +27,7 @@ SQLAlchemy = "^2.0.21"
 tenacity = "^8.2.3"
 types-redis = "^4.6.0.7"
 uvicorn = "^0.23.2"
-uvloop = "^0.17.0"
+uvloop = "^0.18.0"
 
 [tool.poetry.group.dev.dependencies]
 alembic = "^1.12.0"
