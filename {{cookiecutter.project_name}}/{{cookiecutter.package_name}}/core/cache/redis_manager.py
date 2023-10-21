@@ -33,7 +33,7 @@ class RedisManager:
         :param password: The password of the redis instance
         """
 
-        # Initializes the given variables
+        # Creates the given fields
         self._display_name = display_name
         self._description = description
         self._host = host

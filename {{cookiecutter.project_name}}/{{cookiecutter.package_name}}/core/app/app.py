@@ -20,8 +20,89 @@ from {{cookiecutter.package_name}}.services.logger import HealthCheckFilter
 from .router import api_router
 
 # Gets the {{cookiecutter.friendly_name}} server logger instance
-logger = getLogger("{{cookiecutter.package_name}}.core.app.app")
+logger = getLogger("{{cookiecutter.package_name}}.core.app.app.request")
 logger.addFilter(HealthCheckFilter())
+
+
+def setup_app(app: FastAPI):
+    """
+    Function that configures the FastAPI instance
+    before app startup
+
+    :param app: The FastAPI app instance
+    """
+
+    # Sets all CORS enabled origins
+    if settings.BACKEND_CORS_ORIGINS:
+        app.add_middleware(
+            CORSMiddleware,
+            allow_credentials=True,
+            allow_headers=["*"],
+            allow_methods=["*"],
+            allow_origins=[str(origin) for origin in settings.BACKEND_CORS_ORIGINS],
+        )
+
+    # Sets the main router instance
+    app.include_router(api_router, prefix=settings.API_PREFIX)
+
+    # Sets the custom open-api instance
+    app.openapi = lambda: get_open_api_instance(app)
+
+    # Exposes the metrics endpoint
+    expose_metrics_endpoint(app)
+
+
+def expose_metrics_endpoint(app: FastAPI):
+    """
+    Function that exposes the Fast API metrics endpoint
+    to see Prometheus metrics
+
+    :param app: The FastAPI app instance
+    """
+
+    # Exposes the API metrics as an endpoint
+    instrumentator = Instrumentator(excluded_handlers=[rf"{settings.API_PREFIX}/metrics"])
+    instrumentator.instrument(app)
+    instrumentator.expose(app, endpoint=f"{settings.API_PREFIX}/metrics", tags=["Metrics"])
+
+
+def setup_app_state(app: FastAPI):
+    """
+    Function that configures the FastAPI
+    state instances during startup
+
+    :param app: The FastAPI app instance
+    """
+
+    # Adds the fast-api-context into the app state
+    fast_api_context = get_fast_api_context()
+    app.state.fast_api_context = fast_api_context
+
+    # Adds the database manager instance into the app state when it is enabled
+    if settings.IS_API_DB_ENABLED:
+        db_manager = DatabaseManager(
+            settings.API_DB_DISPLAY_NAME,
+            settings.API_DB_DESCRIPTION,
+            settings.API_DB_CONN_URI,
+        )
+        app.state.db_manager = db_manager
+
+        # Connects to the database
+        db_manager.connection.connect()
+
+    # Adds the redis instance into the app state when it is enabled
+    if settings.IS_API_REDIS_ENABLED:
+        redis_manager = RedisManager(
+            settings.API_REDIS_DISPLAY_NAME,
+            settings.API_REDIS_DESCRIPTION,
+            settings.API_REDIS_HOST,
+            settings.API_REDIS_PORT,
+            settings.API_REDIS_PASSWORD,
+        )
+        app.state.redis_manager = redis_manager
+
+        # Connects to the redis instance
+        redis_manager.connect()
 
 
 async def deconstruct_app_state(app: FastAPI):
@@ -45,20 +126,6 @@ async def deconstruct_app_state(app: FastAPI):
     if settings.IS_API_REDIS_ENABLED:
         redis_manager: RedisManager = app.state.redis_manager
         await redis_manager.disconnect()
-
-
-def expose_metrics_endpoint(app: FastAPI):
-    """
-    Function that exposes the Fast API metrics endpoint
-    to see Prometheus metrics
-
-    :param app: The FastAPI app instance
-    """
-
-    # Exposes the API metrics as an endpoint
-    instrumentator = Instrumentator(excluded_handlers=[rf"{settings.API_PREFIX}/metrics"])
-    instrumentator.instrument(app)
-    instrumentator.expose(app, endpoint=f"{settings.API_PREFIX}/metrics", tags=["Metrics"])
 
 
 async def handle_request(app: FastAPI, request: Request, call_next: Callable) -> Response:
@@ -113,70 +180,3 @@ async def handle_request(app: FastAPI, request: Request, call_next: Callable) ->
     # Returns the response
     fast_api_context.reset()
     return response
-
-
-def setup_app(app: FastAPI):
-    """
-    Function that configures the FastAPI instance
-    before app startup
-
-    :param app: The FastAPI app instance
-    """
-
-    # Sets all CORS enabled origins
-    if settings.BACKEND_CORS_ORIGINS:
-        app.add_middleware(
-            CORSMiddleware,
-            allow_credentials=True,
-            allow_headers=["*"],
-            allow_methods=["*"],
-            allow_origins=[str(origin) for origin in settings.BACKEND_CORS_ORIGINS],
-        )
-
-    # Sets the main router instance
-    app.include_router(api_router, prefix=settings.API_PREFIX)
-
-    # Sets the custom open-api instance
-    app.openapi = lambda: get_open_api_instance(app)
-
-    # Exposes the metrics endpoint
-    expose_metrics_endpoint(app)
-
-
-def setup_app_state(app: FastAPI):
-    """
-    Function that configures the FastAPI
-    state instances during startup
-
-    :param app: The FastAPI app instance
-    """
-
-    # Adds the fast-api-context into the app state
-    fast_api_context = get_fast_api_context()
-    app.state.fast_api_context = fast_api_context
-
-    # Adds the database manager instance into the app state when it is enabled
-    if settings.IS_API_DB_ENABLED:
-        db_manager = DatabaseManager(
-            settings.API_DB_DISPLAY_NAME,
-            settings.API_DB_DESCRIPTION,
-            settings.API_DB_CONN_URI,
-        )
-        app.state.db_manager = db_manager
-
-        # Connects to the database
-        db_manager.connection.connect()
-
-    # Adds the redis instance into the app state when it is enabled
-    if settings.IS_API_REDIS_ENABLED:
-        redis_manager = RedisManager(
-            settings.API_REDIS_DISPLAY_NAME,
-            settings.API_REDIS_DESCRIPTION,
-            settings.API_REDIS_HOST,
-            settings.API_REDIS_PORT,
-            settings.API_REDIS_PASSWORD,
-        )
-        app.state.redis_manager = redis_manager
-
-        # Connects to the redis instance
-        redis_manager.connect()

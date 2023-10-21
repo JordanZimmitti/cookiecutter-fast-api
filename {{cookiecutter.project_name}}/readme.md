@@ -10,6 +10,20 @@
 ## __Getting Started__
 * Run the project setup script: `sh scripts/setup.sh`
 
+### __Overriding Environment Variables__
+To override environment variables found in `{{cookiecutter.package_name}}.core.settings` follow
+the steps below:
+
+1. Create a `local` folder in the root `[{{cookiecutter.project_name}}]` directory if one does not exist
+2. Create an `override.env` file in the local folder
+3. Create an `override-docker.env` file in the local folder
+4. Create an `override-docker-integration.env` file in the local folder
+4. Add any environment variable that should be overriden (exp. `LOG_LEVEL=DEBUG`)
+
+* The `override.env` file is used when running the API natively
+* The `override-docker.env` file is used when running the API in docker
+* The `override-docker-integration.env` file is used when running the integration tests in docker
+
 
 ## __Testing__
 

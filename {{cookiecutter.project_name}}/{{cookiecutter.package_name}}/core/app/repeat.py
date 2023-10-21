@@ -27,7 +27,7 @@ def repeated_task(period_seconds: float, repeat: int = 0):
         """
 
         # Creates the wrapper function
-        async def wrapper():
+        async def wrapper(*args, **kwargs):
             """
             Wrapper function that configures the attached function to
             invoke repeatedly after a period of seconds has passed
@@ -43,7 +43,7 @@ def repeated_task(period_seconds: float, repeat: int = 0):
 
                     # Executes the repeated task
                     try:
-                        await func()
+                        await func(*args, **kwargs)
                         if repeat != 0:
                             repeated = repeated + 1
                         logger.debug("repeated task executed successfully")

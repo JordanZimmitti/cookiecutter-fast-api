@@ -18,6 +18,7 @@ from {{cookiecutter.package_name}}.exceptions import (
 )
 
 from .app import setup_app
+from .lifespan import ApiLifeSpan
 
 # Gets the {{cookiecutter.friendly_name}} server logger instance
 logger = getLogger("{{cookiecutter.package_name}}.core.app.{{cookiecutter.package_name}}_base")
@@ -39,6 +40,7 @@ class {{cookiecutter.class_name}}Base(BaseApplication, ABC):
         openapi_url=f"{settings.API_PREFIX}/openapi.json",
         docs_url=settings.DOCS_URL,
         debug=settings.IS_FAST_API_DEBUG,
+        lifespan=ApiLifeSpan().begin,
     )
 
     def __init__(self, options: Dict[str, Any] | None):

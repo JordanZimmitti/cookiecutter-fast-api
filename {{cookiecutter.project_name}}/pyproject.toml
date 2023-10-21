@@ -8,7 +8,7 @@ authors = {{cookiecutter.project_authors}}
 [tool.poetry.dependencies]
 asyncpg = "^0.28.0"
 concurrent-log-handler = "^0.9.24"
-fastapi = "^0.103.2"
+fastapi = "^0.104.0"
 greenlet = "^3.0.0"
 gunicorn = "^21.2.0"
 httptools = "^0.6.1"

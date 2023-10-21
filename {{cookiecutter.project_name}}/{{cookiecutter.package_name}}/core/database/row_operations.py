@@ -28,7 +28,7 @@ class RowResult:
         :param is_scalar: Whether the object should be filtered through a scalar
         """
 
-        # Initializes the given variables
+        # Creates the given fields
         self._is_scalar = is_scalar
         self._result: ScalarResult | Result = result.scalars() if is_scalar else result
 
@@ -81,7 +81,7 @@ class RowResults:
         :param is_scalar: Whether the object should be filtered through a scalar
         """
 
-        # Initializes the given variables
+        # Creates the given fields
         self._is_scalar = is_scalar
         self._unique_result = result.unique
         self._result: ScalarResult | Result = result.scalars() if is_scalar else result
@@ -144,7 +144,7 @@ class DatabaseRowOperations:
         :param session_maker: An async sessionmaker instance
         """
 
-        # Initializes the given variables
+        # Creates the given fields
         self._session_maker = session_maker
 
     @staticmethod

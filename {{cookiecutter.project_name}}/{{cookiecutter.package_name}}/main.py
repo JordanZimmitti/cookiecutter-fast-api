@@ -6,14 +6,8 @@ from fastapi import status
 from starlette.requests import Request
 from starlette.responses import JSONResponse, RedirectResponse, Response
 
-from {{cookiecutter.package_name}}.core.app import (
-    {{cookiecutter.class_name}}Base,
-    deconstruct_app_state,
-    handle_request,
-    setup_app_state,
-)
+from {{cookiecutter.package_name}}.core.app import {{cookiecutter.class_name}}Base, handle_request
 from {{cookiecutter.package_name}}.core.settings import settings
-from {{cookiecutter.package_name}}.services.logger import start_logger
 
 # Gets the {{cookiecutter.friendly_name}} server logger instance
 logger = getLogger("{{cookiecutter.package_name}}.main")
@@ -26,31 +20,6 @@ class {{cookiecutter.class_name}}({{cookiecutter.class_name}}Base, ABC):
 
     def __init__(self, options: Dict[str, Any] | None):
         super().__init__(options)
-
-    @staticmethod
-    @app.on_event("startup")
-    async def startup():
-        """
-        Function that runs when the fast-api
-        app is starting up
-        """
-
-        # Starts the logger and gets its instance
-        start_logger(settings.LOG_LEVEL)
-
-        # Configures the fast-api state instances
-        setup_app_state({{cookiecutter.class_name}}.app)
-
-    @staticmethod
-    @app.on_event("shutdown")
-    async def shutdown():
-        """
-        Function that runs when the fast-api
-        app is shutting down
-        """
-
-        # Deconstructs the fast-api state instances
-        await deconstruct_app_state({{cookiecutter.class_name}}.app)
 
     @staticmethod
     @app.middleware("http")

@@ -25,7 +25,7 @@ class DatabaseConnection:
         :param db_uri: The connection uri of the database
         """
 
-        # Initializes the given variables
+        # Creates the given fields
         self._display_name = display_name
         self._db_uri = db_uri
 
