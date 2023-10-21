@@ -1,8 +1,8 @@
-from typing import Tuple
 from uuid import uuid4
 
 from fastapi import Request, Response
 
+from {{cookiecutter.package_name}}.api.resources.rsrc_middleware import RequestMetadataModel
 from {{cookiecutter.package_name}}.core.cache import FastApiContext
 
 
@@ -35,14 +35,14 @@ def get_response_size(response: Response) -> int:
     return response_size
 
 
-def get_request_metadata(request: Request) -> Tuple[str, str, str]:
+def get_request_metadata(request: Request) -> RequestMetadataModel:
     """
     Dependency function that gets the request
     metadata that is used for logging
 
     :param request: The incoming http request sent from a client
 
-    :return: The request metadata (method, url, user_agent)
+    :return: The request metadata model
     """
 
     # Gets the request metadata
@@ -50,8 +50,8 @@ def get_request_metadata(request: Request) -> Tuple[str, str, str]:
     url = str(request.url)
     user_agent = request.headers.get("user-agent")
 
-    # Returns the request metadata
-    return method, url, user_agent
+    # Returns the request metadata model
+    return RequestMetadataModel(method=method, url=url, userAgent=user_agent)
 
 
 def set_correlation_id(request: Request, fast_api_context: FastApiContext):

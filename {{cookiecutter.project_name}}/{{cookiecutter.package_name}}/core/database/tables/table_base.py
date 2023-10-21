@@ -1,11 +1,16 @@
 from datetime import datetime
+from uuid import UUID
 
-from sqlalchemy import Column
-from sqlalchemy.dialects.postgresql import TIMESTAMP, UUID
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.dialects.postgresql import TIMESTAMP, UUID as POSTGRES_UUID
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-# Creates the base used by explicit models created in {{cookiecutter.friendly_name}}
-BaseTable = declarative_base()
+
+class BaseTable(DeclarativeBase):
+    """
+    A declarative base used by explicit models created in the {{cookiecutter.friendly_name}}
+    """
+
+    pass
 
 
 class StampMixin:
@@ -14,23 +19,23 @@ class StampMixin:
     """
 
     # StampMixin Columns
-    created_by = Column(
-        type_=UUID(as_uuid=True),
+    created_by: Mapped[UUID] = mapped_column(
+        type_=POSTGRES_UUID(as_uuid=True),
         nullable=False,
         comment="The user who created the row",
     )
-    created_on = Column(
+    created_on: Mapped[datetime] = mapped_column(
         type_=TIMESTAMP,
         nullable=False,
         default=datetime.utcnow,
         comment="The date when the row was created",
     )
-    updated_by = Column(
-        type_=UUID(as_uuid=True),
+    updated_by: Mapped[UUID] = mapped_column(
+        type_=POSTGRES_UUID(as_uuid=True),
         nullable=True,
         comment="The user who updated the row",
     )
-    updated_on = Column(
+    updated_on: Mapped[datetime] = mapped_column(
         type_=TIMESTAMP,
         nullable=True,
         onupdate=datetime.utcnow,
@@ -47,11 +52,11 @@ class StampMixin:
 
         # Adds the id of the user creating the row
         if not self.created_by:
-            self.created_by = str(user_id)
+            self.created_by = user_id
             return
 
         # Adds the id of the user updating the row
-        self.updated_by = str(user_id)
+        self.updated_by = user_id
 
 
 # Orders the StampMixin columns

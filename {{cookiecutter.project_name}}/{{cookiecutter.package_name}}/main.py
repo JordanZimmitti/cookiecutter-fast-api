@@ -1,7 +1,5 @@
 from abc import ABC
 from logging import getLogger
-from os import getpid, listdir, remove
-from os.path import exists, join
 from typing import Any, Callable, Dict
 
 from fastapi import status
@@ -16,7 +14,6 @@ from {{cookiecutter.package_name}}.core.app import (
 )
 from {{cookiecutter.package_name}}.core.settings import settings
 from {{cookiecutter.package_name}}.services.logger import start_logger
-from {{cookiecutter.package_name}}.utils.path_utils import get_parent_path_by_file
 
 # Gets the {{cookiecutter.friendly_name}} server logger instance
 logger = getLogger("{{cookiecutter.package_name}}.main")
@@ -54,20 +51,6 @@ class {{cookiecutter.class_name}}({{cookiecutter.class_name}}Base, ABC):
 
         # Deconstructs the fast-api state instances
         await deconstruct_app_state({{cookiecutter.class_name}}.app)
-
-        # Removes the log file when running locally
-        if settings.HOSTNAME == "localhost":
-
-            # Gets the process id
-            process_id = getpid()
-
-            # Removes the application log file
-            project_path = f"{get_parent_path_by_file('pyproject.toml')}"
-            log_directory = f"{project_path}/{settings.LOG_FILE_DIRECTORY}/"
-            if exists(log_directory):
-                for file in listdir(log_directory):
-                    if f"{process_id}" in file:
-                        remove(join(log_directory, file))
 
     @staticmethod
     @app.middleware("http")

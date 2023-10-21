@@ -13,6 +13,7 @@ def test_form_body():
     class TestModel(BaseModel):
         arg_one: str = Field(...)
         arg_two: int = Field(0)
+        arg_three: str = Field("", alias="argThree")
 
     # Checks whether the class signature contains the fast-api form instances
     model_with_form_body = form_body(cls=TestModel)

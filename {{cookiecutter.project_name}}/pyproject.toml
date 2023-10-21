@@ -6,39 +6,40 @@ license = "MIT"
 authors = {{cookiecutter.project_authors}}
 
 [tool.poetry.dependencies]
-alembic = "^1.11.1"
 asyncpg = "^0.28.0"
-fastapi = "^0.100.0"
-greenlet = "^2.0.2"
+concurrent-log-handler = "^0.9.24"
+fastapi = "^0.103.2"
+greenlet = "^3.0.0"
 gunicorn = "^21.2.0"
 httptools = "^0.6.0"
-httpx = {extras = ["h2"], version = "^0.24.1"}
+httpx = {extras = ["h2"], version = "^0.25.0"}
 prometheus-fastapi-instrumentator = "^6.1.0"
-psycopg2-binary = "^2.9.5"
-pydantic = {extras = ["email"], version = "^2.1.1"}
-pydantic-settings = "^2.0.2"
+psycopg2-binary = "^2.9.8"
+pydantic = {extras = ["email"], version = "^2.4.2"}
+pydantic-settings = "^2.0.3"
 python = "^3.11"
 python-dotenv = "^1.0.0"
 python-jose = "^3.3.0"
 python-multipart = "^0.0.6"
-redis = {extras = ["hiredis"], version = "^4.6.0"}
+redis = {extras = ["hiredis"], version = "^5.0.1"}
 requests = "^2.31.0"
-SQLAlchemy = "^2.0.14"
-tenacity = "^8.2.2"
-types-redis = "^4.6.0.3"
-uvicorn = "^0.23.1"
+SQLAlchemy = "^2.0.21"
+tenacity = "^8.2.3"
+types-redis = "^4.6.0.7"
+uvicorn = "^0.23.2"
 uvloop = "^0.17.0"
 
 [tool.poetry.group.dev.dependencies]
-pre-commit = "^3.2.2"
+alembic = "^1.12.0"
+pre-commit = "^3.4.0"
 
 [tool.poetry.group.test.dependencies]
-locust = "^2.15.0"
-pytest = "^7.3.0"
-pytest-asyncio = "^0.21.0"
-pytest-cov = "^4.0.0"
-pytest-mock = "^3.10.0"
-requests = "^2.28.2"
+locust = "^2.16.1"
+pytest = "^7.4.2"
+pytest-asyncio = "^0.21.1"
+pytest-cov = "^4.1.0"
+pytest-mock = "^3.11.1"
+requests = "^2.31.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

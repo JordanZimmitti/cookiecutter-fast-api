@@ -34,8 +34,10 @@ class Settings(BaseSettings):
     # The port that the api can be accessed from
     LISTEN_PORT: int = 2000
 
-    # The directory where the log files will be generated
+    # The directory where the log files will be generated, their max size, and how many to keep
     LOG_FILE_DIRECTORY: str = "logs"
+    LOG_FILE_MAX_BYTES: int = 1_048_576 * 10  # 10 MB
+    LOG_FILE_BACKUP_COUNT: int = 3
 
     # The log-level used when the server is running
     LOG_LEVEL: str = "INFO"

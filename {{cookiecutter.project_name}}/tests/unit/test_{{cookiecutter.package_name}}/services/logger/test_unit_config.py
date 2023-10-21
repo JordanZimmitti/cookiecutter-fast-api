@@ -35,6 +35,8 @@ def test_get_logger_config(mocker):
     settings_mock = MagicMock(spec=Settings)
     settings_mock.HOSTNAME = "hostname"
     settings_mock.LOG_FILE_DIRECTORY = "log-file-directory"
+    settings_mock.LOG_FILE_MAX_BYTES =1000
+    settings_mock.LOG_FILE_BACKUP_COUNT = 1
     mocker.patch.object(config, "settings", settings_mock)
 
     # Mock and overrides the get_parent_path_by_file function
@@ -51,11 +53,6 @@ def test_get_logger_config(mocker):
     makedirs_mock = MagicMock()
     mocker.patch.object(config, "makedirs", makedirs_mock)
 
-    # Mock and overrides the getpid function
-    get_pid_mock = MagicMock()
-    get_pid_mock.return_value = "pid"
-    mocker.patch.object(config, "getpid", get_pid_mock)
-
     # Gets the logger config
     _get_logger_config()
 
@@ -66,4 +63,3 @@ def test_get_logger_config(mocker):
     assert exists_mock.call_args.args[0] == "parent-path/log-file-directory/"
     assert makedirs_mock.called
     assert makedirs_mock.call_args.args[0] == "parent-path/log-file-directory/"
-    assert get_pid_mock.called

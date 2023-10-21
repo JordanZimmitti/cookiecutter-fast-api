@@ -77,13 +77,17 @@ async def handle_request(app: FastAPI, request: Request, call_next: Callable) ->
     fast_api_context: FastApiContext = app.state.fast_api_context
 
     # Gets the request metadata for logging
-    method, url, user_agent = get_request_metadata(request)
+    request_metadata = get_request_metadata(request)
 
     # Sets the correlation-id for request log chaining
     set_correlation_id(request, fast_api_context)
 
     # Logs that the request has started
-    start_extra = {"method": method, "url": url, "user_agent": user_agent}
+    start_extra = {
+        "method": request_metadata.method,
+        "url": request_metadata.url,
+        "user_agent": request_metadata.user_agent
+    }
     logger.info("Starting Request", extra=start_extra)
 
     # Handles the request and gets the response
@@ -97,12 +101,12 @@ async def handle_request(app: FastAPI, request: Request, call_next: Callable) ->
 
     # Logs that the request has finished
     finish_extra = {
-        "method": method,
-        "url": url,
+        "method": request_metadata.method,
+        "url": request_metadata.url,
         "status_code": status_code,
         "response_size_bytes": get_response_size(response),
         "response_time_ms": round(process_time, 3),
-        "user_agent": user_agent,
+        "user_agent": request_metadata.user_agent,
     }
     logger.info("Finished Request", extra=finish_extra)
 

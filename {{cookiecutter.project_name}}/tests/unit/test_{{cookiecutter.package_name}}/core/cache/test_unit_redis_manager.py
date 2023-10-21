@@ -54,6 +54,7 @@ async def test_disconnect():
 
     # Mocks and overrides the redis class
     redis_mock = MagicMock(spec_set=Redis)
+    redis_mock.close = AsyncMock()
 
     # Mocks the redis-manager class
     redis_manager_mock = MagicMock(spec=RedisManager)

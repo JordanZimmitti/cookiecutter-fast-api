@@ -3,6 +3,7 @@ from unittest.mock import AsyncMock, MagicMock
 from fastapi import FastAPI, Request, Response
 from prometheus_fastapi_instrumentator import Instrumentator
 
+from {{cookiecutter.package_name}}.api.resources.rsrc_middleware import RequestMetadataModel
 from {{cookiecutter.package_name}}.core.app import (
     app,
     deconstruct_app_state,
@@ -100,11 +101,17 @@ async def test_handle_request(mocker):
         response_mock.status_code = 200
         return response_mock
 
+    # Mocks the request-metadata model class
+    request_metadata_model_mock = MagicMock(spec=RequestMetadataModel)
+    request_metadata_model_mock.method = "GET"
+    request_metadata_model_mock.url = "https://test-url"
+    request_metadata_model_mock.user_agent = "test-agent"
+
     # Overrides the get_request_metadata function
     mocker.patch.object(
         app,
         "get_request_metadata",
-        return_value=("GET", "https://test-url", {"user-agent": "test-agent"}),
+        return_value=request_metadata_model_mock,
     )
 
     # Overrides the set_correlation_id function

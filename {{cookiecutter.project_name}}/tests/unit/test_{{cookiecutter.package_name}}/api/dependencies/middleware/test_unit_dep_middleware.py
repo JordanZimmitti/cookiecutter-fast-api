@@ -4,10 +4,12 @@ from uuid import UUID
 from fastapi import Request, Response
 
 from {{cookiecutter.package_name}}.api.dependencies.middleware import (
+    dep_middleware,
     get_request_metadata,
     get_response_size,
     set_correlation_id,
 )
+from {{cookiecutter.package_name}}.api.resources.rsrc_middleware import RequestMetadataModel
 from {{cookiecutter.package_name}}.core.cache.fast_api_context import FastApiContext
 
 
@@ -55,11 +57,18 @@ def test_get_response_size_not_exists():
     assert response_size == 0
 
 
-def test_get_request_metadata():
+def test_get_request_metadata(mocker):
     """
     Tests the get_request_metadata function for completion. The get_request_metadata function
     should return the method, url, and user_agent without any errors
+
+    :param mocker: Fixture to mock specific functions for testing
     """
+
+    # Mock and overrides the request-metadata model class
+    request_metadata_model_mock = MagicMock(spec=RequestMetadataModel)
+    request_metadata_model_mock.return_value = request_metadata_model_mock
+    mocker.patch.object(dep_middleware, "RequestMetadataModel", request_metadata_model_mock)
 
     # Mocks the request class
     request_mock = MagicMock(spec=Request)
@@ -68,12 +77,15 @@ def test_get_request_metadata():
     request_mock.headers = {"user-agent": "test-agent"}
 
     # Gets the request metadata
-    method, url, user_agent = get_request_metadata(request_mock)
+    get_request_metadata(request_mock)
 
     # Checks whether the request metadata was retrieved correctly
-    assert method == "GET"
-    assert url == "https://test-url"
-    assert user_agent == "test-agent"
+    assert request_metadata_model_mock.called
+    assert request_metadata_model_mock.call_args.kwargs == {
+        "method": "GET",
+        "url": "https://test-url",
+        "userAgent": "test-agent"
+    }
 
 
 def test_set_correlation_id_new():

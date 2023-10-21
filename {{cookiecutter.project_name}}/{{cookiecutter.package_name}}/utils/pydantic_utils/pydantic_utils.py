@@ -18,16 +18,26 @@ def form_body(cls):
     for parameter in cls.__signature__.parameters.values():
 
         # Gets the pydantic field info
-        field_info: FieldInfo = cls.model_fields.get(parameter.name)
+        field_info: FieldInfo | None = cls.model_fields.get(parameter.name)
+        if not field_info:
+            for model_field in cls.model_fields.values():
+                if model_field.alias == parameter.name:
+                    field_info = model_field
+                    break
+
+        # Gets the data from the field info
         title = field_info.title
         description = field_info.description
+        metadata = field_info.metadata
 
         # Sets the fast-api form as the new default
         if str(parameter.default) == "<class 'inspect._empty'>":
             required_form = Form(..., title=title, description=description)
+            required_form.metadata = metadata
             form_parameter = parameter.replace(default=required_form)
         else:
             optional_form = Form(parameter.default, title=title, description=description)
+            optional_form.metadata = metadata
             form_parameter = parameter.replace(default=optional_form)
 
         # Appends the updated parameter to the list
