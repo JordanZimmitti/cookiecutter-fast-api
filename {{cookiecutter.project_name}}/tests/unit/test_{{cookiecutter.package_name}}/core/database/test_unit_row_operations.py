@@ -324,7 +324,7 @@ async def test_start_stream():
         self=database_row_operations_mock,
         session=async_session_mock,
         statement=statement_mock,
-        is_scalar=True
+        is_scalar=True,
     )
 
     # Checks whether the async-result was retrieved correctly

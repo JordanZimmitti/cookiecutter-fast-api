@@ -84,7 +84,7 @@ def test_get_request_metadata(mocker):
     assert request_metadata_model_mock.call_args.kwargs == {
         "method": "GET",
         "url": "https://test-url",
-        "userAgent": "test-agent"
+        "userAgent": "test-agent",
     }
 
 

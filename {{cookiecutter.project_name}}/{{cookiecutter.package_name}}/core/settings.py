@@ -4,9 +4,9 @@ from typing import Any, Dict, List
 from urllib.parse import quote
 
 from pydantic import SecretStr, field_validator
-from pydantic.networks import AnyHttpUrl
 from pydantic_core.core_schema import FieldValidationInfo
 from pydantic_settings import BaseSettings
+
 
 class Settings(BaseSettings):
 
@@ -46,7 +46,7 @@ class Settings(BaseSettings):
     IS_FAST_API_DEBUG: bool = False
 
     # Cors Origins used
-    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = [
+    BACKEND_CORS_ORIGINS: List[str] = [
         "http://localhost:2000",
         "http://0.0.0.0:2000",
         "http://127.0.0.1:2000",

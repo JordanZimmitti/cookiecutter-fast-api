@@ -14,14 +14,17 @@ class RequestMetadataModel(BaseModel):
         ...,
         title="Method",
         description="The type of request made (exp. get, post, put, delete)",
-        alias="method"
+        alias="method",
     )
     url: str = Field(
-        ..., title="Url", description="The full url address of the request", alias="url"
+        ...,
+        title="Url",
+        description="The full url address of the request",
+        alias="url",
     )
     user_agent: str = Field(
         ...,
         title="User Agent",
         description="The device that the request is being made from",
-        alias="userAgent"
+        alias="userAgent",
     )

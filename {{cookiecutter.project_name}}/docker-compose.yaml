@@ -10,7 +10,7 @@ services:
       target: "api"
       args:
         POETRY_VERSION: "1.6.1"
-        PYTHON_VERSION: "3.11.6"
+        PYTHON_VERSION: "3.12"
     container_name: "{{cookiecutter.package_name}}"
     env_file:
       - "local/override-docker.env"
@@ -43,7 +43,7 @@ services:
       target: "api_unit_tests"
       args:
         POETRY_VERSION: "1.6.1"
-        PYTHON_VERSION: "3.11.6"
+        PYTHON_VERSION: "3.12"
     container_name: "{{cookiecutter.package_name}}_unit_tests"
 
   {{cookiecutter.package_name}}_integration_tests:
@@ -53,7 +53,7 @@ services:
       target: "api_integration_tests"
       args:
         POETRY_VERSION: "1.6.1"
-        PYTHON_VERSION: "3.11.6"
+        PYTHON_VERSION: "3.12"
     container_name: "{{cookiecutter.package_name}}_integration_tests"
     env_file:
       - "local/override-docker-integration.env"

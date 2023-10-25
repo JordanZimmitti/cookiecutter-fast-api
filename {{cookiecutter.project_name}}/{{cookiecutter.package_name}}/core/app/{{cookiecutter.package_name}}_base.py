@@ -14,7 +14,7 @@ from {{cookiecutter.package_name}}.exceptions import (
     InternalServerError,
     NotFoundError,
     UnauthenticatedError,
-    ValidationError
+    ValidationError,
 )
 
 from .app import setup_app
@@ -28,7 +28,7 @@ class {{cookiecutter.class_name}}UvicornWorker(UvicornWorker):
     CONFIG_KWARGS = {
         "loop": settings.UVICORN_LOOP,
         "http": settings.UVICORN_HTTP,
-        "interface": settings.UVICORN_INTERFACE
+        "interface": settings.UVICORN_INTERFACE,
     }
 
 

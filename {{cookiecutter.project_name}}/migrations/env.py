@@ -20,6 +20,7 @@ target_metadata = BaseTable.metadata
 # The database schema the tables should be created in
 app_schema = settings.API_DB_SCHEMA.get_secret_value()
 
+
 def run_migrations_offline():
     """
     Run migrations in 'offline' mode
@@ -78,7 +79,7 @@ def do_run_migrations(connection):
         connection=connection,
         target_metadata=target_metadata,
         include_schemas=True,
-        version_table_schema=app_schema
+        version_table_schema=app_schema,
     )
 
     # Runs the migrations

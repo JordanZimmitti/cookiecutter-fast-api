@@ -4,7 +4,7 @@ from {{cookiecutter.package_name}}.exceptions import (
     InternalServerError,
     NotFoundError,
     UnauthenticatedError,
-    ValidationError
+    ValidationError,
 )
 
 

@@ -13,7 +13,7 @@ cd ..
 main() {
 
   # Create virtual environment
-  poetry env use python3.11
+  poetry env use python3.12
 
   # Activates the virtual environment
   local poetryVenvPath

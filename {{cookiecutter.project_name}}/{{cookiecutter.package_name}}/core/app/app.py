@@ -153,7 +153,7 @@ async def handle_request(app: FastAPI, request: Request, call_next: Callable) ->
     start_extra = {
         "method": request_metadata.method,
         "url": request_metadata.url,
-        "user_agent": request_metadata.user_agent
+        "user_agent": request_metadata.user_agent,
     }
     logger.info("Starting Request", extra=start_extra)
 

@@ -2,7 +2,6 @@ from pytest import Config
 
 
 class PytestConfigPro:
-
     def __init__(self, config: Config):
         """
         Class that adds extra functionality

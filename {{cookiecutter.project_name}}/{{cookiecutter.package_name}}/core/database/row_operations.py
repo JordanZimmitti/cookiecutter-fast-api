@@ -246,7 +246,7 @@ class DatabaseRowOperations:
         statement: Select | TextClause,
         batch: int,
         is_scalar: bool = True,
-        **kwargs
+        **kwargs,
     ) -> AsyncIterator[List[ReturnType]]:
         """
         Function that streams rows from the database using the given select statement. The number

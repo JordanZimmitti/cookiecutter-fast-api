@@ -14,7 +14,7 @@ class ApiLifeSpan:
         Class that handles the lifecycle
         of the FastAPI server
         """
-        
+
         # Creates the given fields
         self._app: FastAPI | None = None
 
