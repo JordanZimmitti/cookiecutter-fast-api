@@ -47,12 +47,10 @@ class Settings(BaseSettings):
 
     # Cors Origins used
     BACKEND_CORS_ORIGINS: List[str] = [
-        "http://localhost:2000",
-        "http://0.0.0.0:2000",
         "http://127.0.0.1:2000",
-        "http://localhost:3000",
-        "http://0.0.0.0:3000",
         "http://127.0.0.1:3000",
+        "http://localhost:2000",
+        "http://localhost:3000",
     ]
 
     # The event loop implementation: [auto|asyncio|uvloop]

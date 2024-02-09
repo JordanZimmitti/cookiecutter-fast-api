@@ -61,6 +61,7 @@ def test_format_with_error():
         "timestamp": "2001-01-01.100",
         "extra_item": "extra-one",
         "error": {"stack_trace": '"FakeError: testing a fake error"'},
+        "taskName": "task-name",
     }
 
     # Mocks the line-formatter class
@@ -103,6 +104,7 @@ def test_format_without_error():
         "threadname": "MainThread",
         "timestamp": "2001-01-01.100",
         "extra_item": "extra-one",
+        "taskName": "task-name",
     }
 
     # Mocks the line-formatter class

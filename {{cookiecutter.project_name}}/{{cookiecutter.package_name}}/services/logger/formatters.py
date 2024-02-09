@@ -150,6 +150,7 @@ class LineFormatter(BaseFormatter):
 
         # Gets the items from the output
         output = self.get_output_items(record)
+        output.pop("taskName")
         correlation_id = output.pop("correlation_id")
         level = output.pop("level")
         logger = output.pop("logger")

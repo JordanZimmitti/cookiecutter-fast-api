@@ -1,6 +1,6 @@
 version: "3.9"
 
-# Docker compose for running a local {{cookiecutter.package_name}} instance
+# Docker compose for running a local {{cookiecutter.friendly_name}} instance
 services:
 
   {{cookiecutter.package_name}}:
@@ -9,7 +9,7 @@ services:
       context: "."
       target: "api"
       args:
-        POETRY_VERSION: "1.6.1"
+        POETRY_VERSION: "1.7.1"
         PYTHON_VERSION: "3.12"
     container_name: "{{cookiecutter.package_name}}"
     env_file:
@@ -42,7 +42,7 @@ services:
       context: "."
       target: "api_unit_tests"
       args:
-        POETRY_VERSION: "1.6.1"
+        POETRY_VERSION: "1.7.1"
         PYTHON_VERSION: "3.12"
     container_name: "{{cookiecutter.package_name}}_unit_tests"
 
@@ -52,7 +52,7 @@ services:
       context: "."
       target: "api_integration_tests"
       args:
-        POETRY_VERSION: "1.6.1"
+        POETRY_VERSION: "1.7.1"
         PYTHON_VERSION: "3.12"
     container_name: "{{cookiecutter.package_name}}_integration_tests"
     env_file:

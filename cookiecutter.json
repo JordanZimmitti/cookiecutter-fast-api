@@ -1,8 +1,8 @@
 {
   "friendly_name": "Example API",
-  "project_name": "example-api",
-  "package_name": "example_api",
-  "class_name": "ExampleApi",
+  "project_name": "{{ cookiecutter.friendly_name|lower|replace(' ', '-') }}",
+  "package_name": "{{ cookiecutter.project_name|lower|replace('-', '_') }}",
+  "class_name": "{{ cookiecutter.project_name.split('-')|map('capitalize')|join }}",
 
   "project_description": "FastAPI server that handles...",
   "project_authors": "[\"John Doe <johndoe@gmail.com>\"]",
