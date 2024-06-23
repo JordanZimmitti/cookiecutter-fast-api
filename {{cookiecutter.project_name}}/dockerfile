@@ -8,12 +8,14 @@ ARG POETRY_VERSION
 ARG PYTHON_VERSION
 ENV PYTHON_VERSION=$PYTHON_VERSION
 ENV POETRY_VERSION=$POETRY_VERSION
+ENV PIP_NO_CACHE_DIR=1
+ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 # Installs/Updates linux packages
 RUN apk update
-RUN apk add bash curl gcc libffi-dev libressl-dev make musl-dev
-RUN apk upgrade --available && sync
+RUN apk add --no-cache bash curl gcc libffi-dev musl-dev
+RUN apk upgrade --available --no-cache && sync && reboot
 
 # Creates the group and user the project should run in
 RUN addgroup --gid 1000 appuser
@@ -40,7 +42,7 @@ COPY pyproject.toml .
 FROM os as api_unit_tests
 
 # Installs the API dependencies with test dependencies then uninstalls poetry
-RUN poetry install --no-root --with main --with test
+RUN poetry install --no-ansi --no-cache --no-interaction --no-root --with main --with test
 RUN curl -ssl https://install.python-poetry.org | python - --uninstall
 
 # Copies the API project and unit tests into the docker container
@@ -51,7 +53,6 @@ COPY tests/api tests/api
 COPY tests/unit tests/unit
 COPY tests/mocks tests/mocks
 COPY tests/pytest.env tests/pytest.env
-COPY tests/pytest.ini tests/pytest.ini
 
 # Starts the API unit tests
 USER appuser
@@ -63,7 +64,7 @@ ENTRYPOINT ["bash", "scripts/run_tests.sh"]
 FROM os as api_integration_tests
 
 # Installs the API dependencies with test dependencies then uninstalls poetry
-RUN poetry install --no-root --with main --with test
+RUN poetry install --no-ansi --no-cache --no-interaction --no-root --with main --with test
 RUN curl -ssl https://install.python-poetry.org | python - --uninstall
 
 # Copies the API project and integration tests into the docker container
@@ -71,7 +72,6 @@ COPY .coveragerc .coveragerc
 COPY scripts/run_integration_tests.sh scripts/run_integration_tests.sh
 COPY tests/integration tests/integration
 COPY tests/pytest.env tests/pytest.env
-COPY tests/pytest.ini tests/pytest.ini
 
 # Starts the API integration tests
 USER appuser
@@ -82,7 +82,7 @@ ENTRYPOINT ["bash", "scripts/run_integration_tests.sh"]
 FROM os as api
 
 # Installs the API only dependencies then uninstalls poetry
-RUN poetry install --no-root --only main
+RUN poetry install --no-ansi --no-cache --no-interaction --no-root --only main
 RUN curl -ssl https://install.python-poetry.org | python - --uninstall
 
 # Copies the API project into the docker container

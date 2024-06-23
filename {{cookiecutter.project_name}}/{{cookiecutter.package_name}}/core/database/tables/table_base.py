@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from uuid import UUID
 
 from sqlalchemy.dialects.postgresql import TIMESTAMP
@@ -28,7 +28,7 @@ class StampMixin:
     created_on: Mapped[datetime] = mapped_column(
         type_=TIMESTAMP,
         nullable=False,
-        default=lambda: datetime.now(UTC),
+        default=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
         comment="The date when the row was created",
     )
     updated_by: Mapped[UUID] = mapped_column(
@@ -39,7 +39,7 @@ class StampMixin:
     updated_on: Mapped[datetime] = mapped_column(
         type_=TIMESTAMP,
         nullable=True,
-        onupdate=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
         comment="The date when the row was updated",
     )
 

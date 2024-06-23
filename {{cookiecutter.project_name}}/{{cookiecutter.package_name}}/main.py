@@ -3,11 +3,13 @@ from logging import getLogger
 from typing import Any, Callable, Dict
 
 from fastapi import status
+from pydantic import ValidationError
 from starlette.requests import Request
 from starlette.responses import JSONResponse, RedirectResponse, Response
 
 from {{cookiecutter.package_name}}.core.app import {{cookiecutter.class_name}}Base, handle_request
 from {{cookiecutter.package_name}}.core.settings import settings
+from {{cookiecutter.package_name}}.exceptions import ForbiddenError, UnauthenticatedError
 
 # Gets the {{cookiecutter.friendly_name}} server logger instance
 logger = getLogger("{{cookiecutter.package_name}}.main")
@@ -35,6 +37,16 @@ class {{cookiecutter.class_name}}({{cookiecutter.class_name}}Base, ABC):
         """
         try:
             return await handle_request({{cookiecutter.class_name}}.app, request, call_next)
+        except UnauthenticatedError as exc:
+            return await {{cookiecutter.class_name}}.unauthenticated_error_handler(None, exc)
+        except ForbiddenError as exc:
+            return await {{cookiecutter.class_name}}.forbidden_error_handler(None, exc)
+        except ValidationError as exc:
+            message = f"Validation Error: {exc.errors()}"
+            logger.error(message)
+            return JSONResponse(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content=exc.errors()
+            )
         except Exception as exc:
             message = "Internal Server Error: An unexpected error occurred, please try again"
             logger.critical(message)

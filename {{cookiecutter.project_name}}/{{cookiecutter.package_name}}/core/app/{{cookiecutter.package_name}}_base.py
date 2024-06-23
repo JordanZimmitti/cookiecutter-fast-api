@@ -29,6 +29,7 @@ class {{cookiecutter.class_name}}UvicornWorker(UvicornWorker):
         "loop": settings.UVICORN_LOOP,
         "http": settings.UVICORN_HTTP,
         "interface": settings.UVICORN_INTERFACE,
+        "headers": [("server", settings.PROJECT_NAME)],
     }
 
 

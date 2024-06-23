@@ -1,4 +1,5 @@
 from logging import Formatter
+from time import gmtime
 from typing import Any, Dict, Union
 
 from {{cookiecutter.package_name}}.core.cache import get_fast_api_context
@@ -35,6 +36,7 @@ class BaseFormatter(Formatter):
 
     # Logger time format
     _TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
+    converter = gmtime
 
     @staticmethod
     def fallback_type(object_to_log: Any) -> Union[str, int, bool, float, type(None)]:
