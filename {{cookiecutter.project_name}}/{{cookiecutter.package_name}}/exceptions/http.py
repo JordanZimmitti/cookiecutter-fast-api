@@ -64,4 +64,4 @@ class ValidationError(HTTPException):
 
         :param message: The message sent back to the client detailing the problem
         """
-        super().__init__(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=message)
+        super().__init__(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=message)

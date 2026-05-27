@@ -1,6 +1,6 @@
-from logging import Formatter
+from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING, Formatter
 from time import gmtime
-from typing import Any, Dict, Union
+from typing import Any, Dict, Union, cast
 
 from {{cookiecutter.package_name}}.core.cache import get_fast_api_context
 from {{cookiecutter.package_name}}.core.settings import settings
@@ -39,7 +39,7 @@ class BaseFormatter(Formatter):
     converter = gmtime
 
     @staticmethod
-    def fallback_type(object_to_log: Any) -> Union[str, int, bool, float, type(None)]:
+    def fallback_type(object_to_log: Any) -> Union[str, int, bool, float, None]:
         """
         Function that gets the type of the object to log and
         casts it to a string when it is not a primitive type
@@ -88,7 +88,7 @@ class BaseFormatter(Formatter):
         if record.args:
             record.message = record.message % record.args
 
-    def get_output_items(self, record):
+    def get_output_items(self, record) -> Dict[str, str | None | Any]:
         """
         Function that gets the output data
         items from the record
@@ -139,6 +139,17 @@ class BaseFormatter(Formatter):
 
 
 class LineFormatter(BaseFormatter):
+
+    # Logging ANSI colors
+    _colors = {
+        CRITICAL: "\033[38;2;200;60;60m",  # Red
+        DEBUG: "\033[38;2;64;158;255m",  # Blue
+        ERROR: "\033[38;2;150;90;190m",  # Purple
+        INFO: "",  # No color
+        WARNING: "\033[93m",  # Yellow
+    }
+    _reset = "\033[0m"
+
     def format(self, record):
         """
         Function that formats the
@@ -163,7 +174,7 @@ class LineFormatter(BaseFormatter):
 
         # Gets the error when it exists
         if "error" in output:
-            error = output.pop("error")
+            error = cast(Dict[str, Dict[str, Any]], output.pop("error"))
         else:
             error = None
 
@@ -183,9 +194,16 @@ class LineFormatter(BaseFormatter):
             component = f"{key}={self.fallback_type(value)}"
             components.append(component)
         if error:
-            stack_trace = error["stack_trace"]
+            stack_trace = error.get("stack_trace")
             components.append(f"error={stack_trace}")
 
         # Adds the extra components to the line log
         line = " ".join(components)
+
+        # Adds a color to the log line based on the log-level
+        if settings.IS_SHOW_LOG_LEVEL_COLORS:
+            color = self._colors.get(record.levelno, "")
+            line = f"{color}{line}{self._reset}"
+
+        # Returns the log line
         return line

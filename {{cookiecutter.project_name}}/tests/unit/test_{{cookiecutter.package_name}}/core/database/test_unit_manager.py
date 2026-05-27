@@ -89,7 +89,9 @@ def test_get_row_operations(mocker):
 
     # Checks whether the mocked database-row-operations class was retrieved correctly
     db_row_operations = db_manager.row_operations
+    db_row_operations_again = db_manager.row_operations
     assert db_row_operations == database_row_operations_mock
+    assert db_row_operations_again == database_row_operations_mock
 
 
 def test_init():

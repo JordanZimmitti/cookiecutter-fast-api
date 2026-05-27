@@ -1,98 +1,180 @@
 
-# Configures the operating system
-ARG PYTHON_VERSION
-FROM python:${PYTHON_VERSION}-alpine as os
+# Configures the build operating system
+FROM cgr.dev/chainguard/wolfi-base AS build_os
 
-# Creates environment variables from docker arguments
-ARG POETRY_VERSION
-ARG PYTHON_VERSION
-ENV PYTHON_VERSION=$PYTHON_VERSION
-ENV POETRY_VERSION=$POETRY_VERSION
-ENV PIP_NO_CACHE_DIR=1
+# Creates the environment variables from the docker arguments
+ARG ARG_POETRY_VERSION
+ARG ARG_PYTHON_VERSION
+ENV POETRY_HOME="/opt/poetry"
+ENV PATH="${PATH}:${POETRY_HOME}/bin"
+ENV POETRY_VERSION=$ARG_POETRY_VERSION
+ENV PYTHON_VERSION=$ARG_PYTHON_VERSION
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Installs/Updates linux packages
-RUN apk update
-RUN apk add --no-cache bash curl gcc libffi-dev musl-dev
-RUN apk upgrade --available --no-cache && sync && reboot
-
-# Creates the group and user the project should run in
-RUN addgroup --gid 1000 appuser
-RUN adduser --uid 1000 --ingroup appuser --disabled-password --home appuser appuser
-RUN rm -rf appuser
+# Installs/Updates wolfi packages
+RUN apk update && apk add --no-cache bash curl python3~${PYTHON_VERSION} py3-pip
 
 # Sets the project working directory
-WORKDIR /home/appuser
-RUN chown -R appuser:appuser .
+WORKDIR /home/nonroot
+
+# Creates the target directory for test artifacts
+RUN mkdir target
 
 # Updates pip defaults, installs poetry, then uninstalls pip
-RUN curl -ssl https://install.python-poetry.org | python -
-RUN pip install --upgrade certifi setuptools wheel
-RUN pip uninstall pip -y
-ENV PATH="${PATH}:/root/.local/bin"
+RUN curl --proto "=https" https://install.python-poetry.org | python - \
+  && pip install --root-user-action=ignore --upgrade certifi setuptools wheel \
+  && pip uninstall --root-user-action=ignore pip -y
 
 # Configures poetry for use
 RUN poetry config virtualenvs.create false
-COPY poetry.lock .
-COPY pyproject.toml .
+COPY --chown=nonroot --chmod=400 poetry.lock pyproject.toml ./
+
+# Removes the uneeded dependencies
+RUN apk del apk-tools curl py3-pip wolfi-base
+
+
+# Configures building the API
+FROM build_os AS build_api
+
+# Installs only the API dependencies
+RUN poetry install --no-root --only main
+
+
+# Configures building the API tests
+FROM build_os AS build_api_tests
+
+# Installs the API dependencies with test dependencies
+RUN poetry install --no-root --with test --without dev
+
+
+# Configures building the API database migration dependencies
+FROM build_os AS build_api_db_migration
+
+# Installs the API dependencies with test dependencies
+RUN poetry install --no-root --only migration
+
+
+# Configures the deploy operating system
+FROM cgr.dev/chainguard/static AS deploy_os
+
+# Creates the environment variables from the docker arguments
+ARG ARG_PROJECT_VERSION
+ARG ARG_PYTHON_VERSION
+ENV PROJECT_VERSION=$ARG_PROJECT_VERSION
+ENV PYTHON_VERSION=$ARG_PYTHON_VERSION
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Sets the shell to bash
+SHELL ["/usr/bin/bash", "-c"]
+
+# Sets the project working directory
+WORKDIR /home/nonroot
+
+# Copies the required operating system dependencies into the docker container
+COPY --chown=root --chmod=755 --from=build_os /lib/ /lib/
+COPY --chown=root --chmod=755 --from=build_os /usr/lib/ /usr/lib/
+
+# Copies the shell and required shell commands into the docker container
+COPY --chown=root --chmod=751 --from=build_os /usr/bin/bash /usr/bin/dirname /usr/bin/
+RUN echo "alias echo='true'" > .bashrc
+
+# Copies python into the docker container
+COPY --chown=root --chmod=751 --from=build_os /usr/bin/python /usr/bin/python
+COPY --chown=root --chmod=751 --from=build_os /usr/bin/python /usr/bin/python3
+COPY --chown=root --chmod=751 --from=build_os /usr/bin/python /usr/bin/python${PYTHON_VERSION}
+
+# Copies the target directory for test artifacts
+COPY --chown=nonroot --chmod=700 --from=build_os /home/nonroot/target/ ./target/
+
+# Copies the required python poetry files into the docker container
+COPY --chown=nonroot --chmod=400 --from=build_os \
+    /home/nonroot/poetry.lock /home/nonroot/pyproject.toml ./
 
 
 # Configures running the API unit tests
-FROM os as api_unit_tests
+FROM deploy_os AS api_unit_tests
 
-# Installs the API dependencies with test dependencies then uninstalls poetry
-RUN poetry install --no-ansi --no-cache --no-interaction --no-root --with main --with test
-RUN curl -ssl https://install.python-poetry.org | python - --uninstall
+# Copies the python dependencies into the docker container
+COPY --chown=root --chmod=755 --from=build_api_tests \
+    /usr/lib/python${PYTHON_VERSION}/site-packages \
+    /usr/lib/python${PYTHON_VERSION}/site-packages
 
 # Copies the API project and unit tests into the docker container
-COPY .coveragerc .coveragerc
-COPY {{cookiecutter.package_name}} {{cookiecutter.package_name}}
-COPY scripts/run_tests.sh scripts/run_tests.sh
-COPY tests/api tests/api
-COPY tests/unit tests/unit
-COPY tests/mocks tests/mocks
-COPY tests/pytest.env tests/pytest.env
+COPY --chown=nonroot --chmod=400 .coveragerc ./.coveragerc
+COPY --chown=nonroot --chmod=500 {{cookiecutter.package_name}}/ ./{{cookiecutter.package_name}}/
+COPY --chown=nonroot --chmod=500 scripts/run_tests.sh ./scripts/run_tests.sh
+COPY --chown=nonroot --chmod=500 tests/api/ ./tests/api/
+COPY --chown=nonroot --chmod=500 tests/unit/ ./tests/unit/
+COPY --chown=nonroot --chmod=500 tests/mocks/ ./tests/mocks/
+COPY --chown=nonroot --chmod=400 tests/pytest.env ./tests/pytest.env
 
 # Starts the API unit tests
-USER appuser
+USER nonroot
 RUN bash scripts/run_tests.sh
-ENTRYPOINT ["bash", "scripts/run_tests.sh"]
+ENTRYPOINT ["/usr/bin/bash", "scripts/run_tests.sh"]
 
 
 # Configures running the API integration tests
-FROM os as api_integration_tests
+FROM deploy_os AS api_integration_tests
 
-# Installs the API dependencies with test dependencies then uninstalls poetry
-RUN poetry install --no-ansi --no-cache --no-interaction --no-root --with main --with test
-RUN curl -ssl https://install.python-poetry.org | python - --uninstall
+# Copies the python dependencies into the docker container
+COPY --chown=root --chmod=755 --from=build_api_tests \
+    /usr/lib/python${PYTHON_VERSION}/site-packages \
+    /usr/lib/python${PYTHON_VERSION}/site-packages
 
 # Copies the API project and integration tests into the docker container
-COPY .coveragerc .coveragerc
-COPY scripts/run_integration_tests.sh scripts/run_integration_tests.sh
-COPY tests/integration tests/integration
-COPY tests/pytest.env tests/pytest.env
+COPY --chown=nonroot --chmod=400 .coveragerc ./.coveragerc
+COPY --chown=nonroot --chmod=500 scripts/run_integration_tests.sh ./scripts/run_integration_tests.sh
+COPY --chown=nonroot --chmod=500 tests/integration/ ./tests/integration/
 
 # Starts the API integration tests
-USER appuser
-ENTRYPOINT ["bash", "scripts/run_integration_tests.sh"]
+USER nonroot
+ENTRYPOINT ["/usr/bin/bash", "scripts/run_integration_tests.sh"]
+
+
+# Configures running the API database migration
+FROM deploy_os AS api_db_migration
+
+# Copies the alembic shell command into the docker container
+COPY --chown=root --chmod=755 --from=build_api_db_migration /usr/bin/alembic /usr/bin/alembic
+
+# Copies the python dependencies into the docker container
+COPY --chown=root --chmod=755 --from=build_api_db_migration \
+    /usr/lib/python${PYTHON_VERSION}/site-packages \
+    /usr/lib/python${PYTHON_VERSION}/site-packages
+
+# Copies the database migration
+COPY --chown=nonroot --chmod=400 alembic.ini alembic.ini
+COPY --chown=nonroot --chmod=500 migrations/ ./migrations/
+COPY --chown=nonroot --chmod=500 {{cookiecutter.package_name}}/core/database/tables ./{{cookiecutter.package_name}}/core/database/tables
+COPY --chown=nonroot --chmod=500 {{cookiecutter.package_name}}/core/settings.py ./{{cookiecutter.package_name}}/core/settings.py
+COPY --chown=nonroot --chmod=500 scripts/python/db_migration.py ./scripts/python/db_migration.py
+COPY --chown=nonroot --chmod=500 scripts/run_db_migration.sh ./scripts/run_db_migration.sh
+
+# Starts the database migration
+USER nonroot
+ENTRYPOINT ["/usr/bin/bash", "scripts/run_db_migration.sh"]
 
 
 # Configures running the API
-FROM os as api
+FROM deploy_os AS api
 
-# Installs the API only dependencies then uninstalls poetry
-RUN poetry install --no-ansi --no-cache --no-interaction --no-root --only main
-RUN curl -ssl https://install.python-poetry.org | python - --uninstall
+# Copies the python dependencies into the docker container
+COPY --chown=root --chmod=755 --from=build_api \
+    /usr/lib/python${PYTHON_VERSION}/site-packages \
+    /usr/lib/python${PYTHON_VERSION}/site-packages
 
-# Copies the API project into the docker container
-COPY {{cookiecutter.package_name}} {{cookiecutter.package_name}}
-COPY scripts/entrypoint.sh scripts/entrypoint.sh
-COPY scripts/run_health_check.sh scripts/run_health_check.sh
+# Copies the API project and test artifacts into the docker container
+COPY --chown=nonroot --chmod=400 --from=api_unit_tests /home/nonroot/target ./target/
+COPY --chown=nonroot --chmod=500 {{cookiecutter.package_name}}/ ./{{cookiecutter.package_name}}/
+COPY --chown=nonroot --chmod=500 scripts/python/health_check.py ./scripts/python/health_check.py
+COPY --chown=nonroot --chmod=500 scripts/entrypoint.sh scripts/run_health_check.sh ./scripts/
 
 # Exposes the port that the API server runs on
 EXPOSE 2000
 
 # Starts the API server
-USER appuser
-ENTRYPOINT ["bash", "scripts/entrypoint.sh"]
+USER nonroot
+ENTRYPOINT ["/usr/bin/bash", "scripts/entrypoint.sh"]

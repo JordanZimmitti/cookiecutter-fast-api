@@ -1,3 +1,4 @@
+from inspect import unwrap
 from unittest.mock import AsyncMock, MagicMock
 
 from pydantic import SecretStr
@@ -195,9 +196,7 @@ async def test_pipeline():
     pipe_ops_mock = MagicMock()
 
     # Invokes the redis-manager pipeline class
-    result = await RedisManager.pipeline.__wrapped__.__wrapped__(
-        self=redis_manager_mock, pipe_ops=pipe_ops_mock
-    )
+    result = await unwrap(RedisManager.pipeline)(self=redis_manager_mock, pipe_ops=pipe_ops_mock)
 
     # Checks whether the result was retrieved correctly
     assert result == ["result"]
@@ -230,7 +229,7 @@ async def test_pipeline_scalar():
     pipe_ops_mock = MagicMock()
 
     # Invokes the redis-manager pipeline class
-    result = await RedisManager.pipeline.__wrapped__.__wrapped__(
+    result = await unwrap(RedisManager.pipeline)(
         self=redis_manager_mock, pipe_ops=pipe_ops_mock, is_scalar=True
     )
 
@@ -265,12 +264,28 @@ async def test_pipeline_error():
 
     # Checks whether the correct error was raised
     with raises(InternalServerError):
-        await RedisManager.pipeline.__wrapped__.__wrapped__(
-            self=redis_manager_mock, pipe_ops=pipe_ops_mock
-        )
+        await unwrap(RedisManager.pipeline)(self=redis_manager_mock, pipe_ops=pipe_ops_mock)
 
     # Checks whether the result was retrieved correctly
     assert operation_mock.pipeline.called
     assert operation_mock.pipeline.call_args.args[0] is True
     assert pipe_ops_mock.called
     assert pipe_ops_mock.call_args.args[0] == pipe_mock
+
+
+async def test_pipeline_no_operation():
+    """
+    Tests the RedisManager pipeline function for completion. The RedisManager
+    should raise an InternalServerError when no operation exists
+    """
+
+    # Mocks the redis-manager class
+    redis_manager_mock = MagicMock(spec=RedisManager)
+    redis_manager_mock._operation = None
+
+    # Mocks the pipe_ops function
+    pipe_ops_mock = MagicMock()
+
+    # Checks whether the correct error was raised
+    with raises(InternalServerError):
+        await unwrap(RedisManager.pipeline)(self=redis_manager_mock, pipe_ops=pipe_ops_mock)

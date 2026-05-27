@@ -8,5 +8,5 @@ cd ..
 # Sets the current path as the python path
 export PYTHONPATH=.
 
-# Hits the health-check endpoint to check whether the {{cookiecutter.friendly_name}} server is running
-exec python scripts/python/health_check.py
+# Runs the database migration python script
+exec python scripts/python/db_migration.py

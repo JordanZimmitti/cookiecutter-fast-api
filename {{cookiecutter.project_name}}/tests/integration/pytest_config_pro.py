@@ -11,7 +11,7 @@ class PytestConfigPro:
         """
         self.config = config
 
-    def get_cli_argument(self, argument_name: str, argument_default: str):
+    def get_cli_argument(self, argument_name: str, argument_default: str | None):
         """
         Function that gets a cli-argument. With this helper function when the cli returns
         'None' or 'Null' the default argument will be used

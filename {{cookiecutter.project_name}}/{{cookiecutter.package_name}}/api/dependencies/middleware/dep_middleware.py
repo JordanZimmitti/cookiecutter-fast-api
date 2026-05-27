@@ -21,7 +21,7 @@ def get_response_size(response: Response) -> int:
 
         # Gets the response size when it exists
         if "content-length" in response.headers:
-            response_size = int(response.headers.get("content-length"))  # bytes
+            response_size = int(response.headers["content-length"])  # bytes
 
         # Sets the response size as zero
         else:

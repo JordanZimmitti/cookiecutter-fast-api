@@ -1,4 +1,3 @@
-from asyncio import get_event_loop
 from os import listdir, remove
 from os.path import dirname, exists, join, pardir
 from typing import Any, Generator
@@ -7,7 +6,7 @@ from dotenv import load_dotenv
 from pytest_asyncio import fixture
 
 # Loads environment variables
-parent_directory = join(dirname(__file__), pardir)
+parent_directory = join(str(dirname(__file__)), pardir)
 pytest_env_directory = join(parent_directory, "pytest.env")
 load_dotenv(pytest_env_directory)
 
@@ -32,7 +31,3 @@ def cleanup() -> Generator[None, Any, None]:
     if exists(log_directory):
         for file in listdir(log_directory):
             remove(join(log_directory, file))
-
-    # Closes the event loop
-    event_loop = get_event_loop()
-    event_loop.close()

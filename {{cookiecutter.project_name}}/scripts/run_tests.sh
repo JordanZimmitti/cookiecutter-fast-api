@@ -7,7 +7,7 @@ set -o errexit
 # Creates the overridable environment variables
 : "${SPEC_COVERAGE:="{{cookiecutter.package_name}}"}"
 : "${SPEC_TEST:="tests/api tests/unit"}"
-: "${TARGET_DIR:="target"}"
+: "${TARGET_DIR:="/home/nonroot/target"}"
 
 # Gets the {{cookiecutter.friendly_name}} server directory
 FILE_DIR=$(dirname "$0")
@@ -23,7 +23,7 @@ main() {
 
   # Runs the api and unit tests
   export ENV_FILE=tests/pytest.env
-  python -m pytest "${spec_test_array[@]}" \
+  exec python -m pytest "${spec_test_array[@]}" \
     --junitxml "$TARGET_DIR/junit.xml" \
     --cov "${spec_coverage_array[@]}" \
     --cov-report "xml:$TARGET_DIR/coverage.xml"

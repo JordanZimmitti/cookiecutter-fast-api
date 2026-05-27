@@ -4,7 +4,7 @@ Create a fully-working production-ready Fast-API server in minutes!
 ## __Install And Run Cookiecutter__
 
 1. Install dependencies
-   * `brew install python@3.12`
+   * `brew install python@3.13`
    * `brew install poetry`
    * `brew install cookiecutter`
 
@@ -14,16 +14,17 @@ Create a fully-working production-ready Fast-API server in minutes!
 ## __Features__
 
 * **Project Configuration**
-    * Python 12 support 
+    * Python 13 support 
     * Black, Flake8, Isort, and Poetry pre-commits configured
     * Poetry package manager for enhanced package management
     * Script for easy local environment setup
   
 * **Docker**
     * Production-Ready multi-stage dockerfile configured
-    * Alpine base-image for the best os-security and smaller build sizes 
+    * Free Chainguard base-image for the best os-security and smaller build sizes 
     * Docker-Compose configured with: 
         * Fast-API server 
+        * Alembic migration upgrade/downgrade runner
         * Unit-Test runner
         * Integration-Test runner
         * Postgres database
@@ -52,8 +53,7 @@ Create a fully-working production-ready Fast-API server in minutes!
 
 * **Caching**
     * Async Redis support via built-in redis helper classes 
-    * Pipeline wrapper function for protecting transactions with retries and proper http errors
+    * Redis pipeline wrapper function for protecting transactions with retries and proper http errors
 
 * **Utilities**
-    * A pydantic utility decorator function that creates a fast-api form from a pydantic model
     * An async utility function to run synchronous code asynchronously

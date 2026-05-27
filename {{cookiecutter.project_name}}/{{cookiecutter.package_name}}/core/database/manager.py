@@ -65,7 +65,10 @@ class DatabaseManager:
 
         # Creates a database-row-operations instance when it does not exist
         if not self._row_operations:
-            self._row_operations = DatabaseRowOperations(self._connection.session_maker)
+            row_operations = DatabaseRowOperations(self._connection.session_maker)
+            self._row_operations = row_operations
+            return row_operations
 
         # Returns a database-row-operations instance
-        return self._row_operations
+        else:
+            return self._row_operations

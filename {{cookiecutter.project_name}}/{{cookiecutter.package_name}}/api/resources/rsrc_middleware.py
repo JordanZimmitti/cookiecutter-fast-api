@@ -22,7 +22,7 @@ class RequestMetadataModel(BaseModel):
         description="The full url address of the request",
         alias="url",
     )
-    user_agent: str = Field(
+    user_agent: str | None = Field(
         ...,
         title="User Agent",
         description="The device that the request is being made from",

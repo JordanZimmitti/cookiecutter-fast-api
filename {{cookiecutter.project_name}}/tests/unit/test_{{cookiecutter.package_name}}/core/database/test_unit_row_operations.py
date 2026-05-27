@@ -1,4 +1,5 @@
 from asyncio import CancelledError
+from inspect import unwrap
 from typing import List
 from unittest.mock import AsyncMock, MagicMock
 
@@ -54,9 +55,7 @@ async def test_add_row():
     database_row_operations_mock._commit_session = commit_session_mock
 
     # Invokes the add_row function
-    await DatabaseRowOperations.add_row.__wrapped__.__wrapped__(
-        self=database_row_operations_mock, table=None
-    )
+    await unwrap(DatabaseRowOperations.add_row)(self=database_row_operations_mock, table=None)
 
     # Checks whether the required methods were called correctly
     assert async_session_mock.add.called
@@ -89,9 +88,7 @@ async def test_add_rows():
     database_row_operations_mock._commit_session = commit_session_mock
 
     # Invokes the add_rows function
-    await DatabaseRowOperations.add_rows.__wrapped__.__wrapped__(
-        self=database_row_operations_mock, tables=[None]
-    )
+    await unwrap(DatabaseRowOperations.add_rows)(self=database_row_operations_mock, tables=[None])
 
     # Checks whether the required methods were called correctly
     assert async_session_mock.add_all.called
@@ -242,7 +239,7 @@ async def test_query_row(mocker):
     statement_mock = MagicMock(spec_set=Select)
 
     # Invokes the query_row function
-    row_result = await DatabaseRowOperations.query_row.__wrapped__.__wrapped__(
+    row_result = await unwrap(DatabaseRowOperations.query_row)(
         self=database_row_operations_mock, statement=statement_mock
     )
 
@@ -281,7 +278,7 @@ async def test_query_rows(mocker):
     statement_mock = MagicMock(spec_set=Select)
 
     # Invokes the query_rows function
-    row_results = await DatabaseRowOperations.query_rows.__wrapped__.__wrapped__(
+    row_results = await unwrap(DatabaseRowOperations.query_rows)(
         self=database_row_operations_mock, statement=statement_mock
     )
 
@@ -320,7 +317,7 @@ async def test_start_stream():
     statement_mock = MagicMock(spec_set=Select)
 
     # Invokes the start_stream function
-    stream_result = await DatabaseRowOperations._start_stream.__wrapped__.__wrapped__(
+    stream_result = await unwrap(DatabaseRowOperations._start_stream)(
         self=database_row_operations_mock,
         session=async_session_mock,
         statement=statement_mock,
@@ -352,7 +349,7 @@ async def test_start_stream_error():
 
     # Checks whether the correct error was raised
     with raises(InternalServerError):
-        await DatabaseRowOperations._start_stream.__wrapped__.__wrapped__(
+        await unwrap(DatabaseRowOperations._start_stream)(
             self=database_row_operations_mock,
             session=async_session_mock,
             statement=statement_mock,
@@ -420,9 +417,9 @@ async def test_stream_rows(mocker):
     assert enforce_base_type_mock.call_args.args[1] == str
 
 
-async def test_stream_rows_cancelled(mocker):
+async def test_stream_rows_canceled(mocker):
     """
-    Tests the stream_rows function when a stream is cancelled. The
+    Tests the stream_rows function when a stream is canceled. The
     stream_rows function should complete without any errors
 
     :param mocker: Fixture to mock specific functions for testing
@@ -432,12 +429,12 @@ async def test_stream_rows_cancelled(mocker):
     enforce_base_type_mock = MagicMock()
     mocker.patch.object(row_operations, "_enforce_base_type", enforce_base_type_mock)
 
-    # Function that raises an async cancelled error
-    def raise_cancelled_error():
+    # Function that raises an async canceled error
+    def raise_canceled_error():
         raise CancelledError()
 
     # Mocks the async_sessionmaker class
-    session_maker_mock = MagicMock(side_effect=raise_cancelled_error)
+    session_maker_mock = MagicMock(side_effect=raise_canceled_error)
 
     # Mocks the fetchmany function
     fetch_many_mock = AsyncMock()
@@ -457,7 +454,7 @@ async def test_stream_rows_cancelled(mocker):
     statement_mock = MagicMock(spec_set=Select)
 
     # Invokes the stream_rows function
-    async for rows in DatabaseRowOperations.stream_rows(
+    async for _ in DatabaseRowOperations.stream_rows(
         self=database_row_operations_mock,
         return_type=str,
         statement=statement_mock,

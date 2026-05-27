@@ -1,6 +1,6 @@
 from logging import getLogger
 from time import time
-from typing import Callable
+from typing import Callable, Type, cast
 
 from fastapi import FastAPI, Request, Response
 from prometheus_fastapi_instrumentator import Instrumentator
@@ -35,7 +35,7 @@ def setup_app(app: FastAPI):
     # Sets all CORS enabled origins
     if settings.BACKEND_CORS_ORIGINS:
         app.add_middleware(
-            CORSMiddleware,
+            cast(Type, CORSMiddleware),
             allow_credentials=True,
             allow_headers=["*"],
             allow_methods=["*"],

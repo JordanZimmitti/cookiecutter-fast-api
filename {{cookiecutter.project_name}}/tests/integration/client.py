@@ -60,32 +60,49 @@ class ApiClient:
         }
         self.session.headers.update(headers)
 
-    def delete(self, endpoint: str, params: Dict = None) -> Response:
+    def delete(self, endpoint: str, params: Dict | None = None) -> Response:
         return self._request(endpoint, "DELETE", params=params)
 
-    def get(self, endpoint: str, params: Dict = None) -> Response:
+    def get(self, endpoint: str, params: Dict | None = None) -> Response:
         return self._request(endpoint, "GET", params=params)
 
-    def head(self, endpoint: str, params: Dict = None) -> Response:
+    def head(self, endpoint: str, params: Dict | None = None) -> Response:
         return self._request(endpoint, "HEAD", params=params)
 
     def post(
-        self, endpoint: str, data: Dict = None, json: Dict = None, params: Dict = None
+        self,
+        endpoint: str,
+        data: Dict | None = None,
+        json: Dict | None = None,
+        params: Dict | None = None,
     ) -> Response:
         return self._request(endpoint, "POST", data=data, json=json, params=params)
 
     def put(
-        self, endpoint: str, data: Dict = None, json: Dict = None, params: Dict = None
+        self,
+        endpoint: str,
+        data: Dict | None = None,
+        json: Dict | None = None,
+        params: Dict | None = None,
     ) -> Response:
         return self._request(endpoint, "PUT", data=data, json=json, params=params)
 
     def patch(
-        self, endpoint: str, data: Dict = None, json: Dict = None, params: Dict = None
+        self,
+        endpoint: str,
+        data: Dict | None = None,
+        json: Dict | None = None,
+        params: Dict | None = None,
     ) -> Response:
         return self._request(endpoint, "PATCH", data=data, json=json, params=params)
 
     def _request(
-        self, endpoint: str, method: str, data: Dict = None, json: Dict = None, params: Dict = None
+        self,
+        endpoint: str,
+        method: str,
+        data: Dict | None = None,
+        json: Dict | None = None,
+        params: Dict | None = None,
     ) -> Response:
         full_url = f"{self.api_url}{endpoint}"
         response = self.session.request(method, full_url, data=data, json=json, params=params)

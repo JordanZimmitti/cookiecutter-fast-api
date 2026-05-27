@@ -5,7 +5,8 @@
   "class_name": "{{ cookiecutter.project_name.split('-')|map('capitalize')|join }}",
 
   "project_description": "FastAPI server that handles...",
-  "project_authors": "[\"John Doe <johndoe@gmail.com>\"]",
+  "author_name": "John Doe",
+  "author_email": "johndoe@gmail.com",
 
   "api_database_display_name": "Example Database",
   "api_database_description": "Database that stores...",

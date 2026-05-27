@@ -1,4 +1,3 @@
-from asyncio import get_event_loop
 from os import listdir, remove
 from os.path import dirname, exists, join, pardir
 from typing import Any, Dict, Generator
@@ -6,11 +5,11 @@ from unittest.mock import AsyncMock
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
-from pytest_asyncio import fixture
+from pytest import fixture
 from starlette.testclient import TestClient
 
 # Loads environment variables
-parent_directory = join(dirname(__file__), pardir)
+parent_directory = join(str(dirname(__file__)), pardir)
 pytest_env_directory = join(parent_directory, "pytest.env")
 load_dotenv(pytest_env_directory)
 
@@ -35,10 +34,6 @@ def cleanup() -> Generator[None, Any, None]:
     if exists(log_directory):
         for file in listdir(log_directory):
             remove(join(log_directory, file))
-
-    # Closes the event loop
-    event_loop = get_event_loop()
-    event_loop.close()
 
 
 @fixture(scope="session")
@@ -71,7 +66,7 @@ def app() -> FastAPI:
 
 
 @fixture(scope="function")
-def client(app) -> TestClient:
+def client(app) -> Generator[TestClient, Any, None]:
     """
     Pytest fixture that creates an {{cookiecutter.friendly_name}}
     test client for testing api requests
@@ -96,7 +91,7 @@ def client(app) -> TestClient:
 
 
 @fixture(scope="function")
-def dependency_overrides(app) -> Dict:
+def dependency_overrides(app) -> Generator[Dict, Any, None]:
     """
     Pytest fixture that gets the fast-api dependency overrides dict
     for overriding certain route dependencies while testing

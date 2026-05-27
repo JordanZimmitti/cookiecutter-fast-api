@@ -2,6 +2,7 @@ from logging import LogRecord
 from unittest.mock import MagicMock
 
 from {{cookiecutter.package_name}}.core.cache import FastApiContext
+from {{cookiecutter.package_name}}.core.settings import Settings
 from {{cookiecutter.package_name}}.services.logger import formatters
 from {{cookiecutter.package_name}}.services.logger.formatters import BaseFormatter, LineFormatter
 
@@ -43,12 +44,20 @@ def test_fallback_type_quote_string():
     assert log_object == '"test-message"'
 
 
-def test_format_with_error():
+def test_format_with_error(mocker):
     """
     Tests the format function when an error is present. The format function should
     format the log-record data into a line-log containing the error data without
     any errors
+
+    :param mocker: Fixture to mock specific functions for testing
     """
+
+    # Mock and overrides the settings class
+    settings_mock = MagicMock(spec=Settings)
+    settings_mock.HOSTNAME = "localhost"
+    settings_mock.IS_SHOW_LOG_LEVEL_COLORS = True
+    mocker.patch.object(formatters, "settings", settings_mock)
 
     # Mocks log output data
     output_mock = {
@@ -68,9 +77,11 @@ def test_format_with_error():
     line_formatter_mock = MagicMock(spec=LineFormatter)
     line_formatter_mock.fallback_type = lambda a: a
     line_formatter_mock.get_output_items = lambda a: output_mock
+    line_formatter_mock._reset = " reset"
 
     # Mocks the log-record class
     log_record_mock = MagicMock(spec=LogRecord)
+    log_record_mock.levelno = 20
 
     # Checks whether the log-line was retrieved correctly
     # noinspection StrFormat
@@ -84,15 +95,24 @@ def test_format_with_error():
         'logger="test.logger.formatters" '
         'message="hello-world" '
         "extra_item=extra-one "
-        'error="FakeError: testing a fake error"'
+        'error="FakeError: testing a fake error" '
+        "reset"
     )
 
 
-def test_format_without_error():
+def test_format_without_error(mocker):
     """
     Tests the format function when an error is not present. The format function should
     format the log-record data into a line-log without any errors
+
+    :param mocker: Fixture to mock specific functions for testing
     """
+
+    # Mock and overrides the settings class
+    settings_mock = MagicMock(spec=Settings)
+    settings_mock.HOSTNAME = "localhost"
+    settings_mock.IS_SHOW_LOG_LEVEL_COLORS = True
+    mocker.patch.object(formatters, "settings", settings_mock)
 
     # Mocks log output data
     output_mock = {
@@ -111,9 +131,11 @@ def test_format_without_error():
     line_formatter_mock = MagicMock(spec=LineFormatter)
     line_formatter_mock.fallback_type = lambda a: a
     line_formatter_mock.get_output_items = lambda a: output_mock
+    line_formatter_mock._reset = " reset"
 
     # Mocks the log-record class
     log_record_mock = MagicMock(spec=LogRecord)
+    log_record_mock.levelno = 20
 
     # Checks whether the log-line was retrieved correctly
     # noinspection StrFormat
@@ -126,7 +148,8 @@ def test_format_without_error():
         '-- level="INFO" '
         'logger="test.logger.formatters" '
         'message="hello-world" '
-        "extra_item=extra-one"
+        "extra_item=extra-one "
+        "reset"
     )
 
 

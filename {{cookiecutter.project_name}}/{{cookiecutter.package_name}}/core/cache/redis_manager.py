@@ -104,8 +104,9 @@ class RedisManager:
         """
 
         # Disconnects the async redis instance
-        await self._operation.close()
-        logger.info(f"Disconnected the {self._display_name} instance")
+        if self._operation is not None:
+            await self._operation.close()
+            logger.info(f"Disconnected the {self._display_name} instance")
 
     @retry(stop=stop_after_attempt(settings.API_REDIS_PIPELINE_RETRY_NUMBER), wait=wait_fixed(1))
     async def pipeline(
@@ -124,6 +125,12 @@ class RedisManager:
         :param is_transaction: Whether all commands should be executed atomically
         :param is_scalar: Whether the result returned is a scalar
         """
+
+        # Checks whether the async redis instance exists
+        if self._operation is None:
+            message = "A Redis instance was not created"
+            logger.critical(message)
+            raise InternalServerError()
 
         # Attempts to execute redis-operations in the pipeline
         try:

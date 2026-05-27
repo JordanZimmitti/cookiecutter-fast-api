@@ -1,3 +1,4 @@
+from logging import getLogger
 from logging.config import dictConfig
 from os import makedirs
 from os.path import exists
@@ -5,6 +6,26 @@ from typing import Any, Dict
 
 from {{cookiecutter.package_name}}.core.settings import settings
 from {{cookiecutter.package_name}}.utils.path_utils import get_parent_path_by_file
+
+from .filters import HealthCheckFilter
+
+
+def get_api_logger(name: str):
+    """
+    Function that gets an API logger. Centralized filters
+    are added to the logger in this function
+
+    :param name: The name of the logger
+
+    :return: A logger instance
+    """
+
+    # Gets the logger
+    logger = getLogger(name)
+    logger.addFilter(HealthCheckFilter())
+
+    # Returns the API logger
+    return logger
 
 
 def start_logger(log_level: str):
@@ -32,7 +53,7 @@ def _get_logger_config() -> Dict[str, Any]:
     project_path = f"{get_parent_path_by_file('pyproject.toml')}"
     log_directory = f"{project_path}/{settings.LOG_FILE_DIRECTORY}/"
     if not exists(log_directory):
-        makedirs(log_directory)
+        makedirs(log_directory, exist_ok=True)
 
     # Returns the logger configuration dict
     return {
@@ -60,5 +81,10 @@ def _get_logger_config() -> Dict[str, Any]:
         "loggers": {
             "": {"handlers": ["stdout", "logging"], "level": "DEBUG", "propagate": True},
             "aiosqlite": {"level": "WARNING"},
+            "google": {"level": "WARNING"},
+            "httpcore": {"level": "WARNING"},
+            "httpx": {"level": "WARNING"},
+            "multipart": {"level": "WARNING"},
+            "python_multipart.multipart": {"level": "WARNING"},
         },
     }

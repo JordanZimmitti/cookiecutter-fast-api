@@ -1,9 +1,9 @@
 from asyncio import CancelledError
 from logging import getLogger
-from typing import Any, AsyncIterator, Callable, List, Type, TypeVar, get_origin
+from typing import Any, AsyncIterator, Callable, List, Sequence, Type, TypeVar, get_origin
 
-from sqlalchemy import Delete, Result, ScalarResult, Select, TextClause, Update
-from sqlalchemy.ext.asyncio import AsyncResult, AsyncSession, async_sessionmaker
+from sqlalchemy import Delete, Result, Row, ScalarResult, Select, TextClause, Update
+from sqlalchemy.ext.asyncio import AsyncResult, AsyncScalarResult, AsyncSession, async_sessionmaker
 from tenacity import retry, stop_after_attempt, wait_fixed
 
 from {{cookiecutter.package_name}}.core.settings import settings
@@ -60,7 +60,7 @@ class RowResult:
 
         # Returns the first row retrieved or an error when no rows are retrieved
         try:
-            row: return_type = self._result.one()
+            row: ReturnType = self._result.one()
             if row:
                 _enforce_base_type(row, return_type)
             return row
@@ -97,7 +97,7 @@ class RowResults:
         """
 
         # Returns a list of all the rows retrieved
-        rows: List[return_type] = list(self._result.all())
+        rows: List[ReturnType] = list(self._result.all())
         if rows:
             _enforce_base_type(rows[0], return_type)
         return rows
@@ -114,12 +114,12 @@ class RowResults:
         """
 
         # Returns a subset of all the rows retrieved
-        rows: List[return_type] = list(self._result.fetchmany(size))
+        rows: List[ReturnType] = list(self._result.fetchmany(size))
         if rows:
             _enforce_base_type(rows[0], return_type)
         return rows
 
-    def unique(self, strategy: Callable[[Any], Any] = None) -> "RowResults":
+    def unique(self, strategy: Callable[[Any], Any] | None = None) -> "RowResults":
         """
         Function that gets a row-result
         instance of unique rows
@@ -247,7 +247,7 @@ class DatabaseRowOperations:
         batch: int,
         is_scalar: bool = True,
         **kwargs,
-    ) -> AsyncIterator[List[ReturnType]]:
+    ) -> AsyncIterator[Sequence[Row[ReturnType]]]:
         """
         Function that streams rows from the database using the given select statement. The number
         of rows given from the batch number will be yielded until all rows from the select query
@@ -301,7 +301,7 @@ class DatabaseRowOperations:
     @retry(stop=stop_after_attempt(settings.API_DB_QUERY_RETRY_NUMBER), wait=wait_fixed(1))
     async def _start_stream(
         self, session: AsyncSession, statement: Select | TextClause, is_scalar: bool, **kwargs
-    ) -> AsyncResult:
+    ) -> AsyncScalarResult[Any] | AsyncResult[Any]:
         """
         Function that starts the stream and gets the streaming result for streaming rows in batches.
         This function's main purpose is to get tenacity retries to work since retries do not work
@@ -339,7 +339,7 @@ def _enforce_base_type(row_data: Any, return_type: Type[ReturnType]):
     # Checks whether the row data returned from the database matches the given return-type
     origin_type = get_origin(return_type)
     instance_type = return_type if not origin_type else origin_type
-    if not isinstance(row_data, instance_type):
+    if not isinstance(row_data, type(instance_type)):
         message = (
             f"the given row with a type of '{type(row_data)}'"
             f" is not an instance of the base type '{return_type}'"

@@ -43,7 +43,7 @@ class StampMixin:
         comment="The date when the row was updated",
     )
 
-    def audit_table(self, user_id: UUID):
+    def audit_table(self, user_id: UUID | Mapped[UUID]):
         """
         Function that saves which user created or
         updated a row within the given table

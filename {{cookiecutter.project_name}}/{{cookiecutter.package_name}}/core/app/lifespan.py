@@ -46,7 +46,8 @@ class ApiLifeSpan:
         start_logger(settings.LOG_LEVEL)
 
         # Configures the fast-api state instances
-        setup_app_state(self._app)
+        if self._app:
+            setup_app_state(self._app)
 
     async def _on_api_shutdown(self):
         """
@@ -55,7 +56,8 @@ class ApiLifeSpan:
         """
 
         # Deconstructs the fast-api state instances
-        await deconstruct_app_state(self._app)
+        if self._app:
+            await deconstruct_app_state(self._app)
 
     async def _repeated_tasks(self):
         """

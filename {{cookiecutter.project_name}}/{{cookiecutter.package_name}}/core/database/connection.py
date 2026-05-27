@@ -101,7 +101,8 @@ class DatabaseConnection:
         """
 
         # Disconnects all active sessions and the connection pool
-        await self._engine.dispose()
+        if self._engine:
+            await self._engine.dispose()
 
         # Logs that the database was disconnected successfully
         logger.info(f"Disposes the active {self._display_name} connections in the connection pool")

@@ -3,7 +3,7 @@ from logging import Filter
 
 class HealthCheckFilter(Filter):
     """
-    Filter class that stops health-check
+    Filter class that stops health check
     requests from being logged
     """
 

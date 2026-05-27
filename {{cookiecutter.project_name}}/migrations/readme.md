@@ -13,7 +13,7 @@ Below are common commands that are used with alembic
 
 ### Upgrade
 
-* Upgrade to a latest revision: `alembic upgrade head`
+* Upgrade to the latest revision: `alembic upgrade head`
 * Upgrade to a specific revision: `alembic upgrade 'revision_number'`
 * Upgrade to a relative revision: `alembic upgrade +1`
 

@@ -3,13 +3,14 @@
 services:
 
   {{cookiecutter.package_name}}:
-    image: "{{cookiecutter.package_name}}:0.1.0"
+    image: "{{cookiecutter.package_name}}:local"
     build:
       context: "."
       target: "api"
       args:
-        POETRY_VERSION: "1.8.3"
-        PYTHON_VERSION: "3.12"
+        ARG_PROJECT_VERSION: "docker"
+        ARG_POETRY_VERSION: "2.4.1"
+        ARG_PYTHON_VERSION: "3.13"
     container_name: "{{cookiecutter.package_name}}"
     env_file:
       - "local/override-docker.env"
@@ -23,36 +24,42 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "1.5"
-          memory: "500M"
+          cpus: "2"
+          memory: "2048M"
         reservations:
-          cpus: "1.5"
-          memory: "500M"
+          cpus: "2"
+          memory: "2048M"
     links:
       - "{{cookiecutter.package_name}}_postgres:{{cookiecutter.package_name}}_postgres"
       - "{{cookiecutter.package_name}}_redis:{{cookiecutter.package_name}}_redis"
     depends_on:
-      - "{{cookiecutter.package_name}}_postgres"
-      - "{{cookiecutter.package_name}}_redis"
+      {{cookiecutter.package_name}}_postgres:
+        condition: "service_healthy"
+      {{cookiecutter.package_name}}_redis:
+        condition: "service_healthy"
+      {{cookiecutter.package_name}}_postgres_migration:
+        condition: "service_completed_successfully"
 
   {{cookiecutter.package_name}}_unit_tests:
-    image: "{{cookiecutter.package_name}}_unit_tests:0.1.0"
+    image: "{{cookiecutter.package_name}}_unit_tests:local"
     build:
       context: "."
       target: "api_unit_tests"
       args:
-        POETRY_VERSION: "1.8.3"
-        PYTHON_VERSION: "3.12"
+        ARG_PROJECT_VERSION: "docker"
+        ARG_POETRY_VERSION: "2.4.1"
+        ARG_PYTHON_VERSION: "3.13"
     container_name: "{{cookiecutter.package_name}}_unit_tests"
 
   {{cookiecutter.package_name}}_integration_tests:
-    image: "{{cookiecutter.package_name}}_integration_tests:0.1.0"
+    image: "{{cookiecutter.package_name}}_integration_tests:local"
     build:
       context: "."
       target: "api_integration_tests"
       args:
-        POETRY_VERSION: "1.8.3"
-        PYTHON_VERSION: "3.12"
+        ARG_PROJECT_VERSION: "docker"
+        ARG_POETRY_VERSION: "2.4.1"
+        ARG_PYTHON_VERSION: "3.13"
     container_name: "{{cookiecutter.package_name}}_integration_tests"
     env_file:
       - "local/override-docker-integration.env"
@@ -60,38 +67,62 @@ services:
       {{cookiecutter.package_name}}:
         condition: "service_healthy"
 
+  {{cookiecutter.package_name}}_postgres_migration:
+    image: "{{cookiecutter.package_name}}_postgres_migration:local"
+    build:
+      context: "."
+      target: "api_db_migration"
+      args:
+        ARG_PROJECT_VERSION: "docker"
+        ARG_POETRY_VERSION: "2.4.1"
+        ARG_PYTHON_VERSION: "3.13"
+    container_name: "{{cookiecutter.package_name}}_postgres_migration"
+    env_file:
+      - "local/override-docker.env"
+    links:
+      - "{{cookiecutter.package_name}}_postgres:{{cookiecutter.package_name}}_postgres"
+    depends_on:
+      {{cookiecutter.package_name}}_postgres:
+        condition: "service_healthy"
+
   {{cookiecutter.package_name}}_postgres:
-    image: "docker.io/bitnami/postgresql:latest"
+    image: "docker.io/postgres:alpine3.23"
     container_name: "{{cookiecutter.package_name}}_database"
-    platform: "linux/amd64"
     environment:
-      - "POSTGRESQL_USERNAME=local_user"
-      - "POSTGRESQL_PASSWORD=very-secure-password"
-      - "POSTGRESQL_DATABASE={{cookiecutter.package_name}}"
-      - "POSTGRESQL_EXTRA_FLAGS=--max_wal_size=2048MB --shared_buffers=2048MB --work_mem=1024MB"
+      - "POSTGRES_USER=local_user"
+      - "POSTGRES_PASSWORD=very-secure-password"
+      - "POSTGRES_DB={{cookiecutter.package_name}}"
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U local_user -d {{cookiecutter.package_name}} -h 127.0.0.1 -p 5432"]
+      interval: "10s"
+      timeout: "5s"
+      retries: 5
     volumes:
-      - "./local/db_data:/bitnami/postgresql"
+      - "./local/db_data/{{cookiecutter.package_name}}:/var/lib/postgresql"
     deploy:
       resources:
         limits:
-          cpus: "2.0"
-          memory: "2048M"
+          cpus: "1.0"
+          memory: "3840M"
         reservations:
           cpus: "1.0"
-          memory: "1024M"
+          memory: "3840M"
 
   {{cookiecutter.package_name}}_redis:
-    image: "docker.io/bitnami/redis:latest"
+    image: "docker.io/redis:alpine3.23"
     container_name: "{{cookiecutter.package_name}}_redis"
-    platform: "linux/amd64"
-    environment:
-      - "REDIS_PASSWORD=very-secure-password"
+    command: "redis-server --requirepass very-secure-password"
     ports:
       - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: "10s"
+      timeout: "5s"
+      retries: 5
     volumes:
-      - "./local/redis_data:/bitnami/redis"
+      - "./local/redis_data:/data"
     deploy:
       resources:
         limits:

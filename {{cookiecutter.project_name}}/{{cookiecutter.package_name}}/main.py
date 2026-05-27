@@ -1,4 +1,3 @@
-from abc import ABC
 from logging import getLogger
 from typing import Any, Callable, Dict
 
@@ -15,7 +14,7 @@ from {{cookiecutter.package_name}}.exceptions import ForbiddenError, Unauthentic
 logger = getLogger("{{cookiecutter.package_name}}.main")
 
 
-class {{cookiecutter.class_name}}({{cookiecutter.class_name}}Base, ABC):
+class {{cookiecutter.class_name}}({{cookiecutter.class_name}}Base):
 
     # Gets the fast-api instance from the base class
     app = {{cookiecutter.class_name}}Base._app
@@ -45,7 +44,7 @@ class {{cookiecutter.class_name}}({{cookiecutter.class_name}}Base, ABC):
             message = f"Validation Error: {exc.errors()}"
             logger.error(message)
             return JSONResponse(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content=exc.errors()
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, content=exc.errors()
             )
         except Exception as exc:
             message = "Internal Server Error: An unexpected error occurred, please try again"

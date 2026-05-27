@@ -5,7 +5,7 @@ from typing import Any, Dict
 from fastapi import FastAPI
 from gunicorn.app.base import BaseApplication
 from starlette.responses import JSONResponse
-from uvicorn.workers import UvicornWorker
+from uvicorn_worker import UvicornWorker
 
 from {{cookiecutter.package_name}}.core.settings import settings
 from {{cookiecutter.package_name}}.exceptions import (
@@ -74,7 +74,7 @@ class {{cookiecutter.class_name}}Base(BaseApplication, ABC):
         for key, value in config.items():
             self.cfg.set(key.lower(), value)
 
-    def load(self):
+    def load(self) -> FastAPI:
         """
         Function that starts the
         fast-api application
