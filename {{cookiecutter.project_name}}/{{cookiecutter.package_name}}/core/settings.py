@@ -1,7 +1,7 @@
 from copy import deepcopy
 from dataclasses import field
 from pathlib import Path
-from typing import Any, Dict, List, Literal, cast
+from typing import Any, Dict, List, Literal
 from urllib.parse import quote
 
 from pydantic import SecretStr, field_validator
@@ -160,7 +160,7 @@ class Settings(BaseSettings):
         """
 
         # Returns the api database connection string
-        data = cast(Dict[str, SecretStr], values.data)
+        data = values.data
         return cls.create_db_uri(
             data["API_DB_DRIVER"].get_secret_value(),
             quote(data["API_DB_HOST"].get_secret_value()),
@@ -190,7 +190,7 @@ class Settings(BaseSettings):
             return None
 
         # Returns the api database migrations connection string
-        data = cast(Dict[str, SecretStr], values.data)
+        data = values.data
         return cls.create_db_uri(
             data["API_DB_DRIVER"].get_secret_value(),
             quote(data["API_DB_HOST"].get_secret_value()),

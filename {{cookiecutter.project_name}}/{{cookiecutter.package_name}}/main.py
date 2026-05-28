@@ -1,4 +1,3 @@
-from logging import getLogger
 from typing import Any, Callable, Dict
 
 from fastapi import status
@@ -9,9 +8,10 @@ from starlette.responses import JSONResponse, RedirectResponse, Response
 from {{cookiecutter.package_name}}.core.app import {{cookiecutter.class_name}}Base, handle_request
 from {{cookiecutter.package_name}}.core.settings import settings
 from {{cookiecutter.package_name}}.exceptions import ForbiddenError, UnauthenticatedError
+from {{cookiecutter.package_name}}.services.logger import get_api_logger
 
 # Gets the {{cookiecutter.friendly_name}} server logger instance
-logger = getLogger("{{cookiecutter.package_name}}.main")
+logger = get_api_logger("{{cookiecutter.package_name}}.main")
 
 
 class {{cookiecutter.class_name}}({{cookiecutter.class_name}}Base):
@@ -70,7 +70,7 @@ class {{cookiecutter.class_name}}({{cookiecutter.class_name}}Base):
 if __name__ == "__main__":
     {{cookiecutter.class_name}}(
         options={
-            "bind": f"0.0.0.0:{settings.LISTEN_PORT}",
+            "bind": f"{settings.LISTEN_ADDRESS}:{settings.LISTEN_PORT}",
             "workers": settings.UVICORN_CONCURRENCY,
             "worker_class": "{{cookiecutter.package_name}}.core.app.{{cookiecutter.class_name}}UvicornWorker",
             "worker_connections": settings.UVICORN_CONNECTIONS,

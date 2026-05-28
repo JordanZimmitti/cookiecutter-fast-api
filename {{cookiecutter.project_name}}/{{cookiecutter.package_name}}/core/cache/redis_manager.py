@@ -1,4 +1,3 @@
-from logging import getLogger
 from typing import Any, Callable
 
 from pydantic import SecretStr
@@ -8,9 +7,10 @@ from tenacity import retry, stop_after_attempt, wait_fixed
 
 from {{cookiecutter.package_name}}.core.settings import settings
 from {{cookiecutter.package_name}}.exceptions import InternalServerError
+from {{cookiecutter.package_name}}.services.logger import get_api_logger
 
 # Gets the {{cookiecutter.friendly_name}} server logger instance
-logger = getLogger("{{cookiecutter.package_name}}.core.cache.redis_manager")
+logger = get_api_logger("{{cookiecutter.package_name}}.core.cache.redis_manager")
 
 
 class RedisManager:

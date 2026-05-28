@@ -4,7 +4,7 @@ from typing import Callable
 
 from {{cookiecutter.package_name}}.services.logger import get_api_logger
 
-# Gets the {{cookiecutter.friendly_name}} server logger instance
+# Gets the EchoChart API server logger instance
 logger = get_api_logger("{{cookiecutter.package_name}}.core.app.repeat")
 
 

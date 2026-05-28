@@ -1,7 +1,7 @@
 from logging import LogRecord
 from unittest.mock import MagicMock
 
-from {{cookiecutter.package_name}}.core.cache import FastApiContext
+from {{cookiecutter.package_name}}.core.cache.fast_api_context import FastApiContext
 from {{cookiecutter.package_name}}.core.settings import Settings
 from {{cookiecutter.package_name}}.services.logger import formatters
 from {{cookiecutter.package_name}}.services.logger.formatters import BaseFormatter, LineFormatter

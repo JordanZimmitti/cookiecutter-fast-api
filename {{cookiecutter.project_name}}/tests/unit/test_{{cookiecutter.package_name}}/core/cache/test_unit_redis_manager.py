@@ -5,7 +5,8 @@ from pydantic import SecretStr
 from pytest import raises
 from redis.asyncio.client import Pipeline, Redis
 
-from {{cookiecutter.package_name}}.core.cache import RedisManager, redis_manager
+from {{cookiecutter.package_name}}.core.cache import redis_manager
+from {{cookiecutter.package_name}}.core.cache.redis_manager import RedisManager
 from {{cookiecutter.package_name}}.core.settings import Settings
 from {{cookiecutter.package_name}}.exceptions import InternalServerError
 

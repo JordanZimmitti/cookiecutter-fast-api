@@ -2,7 +2,7 @@ from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING, Formatter
 from time import gmtime
 from typing import Any, Dict, Union, cast
 
-from {{cookiecutter.package_name}}.core.cache import get_fast_api_context
+from {{cookiecutter.package_name}}.core.cache.fast_api_context import get_fast_api_context
 from {{cookiecutter.package_name}}.core.settings import settings
 
 

@@ -1,5 +1,6 @@
-from logging import getLogger
+from typing import Any
 
+from google.cloud.sql.connector import Connector, IPTypes, create_async_connector
 from pydantic import SecretStr
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
@@ -10,9 +11,10 @@ from sqlalchemy.ext.asyncio import (
 
 from {{cookiecutter.package_name}}.core.settings import settings
 from {{cookiecutter.package_name}}.exceptions import InternalServerError
+from {{cookiecutter.package_name}}.services.logger import get_api_logger
 
 # Gets the {{cookiecutter.friendly_name}} server logger instance
-logger = getLogger("{{cookiecutter.package_name}}.core.database.connection")
+logger = get_api_logger("{{cookiecutter.package_name}}.core.database.connection")
 
 
 class DatabaseConnection:
@@ -30,6 +32,7 @@ class DatabaseConnection:
         self._db_uri = db_uri
 
         # Initializes the class-created variables
+        self._connector: Connector | None = None
         self._engine: AsyncEngine | None = None
         self._session_maker: async_sessionmaker[AsyncSession] | None = None
 
@@ -71,17 +74,33 @@ class DatabaseConnection:
         # Returns the session-maker instance
         return self._session_maker
 
-    def connect(self):
+    async def connect(self):
         """
         Function that creates the async engine for handling the connection pool to the database.
         The engine is used to instantiate the async sessionmaker and handles the underlying
         connection when a new async session is created
         """
 
+        # Gets the native database URI
+        db_uri = self._db_uri.get_secret_value()
+
+        # Gets a Cloud SQL URI and creator When the database type is set to cloud
+        creator = None
+        if settings.API_DB_TYPE == "cloud":
+
+            # Gets the Cloud SQL database URI
+            db_uri = f"{settings.API_DB_DRIVER.get_secret_value()}://"
+
+            # Gets a Cloud SQL creator
+            self._connector = await create_async_connector()
+            creator = self._get_cloud_sql_creator
+
         # Creates the async engine for the database
         self._engine = create_async_engine(
-            self._db_uri.get_secret_value(),
+            url=db_uri,
+            async_creator=creator,
             pool_pre_ping=True,
+            pool_timeout=settings.SQLALCHEMY_POOL_TIMEOUT,
             pool_size=settings.SQLALCHEMY_POOL_SIZE,
             max_overflow=settings.SQLALCHEMY_MAX_OVERFLOW,
             echo=settings.IS_ECHO_SQLALCHEMY_LOGS,
@@ -100,9 +119,36 @@ class DatabaseConnection:
         as well as disposing all connection pool connections that are currently checked in
         """
 
+        # Disconnects the cloud connector when its used
+        if settings.API_DB_TYPE == "cloud" and self._connector:
+            await self._connector.close_async()
+
         # Disconnects all active sessions and the connection pool
         if self._engine:
             await self._engine.dispose()
 
         # Logs that the database was disconnected successfully
         logger.info(f"Disposes the active {self._display_name} connections in the connection pool")
+
+    async def _get_cloud_sql_creator(self) -> Any:
+        """
+        Function that gets a creator for creating
+        connections to a Cloud SQL instance
+
+        :return a Cloud SQL creator
+        """
+
+        # Creates the creator for creating connections to a Cloud SQL instance
+        creator = None
+        if self._connector:
+            creator = await self._connector.connect_async(
+                enable_iam_auth=True,
+                instance_connection_string=settings.API_DB_CLOUD_INSTANCE.get_secret_value(),
+                driver=settings.API_DB_CLOUD_DRIVER.get_secret_value(),
+                user=settings.API_DB_USER.get_secret_value(),
+                db=settings.API_DB_DB.get_secret_value(),
+                ip_type=IPTypes.PRIVATE if settings.API_DB_CLOUD_IS_PRIVATE else IPTypes.PUBLIC,
+            )
+
+        # Returns a Cloud SQL creator
+        return creator

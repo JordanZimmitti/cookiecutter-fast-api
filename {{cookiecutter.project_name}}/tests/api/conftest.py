@@ -73,7 +73,7 @@ def client(app) -> Generator[TestClient, Any, None]:
     """
 
     # Import {{cookiecutter.friendly_name}} dependencies after pytest environment settings are loaded
-    from {{cookiecutter.package_name}}.core.cache import get_fast_api_context
+    from {{cookiecutter.package_name}}.core.cache.fast_api_context import get_fast_api_context
 
     # Yields the Fast-Auth API test client
     with TestClient(app) as test_client:

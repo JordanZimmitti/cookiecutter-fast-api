@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from {{cookiecutter.package_name}}.core.settings import settings
 from {{cookiecutter.package_name}}.services.logger import start_logger
 
-from .app import deconstruct_app_state, setup_app_state
+from .app import deconstruct_app_state, setup_app_state, task_cleanup
 
 
 class ApiLifeSpan:
@@ -36,6 +36,16 @@ class ApiLifeSpan:
         yield
         await self._on_api_shutdown()
 
+    @staticmethod
+    async def _repeated_tasks():
+        """
+        Function that starts all background repeated
+        tasks that run on a scheduled interval
+        """
+
+        # Runs cleanup tasks on a recurring schedule
+        await task_cleanup()
+
     async def _on_api_startup(self):
         """
         Function that runs before the FastAPI
@@ -47,7 +57,7 @@ class ApiLifeSpan:
 
         # Configures the fast-api state instances
         if self._app:
-            setup_app_state(self._app)
+            await setup_app_state(self._app)
 
     async def _on_api_shutdown(self):
         """
@@ -58,10 +68,3 @@ class ApiLifeSpan:
         # Deconstructs the fast-api state instances
         if self._app:
             await deconstruct_app_state(self._app)
-
-    async def _repeated_tasks(self):
-        """
-        Function that starts all background repeated
-        tasks that run on a scheduled interval
-        """
-        pass

@@ -1,3 +1,4 @@
+from inspect import unwrap
 from unittest.mock import AsyncMock, MagicMock
 
 from fastapi import FastAPI, Request, Response
@@ -10,9 +11,11 @@ from {{cookiecutter.package_name}}.core.app.app import (
     expose_metrics_endpoint,
     setup_app,
     setup_app_state,
+    task_cleanup,
 )
-from {{cookiecutter.package_name}}.core.cache import FastApiContext, RedisManager
-from {{cookiecutter.package_name}}.core.database import DatabaseManager
+from {{cookiecutter.package_name}}.core.cache.fast_api_context import FastApiContext
+from {{cookiecutter.package_name}}.core.cache.redis_manager import RedisManager
+from {{cookiecutter.package_name}}.core.database import DatabaseConnection, DatabaseManager
 from {{cookiecutter.package_name}}.core.settings import Settings
 
 
@@ -55,7 +58,7 @@ def test_expose_metrics_endpoint(mocker):
     assert instrumentator_mock.instrument.called
 
 
-def test_setup_app_state(mocker):
+async def test_setup_app_state(mocker):
     """
     Tests the setup_app_state function for completion. The setup_app_state function
     should run without any errors
@@ -85,8 +88,10 @@ def test_setup_app_state(mocker):
     mocker.patch.object(app, "get_fast_api_context", fast_api_context_mock)
 
     # Mocks and overrides the db-manager class
+    db_connection_mock = MagicMock(spec_set=DatabaseConnection)
     db_manager_mock = MagicMock(spec_set=DatabaseManager)
     db_manager_mock.return_value = db_manager_mock
+    db_manager_mock.connection = db_connection_mock
     mocker.patch.object(app, "DatabaseManager", db_manager_mock)
 
     # Mocks and overrides the redis-manager class
@@ -95,7 +100,7 @@ def test_setup_app_state(mocker):
     mocker.patch.object(app, "RedisManager", redis_manager_mock)
 
     # Invokes the setup_app_state function
-    setup_app_state(app_mock)
+    await setup_app_state(app_mock)
 
     # Checks whether the fast-api-context was set up correctly
     assert fast_api_context_mock.called
@@ -105,6 +110,7 @@ def test_setup_app_state(mocker):
     assert db_manager_mock.called
     assert app_mock.state.db_manager == db_manager_mock
     assert db_manager_mock.call_args.args == ("test-db-name", "test-db-description", "test-db-uri")
+    assert db_connection_mock.connect.called
 
     # Checks whether the redis-manager was set up correctly
     assert redis_manager_mock.called
@@ -198,3 +204,22 @@ async def test_handle_request(mocker):
     # Checks whether the response was retrieved correctly
     response = await handle_request(app_mock, request_mock, call_next_mock)
     assert response.status_code == 200
+
+
+async def test_task_cleanup(mocker):
+    """
+    Tests the task_cleanup function for completion. The
+    task_cleanup function should run without any errors
+
+    :param mocker: Fixture to mock specific functions for testing
+    """
+
+    # Mock and overrides the collect function
+    collect_mock = MagicMock()
+    mocker.patch.object(app, "collect", collect_mock)
+
+    # Invokes the task_cleanup function
+    await unwrap(task_cleanup)()
+
+    # Checks whether the functions were invoked correctly
+    assert collect_mock.called

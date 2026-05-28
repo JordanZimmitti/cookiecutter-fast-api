@@ -1,5 +1,4 @@
 from abc import ABC
-from logging import getLogger
 from typing import Any, Dict
 
 from fastapi import FastAPI
@@ -16,12 +15,13 @@ from {{cookiecutter.package_name}}.exceptions import (
     UnauthenticatedError,
     ValidationError,
 )
+from {{cookiecutter.package_name}}.services.logger import get_api_logger
 
 from .app import setup_app
 from .lifespan import ApiLifeSpan
 
 # Gets the {{cookiecutter.friendly_name}} server logger instance
-logger = getLogger("{{cookiecutter.package_name}}.core.app.{{cookiecutter.package_name}}_base")
+logger = get_api_logger("{{cookiecutter.package_name}}.core.app.{{cookiecutter.package_name}}_base")
 
 
 class {{cookiecutter.class_name}}UvicornWorker(UvicornWorker):

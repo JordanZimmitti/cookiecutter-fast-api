@@ -1,4 +1,4 @@
-from {{cookiecutter.package_name}}.core.cache import FastApiContext, get_fast_api_context
+from {{cookiecutter.package_name}}.core.cache.fast_api_context import FastApiContext, get_fast_api_context
 
 
 def test_get_fast_api_context():

@@ -1,27 +1,31 @@
-from logging import getLogger
+from gc import collect
 from time import time
-from typing import Callable, Type, cast
+from typing import Any, Callable, Type, cast
 
 from fastapi import FastAPI, Request, Response
 from prometheus_fastapi_instrumentator import Instrumentator
 from starlette.middleware.cors import CORSMiddleware
+from starlette.middleware.gzip import GZipMiddleware
 
 from {{cookiecutter.package_name}}.api.dependencies.middleware import (
     get_request_metadata,
     get_response_size,
     set_correlation_id,
+    set_response_headers,
 )
-from {{cookiecutter.package_name}}.core.cache import FastApiContext, RedisManager, get_fast_api_context
+from {{cookiecutter.package_name}}.core.cache.fast_api_context import FastApiContext, get_fast_api_context
+from {{cookiecutter.package_name}}.core.cache.redis_manager import RedisManager
 from {{cookiecutter.package_name}}.core.database import DatabaseManager
 from {{cookiecutter.package_name}}.core.open_api import get_open_api_instance
 from {{cookiecutter.package_name}}.core.settings import settings
-from {{cookiecutter.package_name}}.services.logger import HealthCheckFilter
+from {{cookiecutter.package_name}}.services.logger import get_api_logger
 
+from .repeat import repeated_task
 from .router import api_router
 
 # Gets the {{cookiecutter.friendly_name}} server logger instance
-logger = getLogger("{{cookiecutter.package_name}}.core.app.app.request")
-logger.addFilter(HealthCheckFilter())
+task_logger = get_api_logger("{{cookiecutter.package_name}}.core.app.app.task")
+logger = get_api_logger("{{cookiecutter.package_name}}.core.app.app.request")
 
 
 def setup_app(app: FastAPI):
@@ -41,6 +45,9 @@ def setup_app(app: FastAPI):
             allow_methods=["*"],
             allow_origins=[str(origin) for origin in settings.BACKEND_CORS_ORIGINS],
         )
+
+    # Sets allowing gzip compression for responses
+    app.add_middleware(cast(Any, GZipMiddleware), minimum_size=settings.GZIP_MINIMUM_SIZE_BYTES)
 
     # Sets the main router instance
     app.include_router(api_router, prefix=settings.API_PREFIX)
@@ -66,7 +73,7 @@ def expose_metrics_endpoint(app: FastAPI):
     instrumentator.expose(app, endpoint=f"{settings.API_PREFIX}/metrics", tags=["Metrics"])
 
 
-def setup_app_state(app: FastAPI):
+async def setup_app_state(app: FastAPI):
     """
     Function that configures the FastAPI
     state instances during startup
@@ -88,7 +95,7 @@ def setup_app_state(app: FastAPI):
         app.state.db_manager = db_manager
 
         # Connects to the database
-        db_manager.connection.connect()
+        await db_manager.connection.connect()
 
     # Adds the redis instance into the app state when it is enabled
     if settings.IS_API_REDIS_ENABLED:
@@ -149,6 +156,9 @@ async def handle_request(app: FastAPI, request: Request, call_next: Callable) ->
     # Sets the correlation-id for request log chaining
     set_correlation_id(request, fast_api_context)
 
+    # Sets the request URL for blocking certain requests from being logged
+    fast_api_context.request_url_var = request_metadata.url
+
     # Logs that the request has started
     start_extra = {
         "method": request_metadata.method,
@@ -160,6 +170,7 @@ async def handle_request(app: FastAPI, request: Request, call_next: Callable) ->
     # Handles the request and gets the response
     start_time = time()
     response: Response = await call_next(request)
+    set_response_headers(response)
     stop_time = time()
 
     # Gets the response metadata for logging
@@ -180,3 +191,15 @@ async def handle_request(app: FastAPI, request: Request, call_next: Callable) ->
     # Returns the response
     fast_api_context.reset()
     return response
+
+
+@repeated_task(period_seconds=settings.TASK_CLEANUP_PERIOD_SECONDS)
+async def task_cleanup():
+    """
+    Function that runs cleanup tasks
+    on a recurring schedule
+    """
+
+    # Free up memory
+    removed_objects = collect()
+    task_logger.debug(f"Removed {removed_objects} objects from memory")

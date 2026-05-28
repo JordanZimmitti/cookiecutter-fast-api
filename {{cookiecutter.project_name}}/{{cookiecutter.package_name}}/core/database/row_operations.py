@@ -1,5 +1,4 @@
 from asyncio import CancelledError
-from logging import getLogger
 from typing import Any, AsyncIterator, Callable, List, Sequence, Type, TypeVar, get_origin
 
 from sqlalchemy import Delete, Result, Row, ScalarResult, Select, TextClause, Update
@@ -8,9 +7,10 @@ from tenacity import retry, stop_after_attempt, wait_fixed
 
 from {{cookiecutter.package_name}}.core.settings import settings
 from {{cookiecutter.package_name}}.exceptions import InternalServerError
+from {{cookiecutter.package_name}}.services.logger import get_api_logger
 
 # Gets the {{cookiecutter.friendly_name}} server logger instance
-logger = getLogger("{{cookiecutter.package_name}}.core.database.row_operations")
+logger = get_api_logger("{{cookiecutter.package_name}}.core.database.row_operations")
 
 # Row-Operations type-hinting
 ORMTable = TypeVar("ORMTable")

@@ -3,7 +3,7 @@ from uuid import uuid4
 from fastapi import Request, Response
 
 from {{cookiecutter.package_name}}.api.resources.rsrc_middleware import RequestMetadataModel
-from {{cookiecutter.package_name}}.core.cache import FastApiContext
+from {{cookiecutter.package_name}}.core.cache.fast_api_context import FastApiContext
 
 
 def get_response_size(response: Response) -> int:
@@ -72,3 +72,17 @@ def set_correlation_id(request: Request, fast_api_context: FastApiContext):
 
     # Sets the correlation-id
     fast_api_context.correlation_id_var = correlation_id
+
+
+def set_response_headers(response: Response):
+    """
+    Dependency function that adds extra
+    headers to the outgoing response
+
+    :param response: The response to send back to the client
+    """
+
+    # Sets the response headers
+    response.headers["referrer-policy"] = "no-referrer"
+    response.headers["strict-transport-security"] = "max-age=31536000; includeSubDomains; preload"
+    response.headers["x-content-type-options"] = "nosniff"

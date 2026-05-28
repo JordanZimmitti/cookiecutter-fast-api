@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock
 
 from {{cookiecutter.package_name}}.api.dependencies.cache import get_redis_manager
-from {{cookiecutter.package_name}}.core.cache import RedisManager
+from {{cookiecutter.package_name}}.core.cache.redis_manager import RedisManager
 
 
 def test_get_redis_manager():

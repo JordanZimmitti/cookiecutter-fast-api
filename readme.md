@@ -34,6 +34,7 @@ Create a fully-working production-ready Fast-API server in minutes!
     * Application-Level context management 
     * Environment-Variables `settings.py` class for easy environment management 
     * Gunicorn server engine optimized for deployment in Kubernetes
+    * GZIP compression for all responses
     * HTTP status-code error handling
     * Key/Value pair line-logging optimized for Grafana/Loki
     * Auto rotating of log files based on file size

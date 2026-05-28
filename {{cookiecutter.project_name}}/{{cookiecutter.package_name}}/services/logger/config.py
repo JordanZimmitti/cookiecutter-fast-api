@@ -7,7 +7,7 @@ from typing import Any, Dict
 from {{cookiecutter.package_name}}.core.settings import settings
 from {{cookiecutter.package_name}}.utils.path_utils import get_parent_path_by_file
 
-from .filters import HealthCheckFilter
+from .filters import RequestFilter
 
 
 def get_api_logger(name: str):
@@ -22,7 +22,7 @@ def get_api_logger(name: str):
 
     # Gets the logger
     logger = getLogger(name)
-    logger.addFilter(HealthCheckFilter())
+    logger.addFilter(RequestFilter())
 
     # Returns the API logger
     return logger

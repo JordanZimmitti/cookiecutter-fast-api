@@ -1,6 +1,6 @@
 from fastapi import Request
 
-from {{cookiecutter.package_name}}.core.cache import RedisManager
+from {{cookiecutter.package_name}}.core.cache.redis_manager import RedisManager
 
 
 def get_redis_manager(request: Request) -> RedisManager:
