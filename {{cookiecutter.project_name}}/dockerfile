@@ -13,7 +13,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 # Installs/Updates wolfi packages
-RUN apk update && apk add --no-cache bash curl python3~${PYTHON_VERSION} py3-pip
+RUN apk update && apk add --no-cache bash curl python-${PYTHON_VERSION} py${PYTHON_VERSION}-pip
 
 # Sets the project working directory
 WORKDIR /home/nonroot
@@ -31,7 +31,7 @@ RUN poetry config virtualenvs.create false
 COPY --chown=nonroot --chmod=400 poetry.lock pyproject.toml ./
 
 # Removes the uneeded dependencies
-RUN apk del apk-tools curl py3-pip wolfi-base
+RUN apk del apk-tools curl py${PYTHON_VERSION}-pip wolfi-base
 
 
 # Configures building the API
