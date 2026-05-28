@@ -1,5 +1,5 @@
 from asyncio import CancelledError
-from typing import Any, AsyncIterator, Callable, List, Sequence, Type, TypeVar, get_origin
+from typing import Any, AsyncIterator, Callable, List, Sequence, Type, TypeVar, cast, get_origin
 
 from sqlalchemy import Delete, Result, Row, ScalarResult, Select, TextClause, Update
 from sqlalchemy.ext.asyncio import AsyncResult, AsyncScalarResult, AsyncSession, async_sessionmaker
@@ -43,7 +43,7 @@ class RowResult:
         """
 
         # Returns the first row retrieved or none when no rows are retrieved
-        row: return_type | None = self._result.first()
+        row: ReturnType | None = self._result.first()
         if row:
             _enforce_base_type(row, return_type)
         return row
@@ -339,7 +339,7 @@ def _enforce_base_type(row_data: Any, return_type: Type[ReturnType]):
     # Checks whether the row data returned from the database matches the given return-type
     origin_type = get_origin(return_type)
     instance_type = return_type if not origin_type else origin_type
-    if not isinstance(row_data, type(instance_type)):
+    if not isinstance(row_data, cast(Any, instance_type)):
         message = (
             f"the given row with a type of '{type(row_data)}'"
             f" is not an instance of the base type '{return_type}'"

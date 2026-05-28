@@ -10,7 +10,7 @@ services:
       args:
         ARG_PROJECT_VERSION: "docker"
         ARG_POETRY_VERSION: "2.4.1"
-        ARG_PYTHON_VERSION: "3.13"
+        ARG_PYTHON_VERSION: "3.14"
     container_name: "{{cookiecutter.package_name}}"
     env_file:
       - "local/override-docker.env"
@@ -48,7 +48,7 @@ services:
       args:
         ARG_PROJECT_VERSION: "docker"
         ARG_POETRY_VERSION: "2.4.1"
-        ARG_PYTHON_VERSION: "3.13"
+        ARG_PYTHON_VERSION: "3.14"
     container_name: "{{cookiecutter.package_name}}_unit_tests"
 
   {{cookiecutter.package_name}}_integration_tests:
@@ -59,7 +59,7 @@ services:
       args:
         ARG_PROJECT_VERSION: "docker"
         ARG_POETRY_VERSION: "2.4.1"
-        ARG_PYTHON_VERSION: "3.13"
+        ARG_PYTHON_VERSION: "3.14"
     container_name: "{{cookiecutter.package_name}}_integration_tests"
     env_file:
       - "local/override-docker-integration.env"
@@ -75,7 +75,7 @@ services:
       args:
         ARG_PROJECT_VERSION: "docker"
         ARG_POETRY_VERSION: "2.4.1"
-        ARG_PYTHON_VERSION: "3.13"
+        ARG_PYTHON_VERSION: "3.14"
     container_name: "{{cookiecutter.package_name}}_postgres_migration"
     env_file:
       - "local/override-docker.env"

@@ -14,7 +14,7 @@ Create a fully-working production-ready Fast-API server in minutes!
 ## __Features__
 
 * **Project Configuration**
-    * Python 13 support 
+    * Python 14 support 
     * Black, Flake8, Isort, and Poetry pre-commits configured
     * Poetry package manager for enhanced package management
     * Script for easy local environment setup
