@@ -51,6 +51,7 @@ Create a fully-working production-ready Fast-API server in minutes!
     * SQLAlchemy 2.0 support 
     * Async Postgres support via built-in database helper classes
     * Built-in Async Alembic migration for Postgres
+    * Pre-configured for both native and Google Cloud SQL Postgres instances
 
 * **Caching**
     * Async Redis support via built-in redis helper classes 
