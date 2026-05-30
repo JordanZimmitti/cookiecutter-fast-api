@@ -4,7 +4,7 @@ Create a fully-working production-ready Fast-API server in minutes!
 ## __Install And Run Cookiecutter__
 
 1. Install dependencies
-   * `brew install python@3.13`
+   * `brew install python@3.14`
    * `brew install poetry`
    * `brew install cookiecutter`
 
