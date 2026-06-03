@@ -59,3 +59,4 @@ Create a fully-working production-ready Fast-API server in minutes!
 
 * **Utilities**
     * An async utility function to run synchronous code asynchronously
+    * A None safety checking utility function for handling optional values
