@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Any, Dict
 
 from requests import Response, Session
 from requests.adapters import HTTPAdapter
@@ -14,8 +14,8 @@ class ApiClient:
         self,
         api_url: str,
         auth_url: str | None = None,
-        username: str | None = None,
-        password: str | None = None,
+        user_id: str | None = None,
+        api_key: str | None = None,
     ):
         """
         Client used for hitting API server endpoints
@@ -26,13 +26,27 @@ class ApiClient:
 
         # Sets the credentials to access the API
         self.auth_url = auth_url
-        self.username = username
-        self.password = password
+        self.user_id = user_id
+        self.api_key = api_key
 
         # Creates the client session
         self.session = Session()
         self.session.mount(api_url, HTTPAdapter(pool_connections=2, max_retries=2))
         self.session.verify = False
+
+        # Saves the login tokens
+        self._access_token: str | None = None
+        self._refresh_token: str | None = None
+
+    @property
+    def refresh_token(self) -> str | None:
+        """
+        Property that gets the refresh token for
+        getting a new access token
+
+        :return: The API refresh token
+        """
+        return self._refresh_token
 
     def login(self):
 
@@ -44,55 +58,63 @@ class ApiClient:
         endpoint = f"{self.api_url}{self.auth_url}"
 
         # Creates the credentials' dictionary for logging in
-        credentials = {"username": self.username, "password": self.password}
+        credentials = {"userId": self.user_id, "apiKey": self.api_key}
 
         # Hits the endpoint and gets the response
         response = self.session.request("POST", endpoint, data=credentials)
         if response.status_code != 200:
             raise Exception(f"{str(response)}")
 
-        # Adds the access token to the header
+        # Extracts the access and refresh tokens from the response
         response_data = response.json()
-        token = response_data["access_token"]
+        access_token = response_data.get("accessToken")
+        refresh_token = response_data.get("refreshToken")
+
+        # Adds the access and refresh tokens to the class state
+        self._access_token = access_token
+        self._refresh_token = refresh_token
+
+        # Adds the access token to the header
         headers = {
-            "Authorization": f"Bearer {token}",
+            "Authorization": f"Bearer {access_token}",
             "User-Agent": "{{cookiecutter.project_name}}-client/0.1.0",
         }
         self.session.headers.update(headers)
 
-    def delete(self, endpoint: str, params: Dict | None = None) -> Response:
+    def delete(self, endpoint: str, params: Dict[str, Any] | None = None) -> Response:
         return self._request(endpoint, "DELETE", params=params)
 
-    def get(self, endpoint: str, params: Dict | None = None) -> Response:
+    def get(self, endpoint: str, params: Dict[str, Any] | None = None) -> Response:
         return self._request(endpoint, "GET", params=params)
 
-    def head(self, endpoint: str, params: Dict | None = None) -> Response:
+    def head(self, endpoint: str, params: Dict[str, Any] | None = None) -> Response:
         return self._request(endpoint, "HEAD", params=params)
 
     def post(
         self,
         endpoint: str,
-        data: Dict | None = None,
-        json: Dict | None = None,
-        params: Dict | None = None,
+        files: Dict[str, Any] | None = None,
+        data: Dict[str, Any] | None = None,
+        json: Dict[str, Any] | None = None,
+        params: Dict[str, Any] | None = None,
     ) -> Response:
-        return self._request(endpoint, "POST", data=data, json=json, params=params)
+        return self._request(endpoint, "POST", files=files, data=data, json=json, params=params)
 
     def put(
         self,
         endpoint: str,
-        data: Dict | None = None,
-        json: Dict | None = None,
-        params: Dict | None = None,
+        data: Dict[str, Any] | None = None,
+        json: Dict[str, Any] | None = None,
+        params: Dict[str, Any] | None = None,
     ) -> Response:
         return self._request(endpoint, "PUT", data=data, json=json, params=params)
 
     def patch(
         self,
         endpoint: str,
-        data: Dict | None = None,
-        json: Dict | None = None,
-        params: Dict | None = None,
+        data: Dict[str, Any] | None = None,
+        json: Dict[str, Any] | None = None,
+        params: Dict[str, Any] | None = None,
     ) -> Response:
         return self._request(endpoint, "PATCH", data=data, json=json, params=params)
 
@@ -100,10 +122,12 @@ class ApiClient:
         self,
         endpoint: str,
         method: str,
-        data: Dict | None = None,
-        json: Dict | None = None,
-        params: Dict | None = None,
+        files: Dict[str, Any] | None = None,
+        data: Dict[str, Any] | None = None,
+        json: Dict[str, Any] | None = None,
+        params: Dict[str, Any] | None = None,
     ) -> Response:
         full_url = f"{self.api_url}{endpoint}"
-        response = self.session.request(method, full_url, data=data, json=json, params=params)
-        return response
+        return self.session.request(
+            method, full_url, files=files, data=data, json=json, params=params
+        )

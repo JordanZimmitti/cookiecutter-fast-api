@@ -16,8 +16,8 @@ def pytest_addoption(parser: Parser):
 
     # Adds the cli argument options
     parser.addoption("--api_url", action="store")
-    parser.addoption("--username", action="store")
-    parser.addoption("--password", action="store")
+    parser.addoption("--user_id", action="store")
+    parser.addoption("--api_key", action="store")
 
 
 @fixture(scope="session")
@@ -34,11 +34,11 @@ def client(pytestconfig: Config):
     # Gets the cli arguments
     pytest_config = PytestConfigPro(pytestconfig)
     api_url = pytest_config.get_cli_argument("api_url", "http://127.0.0.1:2000/api")
-    username = pytest_config.get_cli_argument("username", environ.get("username"))
-    password = pytest_config.get_cli_argument("password", environ.get("password"))
+    user_id = pytest_config.get_cli_argument("user_id", environ.get("USER_ID"))
+    api_key = pytest_config.get_cli_argument("api_key", environ.get("API_KEY"))
 
     # Returns the API client instance
-    api_client = ApiClient(api_url, None, username, password)
-    if username and password:
+    api_client = ApiClient(api_url, None, user_id, api_key)
+    if user_id and api_key:
         api_client.login()
     return api_client
