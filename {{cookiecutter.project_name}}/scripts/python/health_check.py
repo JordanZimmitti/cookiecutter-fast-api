@@ -1,4 +1,4 @@
-from httpx import AsyncClient
+from httpx2 import AsyncClient
 from uvloop import run
 
 from {{cookiecutter.package_name}}.core.settings import settings
