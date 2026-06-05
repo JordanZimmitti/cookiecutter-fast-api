@@ -18,8 +18,8 @@ services:
       - "2000:2000"
     healthcheck:
       test: ["CMD", "bash", "scripts/run_health_check.sh"]
-      interval: 10s
-      timeout: 5s
+      interval: "10s"
+      timeout: "5s"
       retries: 5
     deploy:
       resources:
