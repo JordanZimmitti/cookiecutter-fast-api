@@ -61,7 +61,6 @@ markers = [
     "smoke: Subset of integration tests to run to ensure the health of the API"
 ]
 
-
 # Black specifications
 [tool.black]
 line-length = 100
